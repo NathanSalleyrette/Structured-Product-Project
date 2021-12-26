@@ -13,15 +13,16 @@ class ParseCsv
 public:
     string cheminData_; // chemin pour accéder aux données
     PnlMat *marketData_; // matrice des données du sous-jacent
+    int lines;
+    int columns;
 
     /**
      * Construit un parseur de csv
      * 
      * @param[in] cheminData est le chemin des données 
-     * @param[in] nbDate est le nombre de lignes dans le fichier CSV
      * @param[in] nbAsset correspond au nombre de colonnes dans le CSV
      */
-    ParseCsv(string cheminData, int nbDate, int nbAsset);
+    ParseCsv(string cheminData, int nbAsset);
 
     /**
      * Détruit le parseur csv
@@ -39,7 +40,9 @@ public:
      * 
      */
     void getData();
-
+    int countLine();
+    void resizeMarketData(int line, int col);
+    void setCheminData(string cheminData);
 };
 
 

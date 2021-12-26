@@ -27,11 +27,11 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing the parser
-set(SOURCES src/ParseCsv.cpp)
-set(HEADERS src/ParceCsv.hpp)
-# add_executable(pricebarrier ${SOURCES} ${HEADERS})
-# target_link_libraries(pricebarrier ${LIBS})
-# pnl_add_postbuild(pricebarrier)
+set(SOURCES src/ParseCsv.cpp src/testParser.cpp)
+set(HEADERS src/ParseCsv.hpp)
+add_executable(parser ${SOURCES} ${HEADERS})
+target_link_libraries(parser ${LIBS})
+pnl_add_postbuild(parser)
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
