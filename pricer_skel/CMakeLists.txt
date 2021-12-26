@@ -27,8 +27,8 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing the parser
-# set(SOURCES MonteCarlo.cpp main.cpp BSBarrier.cpp)
-# set(HEADERS MonteCarlo.hpp BSBarrier.hpp)
+set(SOURCES src/ParseCsv.cpp)
+set(HEADERS src/ParceCsv.hpp)
 # add_executable(pricebarrier ${SOURCES} ${HEADERS})
 # target_link_libraries(pricebarrier ${LIBS})
 # pnl_add_postbuild(pricebarrier)
