@@ -10,15 +10,15 @@ using std::endl; using std::string;
 using std::ifstream; using std::ostringstream;
 using std::istringstream;
 
-ParseCsv::ParseCsv(string cheminData, int nbAsset) {
-    cheminData_ = cheminData;
-    lines = countLine();
+ParseCsv::ParseCsv(int nbAsset) {
     columns = nbAsset;
-    marketData_ = pnl_mat_create_from_zero(lines, columns);
+    marketData_ = pnl_mat_create_from_zero(1, columns);
+    dates_ = pnl_vect_new();
 }
 
 ParseCsv::~ParseCsv(){
     pnl_mat_free(&marketData_);
+    pnl_vect_free(&dates_);
 }
 
 void ParseCsv::resizeMarketData(int line, int col) {
@@ -81,7 +81,7 @@ void ParseCsv::getData()
         }
         counterLine += 1;
     }
-
+    pnl_mat_get_col(dates_, marketData_, 0);
     
 
 
@@ -91,5 +91,23 @@ void ParseCsv::setCheminData(string cheminData) {
     cheminData_ = cheminData;
     lines = countLine();
     resizeMarketData(lines, columns);
+    pnl_vect_resize(dates_, lines);
 }
+
+// int ismore ( double *t ) { return t[0] == t[1]; }
+
+// Les dates trop grandes ne sont pas encore prise en compte, il faudra voir comment faire
+double ParseCsv::findClotureFromDate(double date) {
+    // PnlVectInt *ind = pnl_vect_int_create(1);
+    // char p[] = {'r', 'v'};
+    // pnl_vect_find(ind, p, ismore, date, dates_);
+    if (date > GET(dates_, dates_->size - 1)) return 0.;
+    int ind = 0;
+    double debut = GET(dates_, ind);
+    while (GET(dates_, ind) < date) ind++;
+    double result = MGET(marketData_, ind, 4);
+    return result;
+
+}
+
 

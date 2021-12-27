@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.13)
 project(PriceBSCall CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 # Prefix
 if (NOT PREFIX)
     set(PREFIX ${CMAKE_CURRENT_BINARY_DIR})
@@ -27,8 +28,8 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing the parser
-set(SOURCES src/ParseCsv.cpp src/testParser.cpp)
-set(HEADERS src/ParseCsv.hpp)
+set(SOURCES src/ParseCsv.cpp src/testParser.cpp src/Performance.cpp)
+set(HEADERS src/ParseCsv.hpp src/Performance.hpp)
 add_executable(parser ${SOURCES} ${HEADERS})
 target_link_libraries(parser ${LIBS})
 pnl_add_postbuild(parser)
