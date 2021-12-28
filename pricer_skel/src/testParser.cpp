@@ -26,9 +26,12 @@ int main() {
     double dates[14] = {20150112, 20150713, 20160111, 20160711, 20170111, 20170711, 20180111
                     , 20180711, 20190111, 20190711, 20200111, 20200711, 20210111, 20210711};
     PnlVect *observeDates = pnl_vect_create_from_ptr(14, dates);
-    Performance *perf = new Performance(observeDates, 30);
+    Performance *perf = new Performance(observeDates, 29);
     perf->niveauInitial();
     perf->setPath();
+    double result = perf->calculPerfMoyenneFinale();
+
+    cout << "Performance au 7 Juillet 2021 : " << result << "%" << endl;
 
     pnl_vect_free(&observeDates);
     delete perf;

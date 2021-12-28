@@ -33,5 +33,5 @@ class Performance {
 
         double calculPerfMoyenneFinale();
 
-        double calculPerf();
+        double calculPerfSemestre(int ind_dates);
 };

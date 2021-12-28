@@ -3,6 +3,7 @@
 #include "pnl/pnl_matrix.h"
 #include <sstream>
 #include <iostream>
+#include <cmath>
 #include <filesystem>
 #include "Performance.hpp"
 
@@ -52,10 +53,32 @@ void Performance::setPath() {
     }
 }
 
-double Performance::calculPerfMoyenneFinale() {
-    return 0.;
+double roundFourDecimal(double d) {
+    return round(d * 10000.0) / 10000.0;
 }
 
-double calculPerf() {
-    return 0.;
+double roundTwoDecimal(double d) {
+    return round(d * 100.0) / 100.0;
 }
+
+double Performance::calculPerfMoyenneFinale() {
+    double perfMoyenne = 0.;
+    for (int i = 0; i < observationDates->size; i++) {
+        perfMoyenne += calculPerfSemestre(i);
+    }
+    return 100*roundFourDecimal(perfMoyenne / observationDates->size);
+}
+
+// Calcul la performance des 30 actions sur un indice donnée
+// qui correspond à l'indice de la date souhaitée dans le vecteur observationDates
+double Performance::calculPerfSemestre(int ind_dates) {
+    double perfSemestre = 0.;
+    PnlVect row = pnl_vect_wrap_mat_row(path, ind_dates);
+    for (int i = 0; i < row.size; i++) {
+        double nivInit = GET(nivInitAct, i);
+        double perfAction = (row.array[i] - nivInit) / nivInit;
+        perfSemestre += roundFourDecimal(perfAction);
+    }
+    return roundFourDecimal(std::max(perfSemestre / row.size, 0.));
+}
+
