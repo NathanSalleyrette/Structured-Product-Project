@@ -34,6 +34,25 @@ add_executable(parser ${SOURCES} ${HEADERS})
 target_link_libraries(parser ${LIBS})
 pnl_add_postbuild(parser)
 
+#Testing the utils class
+set(SOURCES src/Utils.cpp src/TestUtils.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utils ${SOURCES} ${HEADERS})
+target_link_libraries(utils ${LIBS})
+pnl_add_postbuild(utils)
+
+set(SOURCES src/Utils.cpp src/TestSize0.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utilsSize ${SOURCES} ${HEADERS})
+target_link_libraries(utilsSize ${LIBS})
+pnl_add_postbuild(utilsSize)
+
+set(SOURCES src/Utils.cpp src/TestSizeDifferents.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utilsdiff ${SOURCES} ${HEADERS})
+target_link_libraries(utilsdiff ${LIBS})
+pnl_add_postbuild(utilsdiff)
+
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
 message(STATUS "COMPILE_DEFINITIONS = ${DirDefs}")
