@@ -4,6 +4,7 @@
 #include "pnl/pnl_vector.h"
 #include "pnl/pnl_matrix.h"
 #include <sstream>
+#include <map>
 
 using namespace std;
 
@@ -44,6 +45,7 @@ public:
     void resizeMarketData(int line, int col);
     void setCheminData(string cheminData);
     double findClotureFromDate(double date);
+    void fillDictFromFile(map<string, map<string, double>> & dict, string action);
 };
 
 

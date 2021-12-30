@@ -53,6 +53,12 @@ add_executable(utilsdiff ${SOURCES} ${HEADERS})
 target_link_libraries(utilsdiff ${LIBS})
 pnl_add_postbuild(utilsdiff)
 
+set(SOURCES src/MarketData.cpp src/ParseCsv.cpp src/testMarketData.cpp)
+set(HEADERS src/MarketData.hpp src/ParseCsv.hpp)
+add_executable(data ${SOURCES} ${HEADERS})
+target_link_libraries(data ${LIBS})
+pnl_add_postbuild(data)
+
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
 message(STATUS "COMPILE_DEFINITIONS = ${DirDefs}")
