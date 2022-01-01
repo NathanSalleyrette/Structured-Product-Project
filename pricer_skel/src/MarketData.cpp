@@ -6,6 +6,7 @@
 #include <sstream>
 #include "MarketData.hpp"
 #include "ParseCsv.hpp"
+#include "Date.hpp"
 
 using std::filesystem::directory_iterator;
 
@@ -17,6 +18,10 @@ map<string, map<string, double>> & MarketData::getData() {
 }
 
 double MarketData::getSpotFromDateAndAction(string date, string action) {
+    
+    while (!(data.find(date) != data.end() && data[date].find(action) != data[date].end())) {
+        date = Date::nextDate(date);
+    }
     return data[date][action];
 }
 
@@ -44,7 +49,7 @@ void MarketData::getSpotsFromDate(PnlVect* spots, string date) {
     // Si le résultat est 0, c'est qu'il n'y a pas de date
     // On attend la classe Date 
     for (it = actions.begin(); it != actions.end(); it++, i++) {
-        LET(spots, i) = data[date][*it];
+        LET(spots, i) = getSpotFromDateAndAction(date, *it);
     }
 }
 

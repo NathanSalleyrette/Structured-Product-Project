@@ -53,8 +53,14 @@ add_executable(utilsdiff ${SOURCES} ${HEADERS})
 target_link_libraries(utilsdiff ${LIBS})
 pnl_add_postbuild(utilsdiff)
 
-set(SOURCES src/MarketData.cpp src/ParseCsv.cpp src/testMarketData.cpp)
-set(HEADERS src/MarketData.hpp src/ParseCsv.hpp)
+set(SOURCES src/Date.cpp src/testDate.cpp)
+set(HEADERS src/Date.hpp)
+add_executable(date ${SOURCES} ${HEADERS})
+target_link_libraries(date ${LIBS})
+pnl_add_postbuild(date)
+
+set(SOURCES src/MarketData.cpp src/ParseCsv.cpp src/testMarketData.cpp src/Date.cpp)
+set(HEADERS src/MarketData.hpp src/ParseCsv.hpp src/Date.hpp)
 add_executable(data ${SOURCES} ${HEADERS})
 target_link_libraries(data ${LIBS})
 pnl_add_postbuild(data)
@@ -64,6 +70,7 @@ set(HEADERS src/MarketData.hpp src/ParseCsv.hpp)
 add_library(datas SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
+
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
