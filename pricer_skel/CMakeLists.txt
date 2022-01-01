@@ -59,6 +59,12 @@ add_executable(data ${SOURCES} ${HEADERS})
 target_link_libraries(data ${LIBS})
 pnl_add_postbuild(data)
 
+set(SOURCES src/MarketData.cpp src/ParseCsv.cpp src/testMarketData.cpp)
+set(HEADERS src/MarketData.hpp src/ParseCsv.hpp)
+add_library(datas SHARED ${SOURCES} ${HEADERS})
+target_link_libraries(datas ${LIBS})
+pnl_add_postbuild(datas)
+
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
 message(STATUS "COMPILE_DEFINITIONS = ${DirDefs}")
