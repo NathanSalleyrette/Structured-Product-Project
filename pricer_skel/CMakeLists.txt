@@ -27,11 +27,25 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing the parser
-# set(SOURCES MonteCarlo.cpp main.cpp BSBarrier.cpp)
-# set(HEADERS MonteCarlo.hpp BSBarrier.hpp)
-# add_executable(pricebarrier ${SOURCES} ${HEADERS})
-# target_link_libraries(pricebarrier ${LIBS})
-# pnl_add_postbuild(pricebarrier)
+set(SOURCES src/ParseCsv.cpp src/TestHedge.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testVanille ${SOURCES} ${HEADERS})
+target_link_libraries(testVanille ${LIBS})
+pnl_add_postbuild(testVanille)
+
+
+#Testing the price calculus
+set(SOURCES src/ParseCsv.cpp src/TestPriceCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testPrice ${SOURCES} ${HEADERS})
+target_link_libraries(testPrice ${LIBS})
+pnl_add_postbuild(testPrice)
+
+set(SOURCES src/ParseCsv.cpp src/TestPriceDateCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testPriceDate ${SOURCES} ${HEADERS})
+target_link_libraries(testPriceDate ${LIBS})
+pnl_add_postbuild(testPriceDate)
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
