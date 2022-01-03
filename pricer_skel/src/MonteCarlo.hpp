@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include "Option.hpp"
+=======
+#include "ProduitDerive.hpp"
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
 #include "BlackScholesModel.hpp"
 #include "pnl/pnl_random.h"
 
@@ -20,7 +24,11 @@ private:
 
 public:
     BlackScholesModel *mod_; /*! pointeur vers le modèle */
+<<<<<<< HEAD
     Option *opt_; /*! pointeur sur l'option */
+=======
+    ProduitDerive *prodd_; /*! pointeur sur le ProduitDerive */
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
     PnlRng *rng_; /*! pointeur sur le générateur */
     double fdStep_; /*! pas de différence finie */
     int nbSamples_; /*! nombre de tirages Monte Carlo */
@@ -30,11 +38,19 @@ public:
      * Construit un moteur Monte Carlo
      * 
      * @param[in] mod pointeur vers le modèle
+<<<<<<< HEAD
      * @param[in] opt pointeur sur l'option
      * @param[in] fdStep pas de différence finie
      * @param[in] nbSamples nombre de tirages Monte Carlo
      */
     MonteCarlo(BlackScholesModel *mod, Option *opt, double fdStep, int nbSamples, PnlRng *rng);
+=======
+     * @param[in] prodd pointeur sur le ProduitDerive
+     * @param[in] fdStep pas de différence finie
+     * @param[in] nbSamples nombre de tirages Monte Carlo
+     */
+    MonteCarlo(BlackScholesModel *mod, ProduitDerive *prodd, double fdStep, int nbSamples, PnlRng *rng);
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
 
     /**
      * Détruit le moteur Monte Carlo
@@ -42,7 +58,11 @@ public:
     ~MonteCarlo();
 
     /**
+<<<<<<< HEAD
      * Calcule le prix de l'option à la date 0
+=======
+     * Calcule le prix du ProduitDerive à la date 0
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
      *
      * @param[out] prix valeur de l'estimateur Monte Carlo
      * @param[out] ic écart type de l'estimateur
@@ -50,7 +70,11 @@ public:
     void price(double &prix, double &std_dev);
 
     /**
+<<<<<<< HEAD
      * Calcule le prix de l'option à la date t
+=======
+     * Calcule le prix du ProduitDerive à la date t
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
      *
      * @param[in]  past contient la trajectoire du sous-jacent
      * jusqu'à l'instant t
@@ -61,7 +85,11 @@ public:
     void price(const PnlMat *past, double t, double &prix, double &std_dev);
 
     /**
+<<<<<<< HEAD
      * Calcule le delta de l'option à la date t
+=======
+     * Calcule le delta du ProduitDerive à la date t
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
      *
      * @param[in] past contient la trajectoire du sous-jacent
      * jusqu'à l'instant t
@@ -72,7 +100,11 @@ public:
     void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev);
 
     /**
+<<<<<<< HEAD
      * Calcule le delta de l'option à la date 0
+=======
+     * Calcule le delta du ProduitDerive à la date 0
+>>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
      *
      * @param[out] delta contient le vecteur de delta
      * @param[out] std_dev contient l'écart type de l'estimateur
