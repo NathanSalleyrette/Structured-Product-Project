@@ -17,7 +17,9 @@ public:
     Utils(/* args */);
     ~Utils();
 
-    double covariance(const PnlVect* X,const PnlVect* Y);
-    double esperance(const PnlVect* X);
-    double correlation(const PnlVect* X, const PnlVect* Y);
+    static double covariance(const PnlVect* X,const PnlVect* Y);
+    static double esperance(const PnlVect* X);
+    static double correlation(const PnlVect* X, const PnlVect* Y);
+
+    static void correlationMatrix(const PnlMat* path, PnlMat* corrMat);
 };

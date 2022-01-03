@@ -37,3 +37,19 @@ double Utils::correlation( const PnlVect* X,  const PnlVect* Y){
 
     return covXY/(sigmaX * sigmaY);
 }
+
+void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
+    PnlVect* X = pnl_vect_create(path->m);
+    PnlVect* Y = pnl_vect_create(path->m);
+
+    int m = path->n;
+    
+    for(int i = 0; i < m; i++){
+        for(int j = i; j < m; j++){
+            pnl_mat_get_col(X, path, i);
+            pnl_mat_get_col(Y, path, j);
+            MLET(corrMat, i, j) = correlation(X,Y);
+            MLET(corrMat, j, i) = correlation(X,Y);
+        }
+    }
+}
