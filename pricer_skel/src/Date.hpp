@@ -3,6 +3,8 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
+#include <iterator>
+#include <vector>
 
 using std::string;
 

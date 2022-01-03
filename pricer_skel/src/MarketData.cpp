@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <sstream>
 #include "MarketData.hpp"
-#include "ParseCsv.hpp"
+#include "ParseYahooCsv.hpp"
 #include "Date.hpp"
 
 using std::filesystem::directory_iterator;
@@ -25,7 +25,10 @@ double MarketData::getSpotFromDateAndAction(string date, string action) {
     return data[date][action];
 }
 
-void MarketData::fillData(ParseCsv *parser) {
+int MarketData::getNumOfActions() { return actions.size(); }
+
+
+void MarketData::fillData(ParseYahooCsv *parser) {
     string pathFiles = "../data/DATA";
     string action;
     int ind = 0;
@@ -42,16 +45,18 @@ void MarketData::fillData(ParseCsv *parser) {
     }
 } 
 
+// Le vecteur doit être de la bonne taille
 void MarketData::getSpotsFromDate(PnlVect* spots, string date) {
     vector<string>::iterator it;
-    pnl_vect_resize(spots, actions.size());
+    
     int i = 0;
-    // Si le résultat est 0, c'est qu'il n'y a pas de date
-    // On attend la classe Date 
+
     for (it = actions.begin(); it != actions.end(); it++, i++) {
         LET(spots, i) = getSpotFromDateAndAction(date, *it);
     }
 }
+
+
 
 void MarketData::printActions() {
     vector<string>::iterator it;

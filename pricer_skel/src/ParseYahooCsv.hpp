@@ -8,27 +8,22 @@
 
 using namespace std;
 
-/// \brief Parseur de fichier CSV
-class ParseCsv
+/// \brief Parseur de fichier CSV téléchargé sur Yahoo Finance
+class ParseYahooCsv
 {
 public:
     string cheminData_; // chemin pour accéder aux données
-    PnlMat *marketData_; // matrice des données du sous-jacent
-    PnlVect *dates_;
-    int lines;
-    int columns;
+
 
     /**
      * Construit un parseur de csv
-     * 
-     * @param[in] nbAsset correspond au nombre de colonnes dans le CSV
      */
-    ParseCsv(int nbAsset);
+    ParseYahooCsv();
 
     /**
      * Détruit le parseur csv
      */
-    ~ParseCsv();
+    ~ParseYahooCsv();
 
     /**
      * Ouvre le fichier donné par path et renvoie son contenu sous forme de string
@@ -40,11 +35,16 @@ public:
      * @brief parse le contenu du fichier renvoyé par readFileIntoString
      * 
      */
-    void getData();
-    int countLine();
-    void resizeMarketData(int line, int col);
+    
+
     void setCheminData(string cheminData);
-    double findClotureFromDate(double date);
+    
+    /**
+     * @brief Rempli un dictionnaire passé en argument 
+     * 
+     * @param dict Map à remplir
+     * @param action Clé voulue pour la map<string, double>
+     */
     void fillDictFromFile(map<string, map<string, double>> & dict, string action);
 };
 

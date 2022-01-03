@@ -4,21 +4,18 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include <filesystem>
 #include "Performance.hpp"
 
-using std::filesystem::directory_iterator;
 
-Performance::Performance(PnlVect *observationDates, int nbAction) {
-    parser = new ParseCsv(7);
+Performance::Performance(vector<string> observationDates, MarketData *md) {
+    parser = new ParseYahooCsv();
     this->observationDates = observationDates;
-    path = pnl_mat_create_from_zero(observationDates->size, nbAction);
-    nivInitAct = pnl_vect_create_from_zero(nbAction);
+    nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
+    this->md = md;
 }
 
 Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
-    pnl_mat_free(&path);
     delete parser;
 }
 
@@ -28,57 +25,60 @@ double Performance::payoff() {
 }
 
 void Performance::niveauInitial() {
-    string pathFiles = "../data/DATA";
-    int ind = 0;
-    for (const auto & entry : directory_iterator(pathFiles)) {
-        parser->setCheminData(entry.path());
-        parser->getData();
-        LET(nivInitAct, ind) = (parser->findClotureFromDate(20140711) + 
-            parser->findClotureFromDate(20140715) + parser->findClotureFromDate(20140716))/3;
-        ind++;
-    }
+
+    PnlVect * add = pnl_vect_create(md->getNumOfActions());
+
+    md->getSpotsFromDate(nivInitAct, "2014-07-11");
+    md->getSpotsFromDate(add, "2014-07-15");
+    
+    pnl_vect_plus_vect(nivInitAct, add);
+    
+    md->getSpotsFromDate(add, "2014-07-16");
+    pnl_vect_plus_vect(nivInitAct, add);
+
+    pnl_vect_div_scalar(nivInitAct, 3.);
+    pnl_vect_free(&add);
 }
 
-void Performance::setPath() {
-    string pathFiles = "../data/DATA";
-    int j = 0;
-    for (const auto & entry : directory_iterator(pathFiles)) {
-        parser->setCheminData(entry.path());
-        parser->getData();
-        for (int i = 0; i < observationDates->size; i++) {
-            double date = GET(observationDates, i);
-            MLET(path, i, j) = parser->findClotureFromDate(date); 
-        }
-        j++;
-    }
-}
 
 double roundFourDecimal(double d) {
     return round(d * 10000.0) / 10000.0;
 }
 
-double roundTwoDecimal(double d) {
-    return round(d * 100.0) / 100.0;
-}
 
 double Performance::calculPerfMoyenneFinale() {
+
     double perfMoyenne = 0.;
-    for (int i = 0; i < observationDates->size; i++) {
-        perfMoyenne += calculPerfSemestre(i);
+    vector<string>::iterator it;
+    for (it = observationDates.begin(); it != observationDates.end(); it++) {
+            perfMoyenne += calculPerfDate(*it);
     }
-    return 100*roundFourDecimal(perfMoyenne / observationDates->size);
+    return 100*roundFourDecimal(perfMoyenne / observationDates.size());
 }
 
 // Calcul la performance des 30 actions sur un indice donnée
 // qui correspond à l'indice de la date souhaitée dans le vecteur observationDates
-double Performance::calculPerfSemestre(int ind_dates) {
-    double perfSemestre = 0.;
-    PnlVect row = pnl_vect_wrap_mat_row(path, ind_dates);
-    for (int i = 0; i < row.size; i++) {
-        double nivInit = GET(nivInitAct, i);
-        double perfAction = (row.array[i] - nivInit) / nivInit;
-        perfSemestre += roundFourDecimal(perfAction);
+double Performance::calculPerfDate(string date) {
+
+    double perfDate = 0.;
+    PnlVect *actions = pnl_vect_create(md->getNumOfActions());
+    md->getSpotsFromDate(actions, date);
+    for (int i = 0; i < actions->size; i++) {
+            double nivInit = GET(nivInitAct, i);
+            double perfAction = (GET(actions, i) - nivInit) / nivInit;
+            perfDate += roundFourDecimal(perfAction);
     }
-    return roundFourDecimal(std::max(perfSemestre / row.size, 0.));
+    return std::max(perfDate / actions->size, 0.);
 }
+
+void Performance::printObservationDates() {
+    for (int i = 0; i < observationDates.size(); i++) {
+        cout << observationDates[i] << " ";
+    }
+}
+
+void Performance::setObservationDates(vector<string> od) {
+    observationDates = od;
+}
+
 

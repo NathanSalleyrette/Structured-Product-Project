@@ -1,20 +1,20 @@
 #include "MarketData.hpp"
-#include "ParseCsv.hpp"
+#include "ParseYahooCsv.hpp"
 #include <map>
 
 int main() {
-    ParseCsv *parser = new ParseCsv(7);
+    ParseYahooCsv *parser = new ParseYahooCsv();
     parser->setCheminData("../data/DATA/FLS.csv");
 
     MarketData *market = new MarketData();
-    //parser->fillDictFromFile(market->getData());
+    
     market->fillData(parser);
 
     cout << market->getSpotFromDateAndAction("2021-11-11", "FLS") << endl;
     
     market->printActions();
 
-    PnlVect *result = pnl_vect_new();
+    PnlVect *result = pnl_vect_create(market->getNumOfActions());
     
     market->getSpotsFromDate(result, "2014-07-11");
     pnl_vect_print(result);

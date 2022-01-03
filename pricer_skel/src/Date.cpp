@@ -29,3 +29,4 @@ string Date::nextDate(string date) {
     string nextDate = "" + to_string(year) + "-" + formateNumber(month) + "-" + formateNumber(day);
     return nextDate;
 }
+

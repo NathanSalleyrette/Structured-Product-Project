@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <iterator>
-#include "ParseCsv.hpp"
+#include "ParseYahooCsv.hpp"
 #include <vector>
 #include "pnl/pnl_random.h"
 #include "pnl/pnl_vector.h"
@@ -21,8 +21,10 @@ class MarketData {
         MarketData();
         map<string, map<string, double>> &getData();
         double getSpotFromDateAndAction(string date, string action);
-        void fillData(ParseCsv *parser);
+        int getNumOfActions();
+        void fillData(ParseYahooCsv *parser);
         void getSpotsFromDate(PnlVect* spots, string date);
         void printActions();
+
 
 };
