@@ -30,11 +30,8 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
     double sigma;
     PnlVect vecLine;
 
-<<<<<<< HEAD
-    pnl_mat_set_row(path, spot_, 0);
-=======
+
     pnl_mat_set_row(path, spot_, 0); // la première ligne de path contient les spot en t=0
->>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
 
     for(int i=1; i<=nbTimeSteps; i++){
         pnl_vect_rng_normal(G_, size_, rng);
@@ -65,10 +62,8 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     double sqrtInterval = sqrt(interval);
     // disjonction du cas si t est trop loin de t_{i+1}, on doit modifier la dernière valeur
     if(abs(interval) > 1.e-10){
-<<<<<<< HEAD
-=======
+
         //simulation de ti+1
->>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
         pnl_vect_rng_normal(G_, size_, rng);
         for(int d = 0; d<size_; d++){
             sigma = GET(sigma_, d);
@@ -76,11 +71,7 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
             MLET(path, simulationStart, d) *= exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
-<<<<<<< HEAD
-
-=======
     //simulation de ti+2..., tN
->>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
     for(int i=simulationStart + 1; i<=nbTimeSteps; i++){
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d = 0; d<size_; d++) {
@@ -99,10 +90,8 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
     int i = (int)(t/timestep);
     double ti = i * timestep;
 
-<<<<<<< HEAD
-=======
+
     //on vérifie si l'on est sur une date de constatation (donc une date % T/N)
->>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
     if (t-ti <= 10E-10)
     {
         simulation_start = i;
@@ -111,10 +100,6 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
     {
         simulation_start = i+1;
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> e0d2490cd837cd8999735169ccb4ec68976b95c5
     pnl_mat_clone(shift_path, path);
 
     for (int i = simulation_start; i <= nbTimeSteps; i++){
