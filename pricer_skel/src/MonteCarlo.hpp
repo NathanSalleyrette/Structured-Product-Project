@@ -88,8 +88,9 @@ public:
      * @param[in] nbHedgeDate nombre de pas des observations du marché
      * @param[out] errorHedge résultat de l'erreur de couverture P&L
      * @param[in] marketData matrice qui contient les données du marché
+     * @param[in] valLiqRef valeur liquidative de référence : valeur dont on dispose au départ pour se couvrir
      */
-    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData);
+    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef);
 };
 
 

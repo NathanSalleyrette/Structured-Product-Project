@@ -189,12 +189,9 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
 }
 
 
-void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData)
+void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef)
 {
     double V;
-    double prix, std_dev;
-
-    MonteCarlo::price(prix, std_dev);
 
     MonteCarlo::delta(deltaPrevious_, stdDevDelta_);
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
@@ -203,7 +200,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData)
 
     PnlVect vecLine = pnl_vect_wrap_mat_row(marketData, 0);
 
-    V = prix - pnl_vect_scalar_prod(deltaPrevious_, &vecLine); // /!\ Pour le call vanille on part du prix calculé avec price mais pour Kozei on part du fonds initial !
+    V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious_, &vecLine);
 
     pnl_mat_set_row(past_, &vecLine, 0);
 

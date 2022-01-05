@@ -26,6 +26,8 @@ int main(int argc, char **argv)
     PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
     PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
+    double prix, stddev;
+
 // --------------------------------
     // N = 3, H = 12
 
@@ -35,7 +37,8 @@ int main(int argc, char **argv)
     // BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
 
     // MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
-    // mc->pAndL(nbHedgeDate, errorHedge, parser->marketData_);
+    // mc->price(prix, stddev);
+    // mc->pAndL(nbHedgeDate, errorHedge, parser->marketData_, prix);
     // cout << errorHedge << endl;
     // pnl_mat_print(parser->marketData_);
 
@@ -61,15 +64,15 @@ int main(int argc, char **argv)
     BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
 
     MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
-    mc->pAndL(nbHedgeDate, errorHedge, parser3->marketData_);
+    mc->price(prix, stddev);
+    mc->pAndL(nbHedgeDate, errorHedge, parser3->marketData_, prix);
     cout << errorHedge << endl;
-    pnl_mat_print(parser3->marketData_);
+    // pnl_mat_print(parser3->marketData_);
 
     delete parser3;
     delete vanille;
     delete bs;
     delete mc;
-    
 
     // --------------------------
 
