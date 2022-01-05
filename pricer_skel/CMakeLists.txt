@@ -71,6 +71,26 @@ add_library(datas SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
 
+set(SOURCES src/ParseCsv.cpp src/TestHedge.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testVanille ${SOURCES} ${HEADERS})
+target_link_libraries(testVanille ${LIBS})
+pnl_add_postbuild(testVanille)
+
+
+#Testing the price calculus
+set(SOURCES src/ParseCsv.cpp src/TestPriceCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testPrice ${SOURCES} ${HEADERS})
+target_link_libraries(testPrice ${LIBS})
+pnl_add_postbuild(testPrice)
+
+set(SOURCES src/ParseCsv.cpp src/TestPriceDateCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testPriceDate ${SOURCES} ${HEADERS})
+target_link_libraries(testPriceDate ${LIBS})
+pnl_add_postbuild(testPriceDate)
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
