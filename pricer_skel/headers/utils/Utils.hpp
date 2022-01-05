@@ -22,4 +22,12 @@ public:
     static double correlation(const PnlVect* X, const PnlVect* Y);
 
     static void correlationMatrix(const PnlMat* path, PnlMat* corrMat);
+
+    /**
+     * @brief compute volatility for each stock from spots on a window
+     * 
+     * @param volatilities the vector to modify with the computation
+     * @param path the window on which the computation is made
+     */
+    static void volsOnMat(PnlVect* volatilities, const PnlMat* path);
 };
