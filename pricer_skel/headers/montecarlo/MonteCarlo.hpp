@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "ProduitDerive.hpp"
-#include "BlackScholesModel.hpp"
+#include "../financialProducts/ProduitDerive.hpp"
+#include "../models/BlackScholesModel.hpp"
 #include "pnl/pnl_random.h"
 
 /// \brief Monte Carlo

@@ -4,8 +4,8 @@
 #include "pnl/pnl_vector.h"
 #include "pnl/pnl_matrix.h"
 #include <sstream>
-#include "ParseYahooCsv.hpp"
-#include "MarketData.hpp"
+#include "../fs/ParseYahooCsv.hpp"
+#include "../MarketData.hpp"
 using namespace std;
 
 /// \brief Calcul de performance pour les 30 actions

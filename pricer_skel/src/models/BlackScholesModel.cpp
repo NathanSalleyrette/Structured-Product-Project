@@ -1,5 +1,5 @@
 #include <iostream>
-#include "BlackScholesModel.hpp"
+#include "../../headers/models/BlackScholesModel.hpp"
 #include <cmath>
 
 BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot)

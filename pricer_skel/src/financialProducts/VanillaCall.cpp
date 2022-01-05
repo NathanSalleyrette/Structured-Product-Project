@@ -1,4 +1,4 @@
-#include "VanillaCall.hpp"
+#include "../../headers/financialProducts/VanillaCall.hpp"
 #include <cmath>
 
 VanillaCall::VanillaCall(double T, int nbTimeSteps, double K)

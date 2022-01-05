@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
-#include "MonteCarlo.hpp"
-#include "ParseCsv.hpp"
-#include "BlackScholesModel.hpp"
-#include "VanillaCall.hpp"
+#include "../../headers/montecarlo/MonteCarlo.hpp"
+#include "../../headers/fs/ParseCsv.hpp"
+#include "../../headers/models/BlackScholesModel.hpp"
+#include "../../headers/financialProducts/VanillaCall.hpp"
 
 using namespace std;
 

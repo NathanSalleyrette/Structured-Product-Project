@@ -4,9 +4,9 @@
 #include <iterator>
 #include <filesystem>
 #include <sstream>
-#include "MarketData.hpp"
-#include "ParseYahooCsv.hpp"
-#include "Date.hpp"
+#include "../headers/MarketData.hpp"
+#include "../headers/fs/ParseYahooCsv.hpp"
+#include "../headers/utils/Date.hpp"
 
 using std::filesystem::directory_iterator;
 

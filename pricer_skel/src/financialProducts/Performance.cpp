@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include "Performance.hpp"
+#include "../../headers/financialProducts/Performance.hpp"
 
 
 Performance::Performance(vector<string> observationDates, MarketData *md) {
