@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.13)
 project(PriceBSCall CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 # Prefix
 if (NOT PREFIX)
     set(PREFIX ${CMAKE_CURRENT_BINARY_DIR})
@@ -27,6 +28,49 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing the parser
+set(SOURCES src/ParseYahooCsv.cpp src/testPerformance.cpp src/Performance.cpp src/MarketData.cpp src/Date.cpp)
+set(HEADERS src/ParseYahooCsv.hpp src/Performance.hpp src/MarketData.hpp src/Date.cpp)
+add_executable(performance ${SOURCES} ${HEADERS})
+target_link_libraries(performance ${LIBS})
+pnl_add_postbuild(performance)
+
+#Testing the utils class
+set(SOURCES src/Utils.cpp src/TestUtils.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utils ${SOURCES} ${HEADERS})
+target_link_libraries(utils ${LIBS})
+pnl_add_postbuild(utils)
+
+set(SOURCES src/Utils.cpp src/TestSize0.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utilsSize ${SOURCES} ${HEADERS})
+target_link_libraries(utilsSize ${LIBS})
+pnl_add_postbuild(utilsSize)
+
+set(SOURCES src/Utils.cpp src/TestSizeDifferents.cpp)
+set(HEADERS src/Utils.hpp)
+add_executable(utilsdiff ${SOURCES} ${HEADERS})
+target_link_libraries(utilsdiff ${LIBS})
+pnl_add_postbuild(utilsdiff)
+
+set(SOURCES src/Date.cpp src/testDate.cpp)
+set(HEADERS src/Date.hpp)
+add_executable(date ${SOURCES} ${HEADERS})
+target_link_libraries(date ${LIBS})
+pnl_add_postbuild(date)
+
+set(SOURCES src/MarketData.cpp src/ParseYahooCsv.cpp src/testMarketData.cpp src/Date.cpp)
+set(HEADERS src/MarketData.hpp src/ParseYahooCsv.hpp src/Date.hpp)
+add_executable(data ${SOURCES} ${HEADERS})
+target_link_libraries(data ${LIBS})
+pnl_add_postbuild(data)
+
+set(SOURCES src/MarketData.cpp src/ParseYahooCsv.cpp src/testMarketData.cpp)
+set(HEADERS src/MarketData.hpp src/ParseYahooCsv.hpp)
+add_library(datas SHARED ${SOURCES} ${HEADERS})
+target_link_libraries(datas ${LIBS})
+pnl_add_postbuild(datas)
+
 set(SOURCES src/ParseCsv.cpp src/TestHedge.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
 
 set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
