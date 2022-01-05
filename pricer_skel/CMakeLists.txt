@@ -48,6 +48,13 @@ add_executable(testPriceDate ${SOURCES} ${HEADERS})
 target_link_libraries(testPriceDate ${LIBS})
 pnl_add_postbuild(testPriceDate)
 
+#Testing the simulMarket function
+set(SOURCES src/ParseCsv.cpp src/TestSimulMarket.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+add_executable(testSimulMarket ${SOURCES} ${HEADERS})
+target_link_libraries(testSimulMarket ${LIBS})
+pnl_add_postbuild(testSimulMarket)
+
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
 message(STATUS "COMPILE_DEFINITIONS = ${DirDefs}")

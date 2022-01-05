@@ -71,6 +71,18 @@ public:
      */
     void shiftAsset(PnlMat *shift_path, const PnlMat *path, int d, double h, double t, double timestep);
 
+    /**
+     * @brief Simule les données de marché manquantes jusqu'à la maturité (à partir des données fournies dans past)
+     * 
+     * @param[in] past données du passé disponibles
+     * @param[in] T date jusqu'à laquelle on simule la trajectoire
+     * @param[in] rng 
+     * @param[in] trend tendance du modèle
+     * @param[in] nbHedgeDate nombre de pas des observations du marché
+     * @param[out] path données de past + données simulées
+     */
+    void simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path);
+
 };
 
 

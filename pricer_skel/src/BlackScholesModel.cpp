@@ -106,3 +106,35 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
         MLET(shift_path, i, d) *= (1+h);
     }
 }
+
+void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path)
+{   
+    int start = past->m;
+    double interval = T / nbHedgeDate;
+    double sqrtInterval = sqrt(interval);
+    double mu;
+    double sigma;
+    PnlVect vecLine;
+
+    pnl_mat_resize(path, nbHedgeDate+1, size_);
+    pnl_mat_set_row(path, spot_, 0);
+
+    //on rempli path avec les données du passé qui sont dans past
+    for (int i=1; i<start; i++){
+        for (int j=0; j<size_; j++){
+            MLET(path, i, j) = MGET(past, i, j);
+        }
+    }
+    if (start == 0) start=1; // si past est vide
+
+    // simule la suite des données jusqu'à la maturité
+    for(int i=start; i <= nbHedgeDate; i++){
+        pnl_vect_rng_normal(G_, size_, rng);
+        for (int d=0; d<size_;d++) {
+            sigma = GET(sigma_, d);
+            mu = GET(trend, d);
+            vecLine = pnl_vect_wrap_mat_row(correlations_, d);
+            MLET(path, i, d) = MGET(path, i-1, d) * exp((mu - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
+        }
+    }
+}
