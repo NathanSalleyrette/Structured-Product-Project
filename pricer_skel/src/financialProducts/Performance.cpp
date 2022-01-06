@@ -8,7 +8,6 @@
 
 
 Performance::Performance(vector<string> observationDates, MarketData *md) {
-    parser = new ParseYahooCsv();
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     this->md = md;
@@ -16,7 +15,6 @@ Performance::Performance(vector<string> observationDates, MarketData *md) {
 
 Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
-    delete parser;
 }
 
 

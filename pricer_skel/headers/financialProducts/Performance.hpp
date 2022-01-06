@@ -11,9 +11,7 @@ using namespace std;
 /// \brief Calcul de performance pour les 30 actions
 class Performance {
     private:
-        ParseYahooCsv *parser;
-        // actions en colonne, le temps est en ligne, ce sont les valeurs des actions aux dates de constatations
-
+        
         PnlVect *nivInitAct;
         // les dates de constatations (attention, certaines dates ne sont pas encore arrivées)
         vector<string> observationDates;
