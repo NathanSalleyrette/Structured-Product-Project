@@ -48,6 +48,12 @@ add_executable(performance ${SOURCES} ${HEADERS})
 target_link_libraries(performance ${LIBS})
 pnl_add_postbuild(performance)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp)
+add_executable(simple ${SOURCES} ${HEADERS})
+target_link_libraries(simple ${LIBS})
+pnl_add_postbuild(simple)
+
 #Testing the utils class
 set(SOURCES src/utils/Utils.cpp src/tests/TestUtils.cpp)
 set(HEADERS headers/utils/Utils.hpp)
