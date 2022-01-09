@@ -74,8 +74,10 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_d
 
         //simulation des trajectoires
         mod_->asset(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past);
+        // pnl_mat_print(path_);
         //payoff pour la trajectoire simulée
         resPayoff = prodd_->payoff(path_);
+        // std::cout << resPayoff << std::endl;
         sum += resPayoff;
         sumSquared += resPayoff * resPayoff;
     }

@@ -8,6 +8,8 @@
 #include "../headers/fs/ParseYahooCsv.hpp"
 #include "../headers/utils/Date.hpp"
 #include <unistd.h>
+#include <math.h>
+#include <cassert>
 using std::filesystem::directory_iterator;
 
 
@@ -30,12 +32,12 @@ int MarketData::getNumOfActions() { return actions.size(); }
 
 
 void MarketData::fillData(ParseYahooCsv *parser) {
-    string pathFiles = "../../data/DATA";
+    string pathFiles = "../data/DATA";
     string action;
     for (const auto & entry : directory_iterator(pathFiles)) {
         action = entry.path(); //pas mieux path().filename().toString() ?
         action.erase(action.end()-4, action.end());
-        action.erase(action.begin(), action.begin()+16);
+        action.erase(action.begin(), action.begin()+13);
         
         actions.push_back(action);
 
@@ -79,8 +81,16 @@ void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {
 }
 
 void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
+
     for(int i = 0; i < dates.size(); i++){
+        // for(int i = 0; i < path->m; i++){
         for(int j = 0; j < this->actions.size(); j++){
+            // double cours = MGET(path, i,j);
+            // if (isnan(cours)) {
+            //     std::cout << cours;
+            //     std::cout << " i " << i << " j " << j << std::endl;
+            //     assert(1==2);
+            // }
             
             this->data[dates[i]][this->actions[j]] = MGET(path, i, j);
         }
