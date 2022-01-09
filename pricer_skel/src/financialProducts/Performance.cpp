@@ -13,13 +13,26 @@ Performance::Performance(vector<string> observationDates, MarketData *md) {
     this->md = md;
 }
 
+Performance::Performance(vector<string> observationDates, MarketData *md, vector<string> simulationDates){
+    this->observationDates = observationDates;
+    nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
+    this->md = md;
+    this->simulationDates = simulationDates;
+    ProduitDerive::T_ = 1;
+    ProduitDerive::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation
+    ProduitDerive::size_= md->getNumOfActions();
+    
+}
+
 Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
 }
 
 
-double Performance::payoff() {
-    return 0.;
+double Performance::payoff(const PnlMat* path) {
+    md->fillfromPath(path, this->simulationDates);
+    niveauInitial();
+    return .9 + calculPerfMoyenneFinale()/100.;
 }
 
 void Performance::niveauInitial() {

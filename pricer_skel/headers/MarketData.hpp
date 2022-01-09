@@ -15,12 +15,13 @@ using namespace std;
 class MarketData {
     private:
         map<string, int> stocksIndexes;
-        map<string, map<string, double>> data;
-        vector<string> actions;
+        
 
     public:
         
-        
+        map<string, map<string, double>> data;
+        vector<string> actions;
+
         MarketData();
         map<string, map<string, double>> &getData();
         double getSpotFromDateAndAction(string date, string action);
@@ -44,4 +45,12 @@ class MarketData {
          * @param nbOfDays size of the window
          */
         void fiilPathMat(PnlMat* path, string startDate, int nbOfDays);
+
+        /**
+         * @brief Construct a new fillfrom Path object
+         * 
+         * @param path the path matrix 
+         * @param simulationDates the dates associated
+         */
+        void fillfromPath(const PnlMat* path, vector<string> simulationDates);
 };

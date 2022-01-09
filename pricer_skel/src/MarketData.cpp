@@ -22,6 +22,7 @@ double MarketData::getSpotFromDateAndAction(string date, string action) {
     while (!(data.find(date) != data.end() && data[date].find(action) != data[date].end())) {
         date = Date::nextDate(date);
     }
+    
     return data[date][action];
 }
 
@@ -77,5 +78,12 @@ void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {
     }
 }
 
-
+void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
+    for(int i = 0; i < dates.size(); i++){
+        for(int j = 0; j < this->actions.size(); j++){
+            
+            this->data[dates[i]][this->actions[j]] = MGET(path, i, j);
+        }
+    }
+}
 

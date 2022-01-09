@@ -48,8 +48,14 @@ add_executable(performance ${SOURCES} ${HEADERS})
 target_link_libraries(performance ${LIBS})
 pnl_add_postbuild(performance)
 
+<<<<<<< HEAD
 set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp)
+=======
+
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+>>>>>>> 5f16be7dc4fbfb399acacec6879aae4363c643e3
 add_executable(simple ${SOURCES} ${HEADERS})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
@@ -76,13 +82,13 @@ pnl_add_postbuild(utilsdiff)
 
 
 
-set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp)
+set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp)
 set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
 add_library(datas SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testVanille ${SOURCES} ${HEADERS})
@@ -91,13 +97,13 @@ pnl_add_postbuild(testVanille)
 
 
 #Testing the price calculus
-set(SOURCES src/fs/ParseCsv.cpp src/tests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testPrice ${SOURCES} ${HEADERS})
 target_link_libraries(testPrice ${LIBS})
 pnl_add_postbuild(testPrice)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testPriceDate ${SOURCES} ${HEADERS})
 target_link_libraries(testPriceDate ${LIBS})
@@ -128,6 +134,15 @@ add_executable(marketdata  ${SOURCES} ${HEADERS})
 target_link_libraries(marketdata gtest_main ${LIBS})
 pnl_add_postbuild(data)
 add_test(NAME marketdata_test COMMAND marketdata)
+
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallVanille.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
+add_executable(testVanilleGtest ${SOURCES} ${HEADERS})
+target_link_libraries(testVanilleGtest gtest_main ${LIBS})
+pnl_add_postbuild(testVanilleGtest)
+add_test(NAME vanille_test COMMAND testVanilleGtest)
+
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)
