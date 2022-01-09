@@ -4,9 +4,9 @@
 #include <iterator>
 #include <filesystem>
 #include <sstream>
-#include "../headers/MarketData.hpp"
-#include "../headers/fs/ParseYahooCsv.hpp"
-#include "../headers/utils/Date.hpp"
+#include "MarketData.hpp"
+#include "fs/ParseYahooCsv.hpp"
+#include "utils/Date.hpp"
 #include <unistd.h>
 #include <math.h>
 #include <cassert>

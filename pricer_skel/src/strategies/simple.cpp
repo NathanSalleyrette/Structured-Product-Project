@@ -1,11 +1,11 @@
 #include <string>
-#include "../../headers/MarketData.hpp"
-#include "../../headers/fs/ParseYahooCsv.hpp"
-#include "../../headers/utils/Utils.hpp"
-#include "../../headers/utils/Date.hpp"
-#include "../../headers/models/BlackScholesModel.hpp"
-#include "../../headers/montecarlo/MonteCarlo.hpp"
-#include "../../headers/financialProducts/Performance.hpp"
+#include "MarketData.hpp"
+#include "fs/ParseYahooCsv.hpp"
+#include "utils/Utils.hpp"
+#include "utils/Date.hpp"
+#include "models/BlackScholesModel.hpp"
+#include "montecarlo/MonteCarlo.hpp"
+#include "financialProducts/Performance.hpp"
 #include <map>
 
 using namespace std;

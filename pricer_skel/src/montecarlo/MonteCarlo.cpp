@@ -1,4 +1,4 @@
-#include "../../headers/montecarlo/MonteCarlo.hpp"
+#include "montecarlo/MonteCarlo.hpp"
 #include <cmath>
 #include <ctime>
 #include <iostream>
