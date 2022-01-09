@@ -50,6 +50,7 @@ void MonteCarlo::price(double &prix, double &std_dev)
         resPayoff = prodd_->payoff(path_);
         sum += resPayoff;
         sumSquared += resPayoff * resPayoff;
+        // std::cout<<resPayoff<<std::endl;
     }
 
     double oneOverMTimesSum = oneOverM * sum;

@@ -38,6 +38,10 @@ int main(int argc, char **argv)
     bs->simul_market(past, T, rng, trend, nbHedgeDate, path);
     pnl_mat_print(path);
 
+    // bs->asset(path, T, nbHedgeDate, rng);
+    // cout << "asset" << endl;
+    // pnl_mat_print(path);
+
     delete parser;
     delete bs;
 

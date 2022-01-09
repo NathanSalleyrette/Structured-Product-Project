@@ -1,30 +1,50 @@
 #include "../../headers/MarketData.hpp"
 #include "../../headers/fs/ParseYahooCsv.hpp"
+#include "../../headers/utils/Date.hpp"
 #include <map>
+#include "gtest/gtest.h"
 
-int main() {
-    ParseYahooCsv *parser = new ParseYahooCsv();
-    parser->setCheminData("../data/DATA/FLS.csv");
+namespace {
 
-    MarketData *market = new MarketData();
-    
-    market->fillData(parser);
+    TEST(MarketData, getSpot) {
+        ParseYahooCsv *parser = new ParseYahooCsv();
+        parser->setCheminData("../../data/DATA/FLS.csv");
 
-    cout << market->getSpotFromDateAndAction("2021-11-11", "FLS") << endl;
-    
-    market->printActions();
+        MarketData *market = new MarketData();
 
-    PnlVect *result = pnl_vect_create(market->getNumOfActions());
-    
-    market->getSpotsFromDate(result, "2014-07-11");
-    pnl_vect_print(result);
+        market->fillData(parser);
 
-    market->getSpotsFromDate(result, "2014-07-15");
-    pnl_vect_print(result);
-    
-    market->getSpotsFromDate(result, "2014-07-16");
-    
-    pnl_vect_print(result);
-    pnl_vect_free(&result);
+        cout << market->getSpotFromDateAndAction("2021-11-11", "FLS") << endl;
+        EXPECT_DOUBLE_EQ(market->getSpotFromDateAndAction("2021-11-11", "FLS"), 33.509998);
 
+        market->printActions();
+
+        PnlVect *result = pnl_vect_create(market->getNumOfActions());
+
+        market->getSpotsFromDate(result, "2014-07-11");
+        pnl_vect_print(result);
+
+        market->getSpotsFromDate(result, "2014-07-15");
+        pnl_vect_print(result);
+
+        market->getSpotsFromDate(result, "2014-07-16");
+
+        pnl_vect_print(result);
+        pnl_vect_free(&result);
+    }
+
+    // Avec ce test, on verifie qu'aucune action n'est côtée un samedi ou un dimanche
+    TEST(MarketData, haveSundayOrSaturday) {
+        ParseYahooCsv *parser = new ParseYahooCsv();
+
+        MarketData *market = new MarketData();
+
+        market->fillData(parser);
+        map<string, map<string, double>> data = market->getData();
+        map<string, map<string, double>>::iterator it;
+        for (it = data.begin(); it != data.end(); it++) {
+            EXPECT_FALSE(Date::isSaturdayOrSunday(it->first));
+        }
+
+    }
 }
