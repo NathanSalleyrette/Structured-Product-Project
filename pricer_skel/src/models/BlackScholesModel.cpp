@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../../headers/models/BlackScholesModel.hpp"
 #include <cmath>
+#include <cassert>
 
 BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot)
 {
@@ -51,6 +52,7 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     double interval;
     double sigma;
     PnlVect vecLine;
+    
 
     /// On recopie tous les elements de past dans path
     for (int i=0; i<past->m; i++){
@@ -59,10 +61,14 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     }
 
     int simulationStart = past->m - 1;
+    // std::cout << MGET(path, simulationStart, 0) << std::endl;
+    // std::cout << simulationStart << std::endl;
     interval = simulationStart * timeDelta - t;
     double sqrtInterval = sqrt(interval);
     // disjonction du cas si t est trop loin de t_{i+1}, on doit modifier la dernière valeur
-    if(abs(interval) > 1.e-10){
+    if(abs(interval) > 1.e-4){
+        // std::cout << interval << std::endl;
+        // std::cout << "on rentre là dedans" << std::endl;
 
         //simulation de ti+1
         pnl_vect_rng_normal(G_, size_, rng);
@@ -73,6 +79,10 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
         }
     }
     //simulation de ti+2..., tN
+
+    // std::cout << simulationStart << std::endl;
+    // std::cout << MGET(path, simulationStart, 0) << std::endl;
+    // assert(1==2);
     for(int i=simulationStart + 1; i<=nbTimeSteps; i++){
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d = 0; d<size_; d++) {

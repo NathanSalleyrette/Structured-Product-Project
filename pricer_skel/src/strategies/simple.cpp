@@ -13,6 +13,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
 
+    double r = 0.04879;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
     market->fillData(parser);
@@ -32,7 +33,8 @@ int main(int argc, char **argv)
     //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
     PnlVect* spots = pnl_vect_create(path->n);
     pnl_mat_get_row(spots, path, 0);
-    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),0.04879,1,volatilities, spots);
+    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots);
+    pnl_mat_chol(corrMat);
     bs->correlations_ = corrMat;
 
     vector<string> Pdates = 
@@ -58,7 +60,7 @@ int main(int argc, char **argv)
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
-    int nbSample = 1000;
+    int nbSample = 2;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
     double prix, std_dev;
@@ -69,7 +71,37 @@ int main(int argc, char **argv)
     mc->price(prix, std_dev);
     std::cout << "Prix" << prix <<std::endl;
 
+    //calcul du prix en t = auj
+
+    vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
+
+    vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
+
+    PnlMat *past = pnl_mat_create(1,1);
+    market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
+
+    Performance *perfForPriceToday = new Performance(observeDates, market, datesFrom2014To2022);
+    MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
+
+    double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
+    mcForPriceToday->price(past, t, prix, std_dev);
+
+
+
+    cout << "prix auj " << prix <<endl;
+
+
     //calcul P&L
+    int H = datesFrom2014To2022.size() - 1;
+    double T = 1;
+    PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), r);
+    bs->simul_market(past, T, rng, trend, H, path);
+
+    double errorHedge;
+
+    mc->pAndL(H, errorHedge, path, 1);
+
+    cout << errorHedge << endl;
 
 
     pnl_vect_free(&volatilities);
