@@ -1,6 +1,6 @@
-#include "../../headers/MarketData.hpp"
-#include "../../headers/fs/ParseYahooCsv.hpp"
-#include "../../headers/utils/Date.hpp"
+#include "MarketData.hpp"
+#include "fs/ParseYahooCsv.hpp"
+#include "utils/Date.hpp"
 #include <map>
 #include "gtest/gtest.h"
 

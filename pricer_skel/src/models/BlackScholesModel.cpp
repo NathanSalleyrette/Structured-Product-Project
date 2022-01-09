@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../headers/models/BlackScholesModel.hpp"
+#include "models/BlackScholesModel.hpp"
 #include <cmath>
 #include <cassert>
 

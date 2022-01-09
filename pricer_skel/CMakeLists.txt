@@ -28,6 +28,9 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 
+include_directories(headers)
+
+
 # GoogleTest
 include(FetchContent)
 FetchContent_Declare(
@@ -39,6 +42,12 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# Testing the logger
+set(SOURCES src/tests/testLogger.cpp)
+set(HEADERS headers/spdlog/spdlog.h)
+add_executable(testLogger ${SOURCES} ${HEADERS})
+target_link_libraries(testLogger ${LIBS})
+pnl_add_postbuild(testLogger)
 
 
 # Testing the parser

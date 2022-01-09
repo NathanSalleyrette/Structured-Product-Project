@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
-#include "../../headers/fs/ParseYahooCsv.hpp"
-#include "../../headers/financialProducts/Performance.hpp"
-#include "../../headers/MarketData.hpp"
+#include "fs/ParseYahooCsv.hpp"
+#include "financialProducts/Performance.hpp"
+#include "MarketData.hpp"
 #include <map>
 #include <vector>
 
