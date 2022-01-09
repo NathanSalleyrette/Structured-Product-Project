@@ -3,7 +3,7 @@
 Utils::Utils(){}
 
 double Utils::covariance(const PnlVect* X, const PnlVect* Y){
-    std::cout<<X->size<<endl;
+    // std::cout<<X->size<<endl;
     assert(("Vecteurs de tailles différentes pour le calcul de la covariance",X->size == Y->size));
     double E_x = esperance(X);
     double E_y = esperance(Y);
@@ -53,3 +53,11 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
         }
     }
 }
+
+void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
+    PnlVect* temp = pnl_vect_create(1);
+    for (int i = 0; i < volatilities->size; i++){
+        pnl_mat_get_col(temp, path, i);
+        LET(volatilities, i) = sqrt(covariance(temp,temp));
+    }
+}       

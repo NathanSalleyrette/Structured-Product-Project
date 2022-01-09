@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.5)
 project(PriceBSCall CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -27,77 +27,117 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_definitions(-DPNL_RANGE_CHECK_OFF)
 endif()
 
+
+# GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  # Specify the commit you depend on and update it regularly.
+  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+
+
 # Testing the parser
-set(SOURCES src/ParseYahooCsv.cpp src/testPerformance.cpp src/Performance.cpp src/MarketData.cpp src/Date.cpp)
-set(HEADERS src/ParseYahooCsv.hpp src/Performance.hpp src/MarketData.hpp src/Date.cpp)
+set(SOURCES src/fs/ParseYahooCsv.cpp src/tests/testPerformance.cpp src/financialProducts/Performance.cpp src/MarketData.cpp src/utils/Date.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/financialProducts/Performance.hpp headers/MarketData.hpp headers/utils/Date.hpp)
 add_executable(performance ${SOURCES} ${HEADERS})
 target_link_libraries(performance ${LIBS})
 pnl_add_postbuild(performance)
 
+
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simple ${SOURCES} ${HEADERS})
+target_link_libraries(simple ${LIBS})
+pnl_add_postbuild(simple)
+
 #Testing the utils class
-set(SOURCES src/Utils.cpp src/TestUtils.cpp)
-set(HEADERS src/Utils.hpp)
+set(SOURCES src/utils/Utils.cpp src/tests/TestUtils.cpp)
+set(HEADERS headers/utils/Utils.hpp)
 add_executable(utils ${SOURCES} ${HEADERS})
 target_link_libraries(utils ${LIBS})
 pnl_add_postbuild(utils)
 
-set(SOURCES src/Utils.cpp src/TestSize0.cpp)
-set(HEADERS src/Utils.hpp)
+set(SOURCES src/utils/Utils.cpp src/tests/TestSize0.cpp)
+set(HEADERS headers/utils/Utils.hpp)
 add_executable(utilsSize ${SOURCES} ${HEADERS})
 target_link_libraries(utilsSize ${LIBS})
 pnl_add_postbuild(utilsSize)
 
-set(SOURCES src/Utils.cpp src/TestSizeDifferents.cpp)
-set(HEADERS src/Utils.hpp)
+set(SOURCES src/utils/Utils.cpp src/tests/TestSizeDifferents.cpp)
+set(HEADERS headers/utils/Utils.hpp)
 add_executable(utilsdiff ${SOURCES} ${HEADERS})
 target_link_libraries(utilsdiff ${LIBS})
 pnl_add_postbuild(utilsdiff)
 
-set(SOURCES src/Date.cpp src/testDate.cpp)
-set(HEADERS src/Date.hpp)
-add_executable(date ${SOURCES} ${HEADERS})
-target_link_libraries(date ${LIBS})
-pnl_add_postbuild(date)
 
-set(SOURCES src/MarketData.cpp src/ParseYahooCsv.cpp src/testMarketData.cpp src/Date.cpp)
-set(HEADERS src/MarketData.hpp src/ParseYahooCsv.hpp src/Date.hpp)
-add_executable(data ${SOURCES} ${HEADERS})
-target_link_libraries(data ${LIBS})
-pnl_add_postbuild(data)
 
-set(SOURCES src/MarketData.cpp src/ParseYahooCsv.cpp src/testMarketData.cpp)
-set(HEADERS src/MarketData.hpp src/ParseYahooCsv.hpp)
+
+set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp)
+set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
 add_library(datas SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
 
-set(SOURCES src/ParseCsv.cpp src/TestHedge.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 
-set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testVanille ${SOURCES} ${HEADERS})
 target_link_libraries(testVanille ${LIBS})
 pnl_add_postbuild(testVanille)
 
 
 #Testing the price calculus
-set(SOURCES src/ParseCsv.cpp src/TestPriceCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
-set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testPrice ${SOURCES} ${HEADERS})
 target_link_libraries(testPrice ${LIBS})
 pnl_add_postbuild(testPrice)
 
-set(SOURCES src/ParseCsv.cpp src/TestPriceDateCall.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
-set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testPriceDate ${SOURCES} ${HEADERS})
 target_link_libraries(testPriceDate ${LIBS})
 pnl_add_postbuild(testPriceDate)
 
 #Testing the simulMarket function
-set(SOURCES src/ParseCsv.cpp src/TestSimulMarket.cpp src/MonteCarlo.cpp src/BlackScholesModel.cpp src/VanillaCall.cpp)
-set(HEADERS src/ParseCsv.hpp src/MonteCarlo.hpp src/BlackScholesModel.hpp src/VanillaCall.hpp src/ProduitDerive.hpp)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/TestSimulMarket.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
 add_executable(testSimulMarket ${SOURCES} ${HEADERS})
 target_link_libraries(testSimulMarket ${LIBS})
 pnl_add_postbuild(testSimulMarket)
+
+#GOOGLETEST
+add_executable(googletest src/tests/googletest.cpp)
+target_link_libraries(googletest gtest_main)
+add_test(NAME googletest_test COMMAND googletest)
+
+set(SOURCES src/utils/Date.cpp src/tests/testDate.cpp)
+set(HEADERS headers/utils/Date.hpp)
+add_executable(date ${SOURCES} ${HEADERS})
+target_link_libraries(date gtest_main ${LIBS})
+pnl_add_postbuild(date)
+add_test(NAME date_test COMMAND date)
+
+set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
+set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
+add_executable(marketdata  ${SOURCES} ${HEADERS})
+target_link_libraries(marketdata gtest_main ${LIBS})
+pnl_add_postbuild(data)
+add_test(NAME marketdata_test COMMAND marketdata)
+
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallVanille.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
+add_executable(testVanilleGtest ${SOURCES} ${HEADERS})
+target_link_libraries(testVanilleGtest gtest_main ${LIBS})
+pnl_add_postbuild(testVanilleGtest)
+add_test(NAME vanille_test COMMAND testVanilleGtest)
+
 
 # Print compiler flags
 get_directory_property(DirDefs COMPILE_DEFINITIONS)

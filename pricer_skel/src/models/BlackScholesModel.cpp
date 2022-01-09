@@ -32,11 +32,12 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
 
 
     pnl_mat_set_row(path, spot_, 0); // la première ligne de path contient les spot en t=0
-
     for(int i=1; i<=nbTimeSteps; i++){
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d=0;d<size_;d++) {
+            //std::cout << d<<std::endl;
             sigma = GET(sigma_, d);
+            // std::cout<<sigma<<std::endl;
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
             MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
