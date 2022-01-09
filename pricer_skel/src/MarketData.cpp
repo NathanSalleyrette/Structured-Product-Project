@@ -30,12 +30,12 @@ int MarketData::getNumOfActions() { return actions.size(); }
 
 
 void MarketData::fillData(ParseYahooCsv *parser) {
-    string pathFiles = "../../data/DATA";
+    string pathFiles = "../data/DATA";
     string action;
     for (const auto & entry : directory_iterator(pathFiles)) {
         action = entry.path(); //pas mieux path().filename().toString() ?
         action.erase(action.end()-4, action.end());
-        action.erase(action.begin(), action.begin()+16);
+        action.erase(action.begin(), action.begin()+13);
         
         actions.push_back(action);
 
