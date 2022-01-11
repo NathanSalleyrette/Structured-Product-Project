@@ -1,6 +1,6 @@
-#include "spdlog/spdlog.h"
+#include "spdlog/log.hpp"
+
 int main()
-{
-    //Use the default logger (stdout, multi-threaded, colored)
-    spdlog::info("Hello, {}!", "World");
+{   
+    log::init();
 }

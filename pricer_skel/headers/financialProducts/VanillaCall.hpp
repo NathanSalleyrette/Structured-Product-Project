@@ -2,11 +2,11 @@
 
 #include "pnl/pnl_vector.h"
 #include "pnl/pnl_matrix.h"
-#include "ProduitDerive.hpp"
+#include "Derivative.hpp"
 
 /// \brief Produit dérivé Option vanille
 
-class VanillaCall : public ProduitDerive
+class VanillaCall : public Derivative
 {
 public:
 
@@ -15,9 +15,9 @@ public:
     /**
      * Construit une option vanille
      * 
-     * @param[in] T maturité du ProduitDerive
+     * @param[in] T maturité du Derivative
      * @param[in] nbTimeSteps nombre de dates de constatation
-     * @param[in] K strike du ProduitDerive
+     * @param[in] K strike du Derivative
      */
     VanillaCall(double T, int nbTimeSteps, double K);
 

@@ -4,11 +4,13 @@
 #include "fs/ParseCsv.hpp"
 #include "models/BlackScholesModel.hpp"
 #include "financialProducts/VanillaCall.hpp"
+#include "spdlog/log.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+    log::init();
     double T = 1;
     int size = 1;
     double rho = 1;

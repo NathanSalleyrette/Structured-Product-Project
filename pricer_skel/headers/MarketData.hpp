@@ -44,7 +44,7 @@ class MarketData {
          * @param startDate first day of the window 
          * @param nbOfDays size of the window
          */
-        void fiilPathMat(PnlMat* path, string startDate, int nbOfDays);
+        void fillPathMat(PnlMat* path, string startDate, int nbOfDays);
 
         /**
          * @brief Construct a new fillfrom Path object

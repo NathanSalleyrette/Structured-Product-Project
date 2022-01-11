@@ -1,10 +1,12 @@
 #include "utils/Date.hpp"
 #include "gtest/gtest.h"
+#include "spdlog/log.hpp"
 
 namespace
 {
     TEST(Date, nextDate)
     {
+        log::init();
         // Lundi
         string date = "2021-01-04";
         string nextDate = Date::nextDate(date);

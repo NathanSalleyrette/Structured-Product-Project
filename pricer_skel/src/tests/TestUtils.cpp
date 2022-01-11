@@ -1,7 +1,8 @@
 #include "utils/Utils.hpp"
-
+#include "spdlog/log.hpp"
 
 int main(){
+    log::init();
     PnlVect *X = pnl_vect_create_from_scalar(10,100);
     PnlVect *Y = pnl_vect_create_from_scalar(10,200);
     

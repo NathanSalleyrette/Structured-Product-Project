@@ -6,11 +6,11 @@
 #include <sstream>
 #include "../fs/ParseYahooCsv.hpp"
 #include "../MarketData.hpp"
-#include "ProduitDerive.hpp"
+#include "Derivative.hpp"
 using namespace std;
 
-/// \brief Calcul de performance pour les 30 actions
-class Performance: public ProduitDerive {
+// @brief Calcul de performance pour les 30 actions
+class Performance: public Derivative {
     private:
         
         PnlVect *nivInitAct;

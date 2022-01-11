@@ -4,9 +4,11 @@
 #include "fs/ParseCsv.hpp"
 #include "models/BlackScholesModel.hpp"
 #include "financialProducts/VanillaCall.hpp"
+#include "spdlog/log.hpp"
 using namespace std;
 
 int main(int argc, char **argv){
+    log::init();
     double T = 1;
     int nbTimeSteps = 1;
     double K = 100;
@@ -31,7 +33,7 @@ int main(int argc, char **argv){
     
     double price;
     double std_dev;
-    ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+    Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
     BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
 
     MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);

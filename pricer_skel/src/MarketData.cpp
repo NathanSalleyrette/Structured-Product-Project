@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <cassert>
+#include "spdlog/spdlog.h"
+
 using std::filesystem::directory_iterator;
 
 
@@ -44,6 +46,8 @@ void MarketData::fillData(ParseYahooCsv *parser) {
         parser->setCheminData(entry.path());
         parser->fillDictFromFile(data, action);
     }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "MarketData map filled with cvs datas");
 } 
 
 // Le vecteur doit être de la bonne taille
@@ -69,7 +73,7 @@ int MarketData::getNbStocks(){
 }
 
 
-void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {
+void MarketData::fillPathMat(PnlMat* path, string startDate, int nbOfDays) {
     pnl_mat_resize(path, nbOfDays, actions.size());
     PnlVect* spotsOfDate = pnl_vect_create(actions.size());
     string date = startDate;
@@ -78,6 +82,8 @@ void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {
         pnl_mat_set_row(path, spotsOfDate, i);
         date = Date::nextDate(date);
     }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Path matrix created from map");
 }
 
 void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
