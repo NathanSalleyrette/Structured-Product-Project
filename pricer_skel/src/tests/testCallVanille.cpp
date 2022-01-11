@@ -5,12 +5,10 @@
 #include "models/BlackScholesModel.hpp"
 #include "financialProducts/VanillaCall.hpp"
 #include "gtest/gtest.h"
+#include "spdlog/log.hpp"
 
 namespace
 {
-
-
-    
     // Vanilla Call's information
     double T = 1;
     int nbTimeSteps = 1;
@@ -44,13 +42,14 @@ namespace
 
     TEST(Vanille, Prix)
     {
+        log::init();
         PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
         pnl_rng_sseed(rng, time(NULL));
 
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
@@ -88,7 +87,7 @@ namespace
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
         
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
@@ -134,7 +133,7 @@ namespace
         double price;
         double std_dev;
 
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
@@ -172,7 +171,7 @@ namespace
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
         PnlMat *past = pnl_mat_create_from_scalar(2,1, 100);
 
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
@@ -214,7 +213,7 @@ namespace
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
@@ -246,7 +245,7 @@ namespace
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
-        ProduitDerive *vanille = new VanillaCall(T, nbTimeSteps, K);
+        Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 

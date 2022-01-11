@@ -6,20 +6,22 @@
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
 #include "financialProducts/Performance.hpp"
+#include "spdlog/log.hpp"
 #include <map>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-
+    log::init();
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     double r = 0.04879;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
     market->fillData(parser);
 
     PnlMat* path = pnl_mat_create(1,1);
-    market->fiilPathMat(path, "2021-12-10", 5);
+    market->fillPathMat(path, "2021-12-10", 5);
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, path);
@@ -69,7 +71,8 @@ int main(int argc, char **argv)
     PnlVect* std_dev_delta = pnl_vect_create(market->getNbStocks());
     //mc->delta(delta, std_dev_delta);
     mc->price(prix, std_dev);
-    std::cout << "Prix" << prix <<std::endl;
+    SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 => {}", prix);
+
 
     //calcul du prix en t = auj
 
@@ -78,7 +81,7 @@ int main(int argc, char **argv)
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
     PnlMat *past = pnl_mat_create(1,1);
-    market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
+    market->fillPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
 
     Performance *perfForPriceToday = new Performance(observeDates, market, datesFrom2014To2022);
     MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
@@ -87,9 +90,7 @@ int main(int argc, char **argv)
     mcForPriceToday->price(past, t, prix, std_dev);
 
 
-
-    cout << "prix auj " << prix <<endl;
-
+    SPDLOG_LOGGER_INFO(_logger, "Price at t => {}", prix);
 
     //calcul P&L
     int H = datesFrom2014To2022.size() - 1;
@@ -101,8 +102,7 @@ int main(int argc, char **argv)
 
     mc->pAndL(H, errorHedge, path, 1);
 
-    cout << errorHedge << endl;
-
+    SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 

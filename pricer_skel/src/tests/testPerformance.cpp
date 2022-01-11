@@ -5,11 +5,13 @@
 #include "MarketData.hpp"
 #include <map>
 #include <vector>
+#include "spdlog/log.hpp"
 
 using namespace std;
 
 
 int main() {
+    log::init();
     ParseYahooCsv *parser = new ParseYahooCsv();
     
     MarketData *market = new MarketData();

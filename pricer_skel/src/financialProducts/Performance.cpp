@@ -18,9 +18,9 @@ Performance::Performance(vector<string> observationDates, MarketData *md, vector
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     this->md = md;
     this->simulationDates = simulationDates;
-    ProduitDerive::T_ = 1;
-    ProduitDerive::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation
-    ProduitDerive::size_= md->getNumOfActions();
+    Derivative::T_ = 1;
+    Derivative::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation
+    Derivative::size_= md->getNumOfActions();
     
 }
 
