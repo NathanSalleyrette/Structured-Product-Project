@@ -64,9 +64,9 @@ void MarketData::printActions() {
 
 }
 
-int MarketData::getNbStocks(){
-    return actions.size();
-}
+// int MarketData::getNbStocks(){
+//     return actions.size();
+// }
 
 
 void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {

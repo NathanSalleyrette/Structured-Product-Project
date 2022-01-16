@@ -20,6 +20,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md, vector
     this->simulationDates = simulationDates;
     ProduitDerive::T_ = 1;
     ProduitDerive::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation
+    // ProduitDerive::nbTimeSteps_ = 1;
     ProduitDerive::size_= md->getNumOfActions();
     
 }
@@ -90,6 +91,10 @@ void Performance::printObservationDates() {
 
 void Performance::setObservationDates(vector<string> od) {
     observationDates = od;
+}
+
+PnlVect *Performance::getNivInitAct() {
+    return nivInitAct;
 }
 
 

@@ -78,18 +78,18 @@ int main(int argc, char **argv)
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
 
-    // Performance *perfForPriceToday = new Performance(observeDates, market, datesFrom2014To2022);
+    // Performance *perf = new Performance(observeDates, market, datesFrom2014To2022);
     market->fillData(parser); // on a n'importe quoi dans le dictionnaire à cause du calcul du prix en 0 donc on reclean le dico
-    Performance *perfForPriceToday = new Performance(Pdates, market, Pdates);
-    MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
+    // Performance *perf = new Performance(Pdates, market, Pdates);
+    // MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
 
     int nbDatesInPast = 15;
     PnlMat *past = pnl_mat_create(nbDatesInPast, market->getNumOfActions());
     // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
 
-    perfForPriceToday->niveauInitial();
+    perf->niveauInitial();
 
-    pnl_mat_set_row(past, perfForPriceToday->getNivInitAct(), 0);
+    pnl_mat_set_row(past, perf->getNivInitAct(), 0);
 
     PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
     for (int i = 0; i < nbDatesInPast - 1; i ++) {
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
     // pnl_mat_print(past);
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-    mcForPriceToday->price(past, t, prix, std_dev);
+    mc->price(past, t, prix, std_dev);
 
     cout << "prix auj " << prix <<endl;
 
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
     double errorHedge;
 
-    mcForPriceToday->pAndL(H, errorHedge, path, 1);
+    mc->pAndL(H, errorHedge, path, 1);
 
     cout << errorHedge << endl;
 

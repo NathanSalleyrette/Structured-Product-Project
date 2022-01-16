@@ -64,6 +64,12 @@ add_executable(simple ${SOURCES} ${HEADERS})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleBis.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleBis ${SOURCES} ${HEADERS})
+target_link_libraries(simpleBis ${LIBS})
+pnl_add_postbuild(simpleBis)
+
 #Testing the utils class
 set(SOURCES src/utils/Utils.cpp src/tests/TestUtils.cpp)
 set(HEADERS headers/utils/Utils.hpp)
@@ -146,6 +152,13 @@ add_executable(testVanilleGtest ${SOURCES} ${HEADERS})
 target_link_libraries(testVanilleGtest gtest_main ${LIBS})
 pnl_add_postbuild(testVanilleGtest)
 add_test(NAME vanille_test COMMAND testVanilleGtest)
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallHEqualN.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
+add_executable(testVanilleHEqualN ${SOURCES} ${HEADERS})
+target_link_libraries(testVanilleHEqualN gtest_main ${LIBS})
+pnl_add_postbuild(testVanilleHEqualN)
+add_test(NAME vanilleHEqualN_test COMMAND testVanilleHEqualN)
 
 
 # Print compiler flags

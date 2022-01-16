@@ -35,7 +35,7 @@ class MarketData {
          * 
          * @return int 
          */
-        int getNbStocks();
+        // int getNbStocks();
 
         /**
          * @brief fill a path matrix of all shares on a specific window

@@ -41,4 +41,6 @@ class Performance: public ProduitDerive {
         void printObservationDates();
 
         void setObservationDates(vector<string> od);
+
+        PnlVect *getNivInitAct();
 };

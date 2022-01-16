@@ -66,7 +66,7 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     interval = simulationStart * timeDelta - t;
     double sqrtInterval = sqrt(interval);
     // disjonction du cas si t est trop loin de t_{i+1}, on doit modifier la dernière valeur
-    if(abs(interval) > 1.e-4){
+    if(abs(interval) > 1.e-10){
         // std::cout << interval << std::endl;
         // std::cout << "on rentre là dedans" << std::endl;
 
