@@ -47,7 +47,8 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
 
 void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past)
 {
-    double timeDelta = T / nbTimeSteps;
+    double timeDelta = T / nbTimeSteps; // T/N --> 1/16
+    
     double sqrtTimeDelta = sqrt(timeDelta);
     double interval;
     double sigma;
@@ -63,7 +64,10 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     int simulationStart = past->m - 1;
     // std::cout << MGET(path, simulationStart, 0) << std::endl;
     // std::cout << simulationStart << std::endl;
-    interval = simulationStart * timeDelta - t;
+    // 
+    interval = (simulationStart + 1) * timeDelta - t;
+    // std::cout << "timeDelat" << timeDelta * simulationStart << std::endl;
+    // std::cout << "t" << t << std::endl;
     double sqrtInterval = sqrt(interval);
     // disjonction du cas si t est trop loin de t_{i+1}, on doit modifier la dernière valeur
     if(abs(interval) > 1.e-10){
@@ -75,6 +79,8 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
         for(int d = 0; d<size_; d++){
             sigma = GET(sigma_, d);
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
+            // std::cout << "sigma" << sigma << std::endl;
+            // pnl_vect_print(&vecLine);
             MLET(path, simulationStart, d) *= exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }

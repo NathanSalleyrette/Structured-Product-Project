@@ -68,8 +68,10 @@ int main(int argc, char **argv)
     // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
-    mc->price(prix, std_dev);
+    mc->price(prix, std_dev); // si on commente cette ligne, on a pas le mme res pour prix en t
     std::cout << "Prix" << prix <<std::endl;
+
+    double prixt;
 
     //calcul du prix en t = auj
 
@@ -78,7 +80,7 @@ int main(int argc, char **argv)
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
 
-    // Performance *perfForPriceToday = new Performance(observeDates, market, datesFrom2014To2022);
+    // Performance *perf = new Performance(observeDates, market, datesFrom2014To2022);
     market->fillData(parser); // on a n'importe quoi dans le dictionnaire à cause du calcul du prix en 0 donc on reclean le dico
     Performance *perfForPriceToday = new Performance(Pdates, market, Pdates);
     MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
@@ -100,9 +102,9 @@ int main(int argc, char **argv)
     // pnl_mat_print(past);
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-    mcForPriceToday->price(past, t, prix, std_dev);
+    mcForPriceToday->price(past, t, prixt, std_dev);
 
-    cout << "prix auj " << prix <<endl;
+    cout << "prix auj " << prixt <<endl;
 
 
     //calcul P&L
@@ -126,4 +128,7 @@ int main(int argc, char **argv)
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
+
+    // on a pas le mme price en t si on calcule price en 0 avant ou pas 
+    // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
 }
