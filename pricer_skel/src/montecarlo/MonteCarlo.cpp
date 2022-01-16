@@ -2,9 +2,9 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include "spdlog/log.hpp"
 
-
-MonteCarlo::MonteCarlo(BlackScholesModel *mod, ProduitDerive *prodd, double fdStep, int nbSamples, PnlRng *rng)
+MonteCarlo::MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng)
 {
     mod_ = mod;
     prodd_ = prodd;
@@ -36,6 +36,8 @@ MonteCarlo::~MonteCarlo() {
 
 void MonteCarlo::price(double &prix, double &std_dev)
 {
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t = 0");
     double resPayoff;
     double sum = 0;
     double sumSquared = 0;
@@ -60,10 +62,13 @@ void MonteCarlo::price(double &prix, double &std_dev)
     //actualisation du payoff simulé par MonteCarlo
     prix = exp(-mod_->r_ * prodd_->T_) * oneOverMTimesSum;
     std_dev = sqrt(varianceEstim*oneOverM);
+    SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 computed");
 }
 
 void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_dev)
 {
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t");
     double resPayoff;
     double sum = 0;
     double sumSquared = 0;
@@ -88,7 +93,7 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_d
     //actualisation du payoff simulé par MonteCarlo
     prix = exp(-mod_->r_ * (prodd_->T_ - t)) * oneOverMTimesSum;
     std_dev = sqrt(varianceEstim*oneOverM);
-
+    SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
 }
 
 void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev)

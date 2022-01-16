@@ -2,6 +2,7 @@
 #include "models/BlackScholesModel.hpp"
 #include <cmath>
 #include <cassert>
+#include "spdlog/log.hpp"
 
 BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot)
 {
@@ -126,6 +127,8 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
 
 void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path)
 {   
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Starting siluating path");
     int start = past->m;
     double interval = T / nbHedgeDate;
     double sqrtInterval = sqrt(interval);
@@ -155,4 +158,5 @@ void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVec
             MLET(path, i, d) = MGET(path, i-1, d) * exp((mu - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
+    SPDLOG_LOGGER_INFO(_logger, "Path simulated");
 }

@@ -3,9 +3,9 @@
 
 VanillaCall::VanillaCall(double T, int nbTimeSteps, double K)
 {
-    ProduitDerive::T_ = T;
-    ProduitDerive::nbTimeSteps_ = nbTimeSteps;
-    ProduitDerive::size_ = 1;
+    Derivative::T_ = T;
+    Derivative::nbTimeSteps_ = nbTimeSteps;
+    Derivative::size_ = 1;
     K_ = K;
 }
 

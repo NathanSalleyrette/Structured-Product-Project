@@ -28,8 +28,10 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 
+
 include_directories(headers)
 
+set(LOGGER headers/spdlog/log.hpp src/spdlog/log.cpp headers/spdlog/spdlog.h)
 
 # GoogleTest
 include(FetchContent)
@@ -43,24 +45,23 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Testing the logger
-set(SOURCES src/tests/testLogger.cpp)
-set(HEADERS headers/spdlog/spdlog.h)
-add_executable(testLogger ${SOURCES} ${HEADERS})
+set(SOURCES src/spdlog/log.cpp src/tests/testLogger.cpp)
+set(HEADERS headers/spdlog/log.hpp)
+add_executable(testLogger ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testLogger ${LIBS})
 pnl_add_postbuild(testLogger)
-
 
 # Testing the parser
 set(SOURCES src/fs/ParseYahooCsv.cpp src/tests/testPerformance.cpp src/financialProducts/Performance.cpp src/MarketData.cpp src/utils/Date.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/financialProducts/Performance.hpp headers/MarketData.hpp headers/utils/Date.hpp)
-add_executable(performance ${SOURCES} ${HEADERS})
-target_link_libraries(performance ${LIBS})
-pnl_add_postbuild(performance)
+add_executable(testPerformance ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testPerformance ${LIBS})
+pnl_add_postbuild(testPerformance)
 
 
 set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
-add_executable(simple ${SOURCES} ${HEADERS})
+add_executable(simple ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
 
@@ -73,56 +74,55 @@ pnl_add_postbuild(simpleBis)
 #Testing the utils class
 set(SOURCES src/utils/Utils.cpp src/tests/TestUtils.cpp)
 set(HEADERS headers/utils/Utils.hpp)
-add_executable(utils ${SOURCES} ${HEADERS})
-target_link_libraries(utils ${LIBS})
-pnl_add_postbuild(utils)
+add_executable(testUtils ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testUtils ${LIBS})
+pnl_add_postbuild(testUtils)
 
 set(SOURCES src/utils/Utils.cpp src/tests/TestSize0.cpp)
 set(HEADERS headers/utils/Utils.hpp)
-add_executable(utilsSize ${SOURCES} ${HEADERS})
-target_link_libraries(utilsSize ${LIBS})
-pnl_add_postbuild(utilsSize)
+add_executable(testSize0 ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testSize0 ${LIBS})
+pnl_add_postbuild(testSize0)
 
 set(SOURCES src/utils/Utils.cpp src/tests/TestSizeDifferents.cpp)
 set(HEADERS headers/utils/Utils.hpp)
-add_executable(utilsdiff ${SOURCES} ${HEADERS})
-target_link_libraries(utilsdiff ${LIBS})
-pnl_add_postbuild(utilsdiff)
+add_executable(testSizeDifferents ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testSizeDifferents ${LIBS})
+pnl_add_postbuild(testSizeDifferents)
 
 
 
 
 set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp)
 set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
-add_library(datas SHARED ${SOURCES} ${HEADERS})
+add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
-add_executable(testVanille ${SOURCES} ${HEADERS})
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanille ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testVanille ${LIBS})
 pnl_add_postbuild(testVanille)
 
 
 #Testing the price calculus
 set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
-add_executable(testPrice ${SOURCES} ${HEADERS})
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testPrice ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testPrice ${LIBS})
 pnl_add_postbuild(testPrice)
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
-add_executable(testPriceDate ${SOURCES} ${HEADERS})
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testPriceDate ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testPriceDate ${LIBS})
 pnl_add_postbuild(testPriceDate)
 
 #Testing the simulMarket function
 set(SOURCES src/fs/ParseCsv.cpp src/tests/TestSimulMarket.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
-add_executable(testSimulMarket ${SOURCES} ${HEADERS})
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testSimulMarket ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testSimulMarket ${LIBS})
 pnl_add_postbuild(testSimulMarket)
 
@@ -133,22 +133,22 @@ add_test(NAME googletest_test COMMAND googletest)
 
 set(SOURCES src/utils/Date.cpp src/tests/testDate.cpp)
 set(HEADERS headers/utils/Date.hpp)
-add_executable(date ${SOURCES} ${HEADERS})
-target_link_libraries(date gtest_main ${LIBS})
+add_executable(testDate ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testDate gtest_main ${LIBS})
 pnl_add_postbuild(date)
-add_test(NAME date_test COMMAND date)
+add_test(NAME date_test COMMAND testDate)
 
 set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
 set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
-add_executable(marketdata  ${SOURCES} ${HEADERS})
-target_link_libraries(marketdata gtest_main ${LIBS})
+add_executable(testMarketData  ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testMarketData gtest_main ${LIBS})
 pnl_add_postbuild(data)
-add_test(NAME marketdata_test COMMAND marketdata)
+add_test(NAME marketdata_test COMMAND testMarketData)
 
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallVanille.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/ProduitDerive.hpp)
-add_executable(testVanilleGtest ${SOURCES} ${HEADERS})
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanilleGtest ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testVanilleGtest gtest_main ${LIBS})
 pnl_add_postbuild(testVanilleGtest)
 add_test(NAME vanille_test COMMAND testVanilleGtest)

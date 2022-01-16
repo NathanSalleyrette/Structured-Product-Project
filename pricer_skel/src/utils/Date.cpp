@@ -1,6 +1,7 @@
 #include "utils/Date.hpp"
 #include <stdio.h>
 #include <stdlib.h>
+#include "spdlog/spdlog.h"
 
 using std::to_string;
 

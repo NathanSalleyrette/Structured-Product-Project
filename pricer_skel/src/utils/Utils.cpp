@@ -1,4 +1,5 @@
 #include "utils/Utils.hpp"
+#include "spdlog/spdlog.h"
 
 Utils::Utils(){}
 
@@ -52,6 +53,8 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
             MLET(corrMat, j, i) = correlation(X,Y);
         }
     }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Correlation Matrix computed");
 }
 
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
@@ -60,4 +63,6 @@ void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
         pnl_mat_get_col(temp, path, i);
         LET(volatilities, i) = sqrt(covariance(temp,temp));
     }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Vols computed from path matrix");
 }       

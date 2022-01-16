@@ -6,13 +6,15 @@
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
 #include "financialProducts/Performance.hpp"
+#include "spdlog/log.hpp"
 #include <map>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-
+    log::init();
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     double r = 0.04879;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
@@ -20,7 +22,7 @@ int main(int argc, char **argv)
 
     // calcul de la volatilité et la correlation
     PnlMat* path = pnl_mat_create(1,1);
-    market->fiilPathMat(path, "2021-12-10", 5);
+    market->fillPathMat(path, "2021-12-10", 5);
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, path);
@@ -134,8 +136,7 @@ int main(int argc, char **argv)
 
     mc->pAndL(H - 1, errorHedge, path, 1);
 
-    cout << errorHedge << endl;
-
+    SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 

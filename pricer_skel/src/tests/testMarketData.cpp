@@ -3,10 +3,12 @@
 #include "utils/Date.hpp"
 #include <map>
 #include "gtest/gtest.h"
+#include "spdlog/log.hpp"
 
 namespace {
 
     TEST(MarketData, getSpot) {
+        log::init();
         ParseYahooCsv *parser = new ParseYahooCsv();
         parser->setCheminData("../../data/DATA/FLS.csv");
 

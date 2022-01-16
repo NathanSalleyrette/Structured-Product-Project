@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "../financialProducts/ProduitDerive.hpp"
+#include "../financialProducts/Derivative.hpp"
 #include "../models/BlackScholesModel.hpp"
 #include "pnl/pnl_random.h"
 
@@ -22,7 +22,7 @@ private:
 public:
     BlackScholesModel *mod_; /*! pointeur vers le modèle */
 
-    ProduitDerive *prodd_; /*! pointeur sur le ProduitDerive */
+    Derivative *prodd_; /*! pointeur sur le Derivative */
     PnlRng *rng_; /*! pointeur sur le générateur */
     double fdStep_; /*! pas de différence finie */
     int nbSamples_; /*! nombre de tirages Monte Carlo */
@@ -33,11 +33,11 @@ public:
      * 
      * @param[in] mod pointeur vers le modèle
 
-     * @param[in] prodd pointeur sur le ProduitDerive
+     * @param[in] prodd pointeur sur le Derivative
      * @param[in] fdStep pas de différence finie
      * @param[in] nbSamples nombre de tirages Monte Carlo
      */
-    MonteCarlo(BlackScholesModel *mod, ProduitDerive *prodd, double fdStep, int nbSamples, PnlRng *rng);
+    MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng);
 
     /**
      * Détruit le moteur Monte Carlo
@@ -45,7 +45,7 @@ public:
     ~MonteCarlo();
 
     /**
-     * Calcule le prix du ProduitDerive à la date 0
+     * Calcule le prix du Derivative à la date 0
      *
      * @param[out] prix valeur de l'estimateur Monte Carlo
      * @param[out] ic écart type de l'estimateur
@@ -53,7 +53,7 @@ public:
     void price(double &prix, double &std_dev);
 
     /**
-     * Calcule le prix du ProduitDerive à la date t
+     * Calcule le prix du Derivative à la date t
      *
      * @param[in]  past contient la trajectoire du sous-jacent
      * jusqu'à l'instant t
@@ -64,7 +64,7 @@ public:
     void price(const PnlMat *past, double t, double &prix, double &std_dev);
 
     /**
-     * Calcule le delta du ProduitDerive à la date t
+     * Calcule le delta du Derivative à la date t
      *
      * @param[in] past contient la trajectoire du sous-jacent
      * jusqu'à l'instant t
@@ -75,7 +75,7 @@ public:
     void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev);
 
     /**
-     * Calcule le delta du ProduitDerive à la date 0
+     * Calcule le delta du Derivative à la date 0
      *
      * @param[out] delta contient le vecteur de delta
      * @param[out] std_dev contient l'écart type de l'estimateur
