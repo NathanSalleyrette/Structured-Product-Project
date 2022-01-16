@@ -30,9 +30,8 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
     double sqrtInterval = sqrt(interval);
     double sigma;
     PnlVect vecLine;
-
-
     pnl_mat_set_row(path, spot_, 0); // la première ligne de path contient les spot en t=0
+    
     for(int i=1; i<=nbTimeSteps; i++){
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d=0;d<size_;d++) {
@@ -43,6 +42,7 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
             MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
+
 }
 
 void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past)
@@ -146,6 +146,7 @@ void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVec
 
     // simule la suite des données jusqu'à la maturité
     for(int i=start; i <= nbHedgeDate; i++){
+        
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d=0; d<size_;d++) {
             sigma = GET(sigma_, d);

@@ -38,8 +38,17 @@ void MarketData::fillData(ParseYahooCsv *parser) {
         action = entry.path(); //pas mieux path().filename().toString() ?
         action.erase(action.end()-4, action.end());
         action.erase(action.begin(), action.begin()+13);
+        bool in = false;
+        for(int i = 0; i < actions.size(); i++){
+            if (actions[i] == action){
+                in = true;
+            }
+        }
+        if(!in){
+    actions.push_back(action);
+        }
+            
         
-        actions.push_back(action);
 
         parser->setCheminData(entry.path());
         parser->fillDictFromFile(data, action);
@@ -81,7 +90,7 @@ void MarketData::fiilPathMat(PnlMat* path, string startDate, int nbOfDays) {
 }
 
 void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
-
+    
     for(int i = 0; i < dates.size(); i++){
         // for(int i = 0; i < path->m; i++){
         for(int j = 0; j < this->actions.size(); j++){

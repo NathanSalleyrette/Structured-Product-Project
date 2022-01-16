@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
-    int nbSample = 2;
+    int nbSample = 200;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
     double prix, std_dev;
@@ -109,19 +109,30 @@ int main(int argc, char **argv)
 
     //calcul P&L
     
-    int H = datesFrom2014To2022.size() - 1;
+    // int H = datesFrom2014To2022.size() - 1;
+    int H = 17;
     double T = 1;
     // pnl_mat_resize(path, H, market->getNumOfActions());
-    market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
-    market->fiilPathMat(path, "2014-07-11", datesFrom2014To2022.size());
+
+    // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
+    
+    // market->fiilPathMat(path, "2014-07-11", datesFrom2014To2022.size());
+    pnl_mat_resize(path, 17, market->getNumOfActions());
+    PnlVect* vectline = pnl_vect_new();
+    for(int i = 0; i < past->m; i++){
+        pnl_mat_get_row(vectline, past, i);
+        pnl_mat_set_row(path, vectline ,i);
+    }
     PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), r);
-    bs->simul_market(past, T, rng, trend, H, path);
+    bs->simul_market(past, T, rng, trend, H - 1, path);
+    
+
 
     
 
     double errorHedge;
 
-    mcForPriceToday->pAndL(H, errorHedge, path, 1);
+    mc->pAndL(H - 1, errorHedge, path, 1);
 
     cout << errorHedge << endl;
 
