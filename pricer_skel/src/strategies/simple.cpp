@@ -71,12 +71,13 @@ int main(int argc, char **argv)
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
     mc->price(prix, std_dev); // si on commente cette ligne, on a pas le mme res pour prix en t
-    std::cout << "Prix en 0 " << prix <<std::endl;
+    //std::cout << "Prix en 0 " << prix <<std::endl;
 
     double prixt;
 
     //calcul du prix en t = auj
 
+    market = new MarketData();
     vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");

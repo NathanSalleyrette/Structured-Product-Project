@@ -19,19 +19,30 @@ namespace {
         cout << market->getSpotFromDateAndAction("2021-11-11", "FLS") << endl;
         EXPECT_DOUBLE_EQ(market->getSpotFromDateAndAction("2021-11-11", "FLS"), 33.509998);
 
+        EXPECT_DOUBLE_EQ(market->getSpotFromDateAndAction("2015-01-12", "9020.T"), 8901.000000);
+
         market->printActions();
 
         PnlVect *result = pnl_vect_create(market->getNumOfActions());
 
         market->getSpotsFromDate(result, "2014-07-11");
         pnl_vect_print(result);
+        cout << " " << endl;
 
         market->getSpotsFromDate(result, "2014-07-15");
         pnl_vect_print(result);
+        cout << " " << endl;
 
         market->getSpotsFromDate(result, "2014-07-16");
 
         pnl_vect_print(result);
+        cout << " " << endl;
+
+
+        market->getSpotsFromDate(result, "2015-01-12");
+        pnl_vect_print(result);
+        cout << " " << endl;
+
         pnl_vect_free(&result);
     }
 
