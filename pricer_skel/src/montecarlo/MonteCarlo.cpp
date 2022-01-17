@@ -116,7 +116,9 @@ void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev)
 
         for (int d=0; d< prodd_->size_; d++)
         {
+            
             mod_->shiftAsset(shiftPath_, path_, d, fdStep_, 0, TOverN);
+            
             payoffPlus = prodd_->payoff(shiftPath_);
             mod_->shiftAsset(shiftPath_, path_, d, -fdStep_, 0, TOverN);
             payoffMinus = prodd_->payoff(shiftPath_);
@@ -200,7 +202,7 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
 void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef)
 {
     double V;
-
+    int s = path_->n;
     MonteCarlo::delta(deltaPrevious_, stdDevDelta_);
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
     double TOverH = prodd_->T_/nbHedgeDate;
@@ -209,6 +211,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     PnlVect vecLine = pnl_vect_wrap_mat_row(marketData, 0);
 
     V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious_, &vecLine);
+    
 
     pnl_mat_set_row(past_, &vecLine, 0);
 
@@ -217,10 +220,15 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     pnl_mat_resize(subPast_, pastIndex + 1, prodd_->size_);
 
     vecLine = pnl_vect_wrap_mat_row(marketData, 0);
+     
+
     pnl_mat_set_row(subPast_,  &vecLine, 0);
 
     for (int t = 1; t < nbHedgeDate + 1; t++) // chaque t est une date de rebalancement, c'est la grille fine
     {
+        std::cout << "t = " << t << std::endl;
+        
+        
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
         if (t % HOverN == 0) // le t est un ti (une date de constatation)
         {

@@ -41,4 +41,6 @@ class Performance: public Derivative {
         void printObservationDates();
 
         void setObservationDates(vector<string> od);
+
+        PnlVect *getNivInitAct();
 };

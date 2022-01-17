@@ -92,4 +92,8 @@ void Performance::setObservationDates(vector<string> od) {
     observationDates = od;
 }
 
+PnlVect *Performance::getNivInitAct() {
+    return nivInitAct;
+}
+
 

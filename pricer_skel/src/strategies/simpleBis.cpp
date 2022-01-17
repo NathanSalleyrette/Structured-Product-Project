@@ -6,30 +6,28 @@
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
 #include "financialProducts/Performance.hpp"
-#include "spdlog/log.hpp"
 #include <map>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-    log::init();
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+
     double r = 0.04879;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
     market->fillData(parser); // on remplit le dictionnaire avec les données du csv
 
     // calcul de la volatilité et la correlation
-    PnlMat* path = pnl_mat_create(1,1);
-    market->fillPathMat(path, "2021-12-10", 5);
+    PnlMat* pathForVol = pnl_mat_create(1,1);
+    market->fiilPathMat(pathForVol, "2021-12-10", 5);
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
-    Utils::volsOnMat(volatilities, path);
+    Utils::volsOnMat(volatilities, pathForVol);
     pnl_vect_mult_scalar(volatilities, 1./365.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
-    Utils::correlationMatrix(path, corrMat);
+    Utils::correlationMatrix(pathForVol, corrMat);
     pnl_mat_mult_double(corrMat, 1./365.);
 
     // creation de performance
@@ -61,7 +59,7 @@ int main(int argc, char **argv)
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
-    int nbSample = 200;
+    int nbSample = 2;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
     double prix, std_dev;
@@ -70,30 +68,41 @@ int main(int argc, char **argv)
     // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
-    mc->price(prix, std_dev); // si on commente cette ligne, on a pas le mme res pour prix en t
-    std::cout << "Prix" << prix <<std::endl;
-
-    double prixt;
+    // mc->price(prix, std_dev);
+    // std::cout << "Prix" << prix <<std::endl;
 
     //calcul du prix en t = auj
+
+    // on calcul t
 
     vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
+    double t = (double)(datesFrom2014ToToday.size())/datesFrom2014To2022.size();
+
+    double ti = (double)15/17; // t0 = 14 t1 = 1-15 t2 = 7-15 t14 = 7-21 = 15/17
+
+    // 14/16 = 0.875
+    // 15/17 = 0.882
+
+    // 15/16 = 0.9375 > t
+    // 16/17 = 0.94
+
 
     // Performance *perf = new Performance(observeDates, market, datesFrom2014To2022);
-    market->fillData(parser); // on a n'importe quoi dans le dictionnaire à cause du calcul du prix en 0 donc on reclean le dico
-    Performance *perfForPriceToday = new Performance(Pdates, market, Pdates);
-    MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
+    // market->fillData(parser); // on a n'importe quoi dans le dictionnaire à cause du calcul du prix en 0 donc on reclean le dico
+    // Performance *perf = new Performance(Pdates, market, Pdates);
+    // MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
 
+    // on construit la matrice past
     int nbDatesInPast = 15;
     PnlMat *past = pnl_mat_create(nbDatesInPast, market->getNumOfActions());
     // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
 
-    perfForPriceToday->niveauInitial();
+    // perf->niveauInitial();
 
-    pnl_mat_set_row(past, perfForPriceToday->getNivInitAct(), 0);
+    pnl_mat_set_row(past, perf->getNivInitAct(), 0);
 
     PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
     for (int i = 0; i < nbDatesInPast - 1; i ++) {
@@ -103,44 +112,30 @@ int main(int argc, char **argv)
 
     // pnl_mat_print(past);
 
-    double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-    mcForPriceToday->price(past, t, prixt, std_dev);
 
-    cout << "prix auj " << prixt <<endl;
+    mc->price(past, t, prix, std_dev);
+
+    cout << "prix auj " << prix <<endl;
 
 
-    //calcul P&L
+    // //calcul P&L
     
     // int H = datesFrom2014To2022.size() - 1;
-    int H = 17;
-    double T = 1;
-    // pnl_mat_resize(path, H, market->getNumOfActions());
-
+    // double T = 1;
     // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
-    
     // market->fiilPathMat(path, "2014-07-11", datesFrom2014To2022.size());
-    pnl_mat_resize(path, 17, market->getNumOfActions());
-    PnlVect* vectline = pnl_vect_new();
-    for(int i = 0; i < past->m; i++){
-        pnl_mat_get_row(vectline, past, i);
-        pnl_mat_set_row(path, vectline ,i);
-    }
-    PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), r);
-    bs->simul_market(past, T, rng, trend, H - 1, path);
-    
-
+    // PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), r);
+    // bs->simul_market(past, T, rng, trend, H, path);
 
     
 
-    double errorHedge;
+    // double errorHedge;
 
-    mc->pAndL(H - 1, errorHedge, path, 1);
+    // mc->pAndL(H, errorHedge, path, 1);
 
-    SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
+    // cout << errorHedge << endl;
+
 
     pnl_vect_free(&volatilities);
-    pnl_mat_free(&path); 
-
-    // on a pas le mme price en t si on calcule price en 0 avant ou pas 
-    // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
+    pnl_mat_free(&pathForVol); 
 }
