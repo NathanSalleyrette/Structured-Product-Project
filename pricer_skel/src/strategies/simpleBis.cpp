@@ -1,11 +1,13 @@
 #include <string>
-#include "MarketData.hpp"
+#include "utils/MarketData.hpp"
 #include "fs/ParseYahooCsv.hpp"
 #include "utils/Utils.hpp"
 #include "utils/Date.hpp"
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
 #include "financialProducts/Performance.hpp"
+#include "spdlog/log.hpp"
+
 #include <map>
 
 using namespace std;
@@ -13,6 +15,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
 
+    log::init();
     double r = 0.04879;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
@@ -24,6 +27,7 @@ int main(int argc, char **argv)
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, pathForVol);
+    // On divise par deux car on prend 2 dates dans l'année dans ce test
     pnl_vect_mult_scalar(volatilities, 1./365.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
@@ -59,7 +63,7 @@ int main(int argc, char **argv)
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
-    int nbSample = 2;
+    int nbSample = 20000;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
     double prix, std_dev;

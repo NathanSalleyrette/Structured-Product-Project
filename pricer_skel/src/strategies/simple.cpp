@@ -1,5 +1,5 @@
 #include <string>
-#include "MarketData.hpp"
+#include "utils/MarketData.hpp"
 #include "fs/ParseYahooCsv.hpp"
 #include "utils/Utils.hpp"
 #include "utils/Date.hpp"
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
     mc->price(prix, std_dev); // si on commente cette ligne, on a pas le mme res pour prix en t
-    std::cout << "Prix" << prix <<std::endl;
+    std::cout << "Prix en 0 " << prix <<std::endl;
 
     double prixt;
 

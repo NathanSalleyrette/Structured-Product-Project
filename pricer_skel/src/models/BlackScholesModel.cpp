@@ -48,6 +48,7 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
 
 void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past)
 {
+    // On considère que 1 = toute la période de 2014 à 2022, donc 6 mois (le temps entre deux dates simulées) égale à 1/16
     double timeDelta = T / nbTimeSteps; // T/N --> 1/16
     
     double sqrtTimeDelta = sqrt(timeDelta);

@@ -50,7 +50,9 @@ void MonteCarlo::price(double &prix, double &std_dev)
         mod_->asset(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_);
         //payoff pour la trajectoire simulée
         resPayoff = prodd_->payoff(path_);
+
         sum += resPayoff;
+        
         sumSquared += resPayoff * resPayoff;
         // std::cout<<resPayoff<<std::endl;
     }
@@ -84,6 +86,8 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_d
         resPayoff = prodd_->payoff(path_);
         // std::cout << resPayoff << std::endl;
         sum += resPayoff;
+        //SPDLOG_LOGGER_INFO(_logger, sum);
+
         sumSquared += resPayoff * resPayoff;
     }
     double oneOverMTimesSum = oneOverM * sum;

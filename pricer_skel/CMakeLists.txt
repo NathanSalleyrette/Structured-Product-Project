@@ -52,22 +52,22 @@ target_link_libraries(testLogger ${LIBS})
 pnl_add_postbuild(testLogger)
 
 # Testing the parser
-set(SOURCES src/fs/ParseYahooCsv.cpp src/tests/testPerformance.cpp src/financialProducts/Performance.cpp src/MarketData.cpp src/utils/Date.cpp)
-set(HEADERS headers/fs/ParseYahooCsv.hpp headers/financialProducts/Performance.hpp headers/MarketData.hpp headers/utils/Date.hpp)
+set(SOURCES src/fs/ParseYahooCsv.cpp src/tests/testPerformance.cpp src/financialProducts/Performance.cpp src/utils/MarketData.cpp src/utils/Date.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/financialProducts/Performance.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp)
 add_executable(testPerformance ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testPerformance ${LIBS})
 pnl_add_postbuild(testPerformance)
 
 
-set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
-set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
 add_executable(simple ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
 
-set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleBis.cpp src/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
-set(HEADERS headers/fs/ParseYahooCsv.hpp headers/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
-add_executable(simpleBis ${SOURCES} ${HEADERS})
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleBis.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleBis ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simpleBis ${LIBS})
 pnl_add_postbuild(simpleBis)
 
@@ -93,8 +93,8 @@ pnl_add_postbuild(testSizeDifferents)
 
 
 
-set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp)
-set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
+set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp)
+set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
 add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(datas ${LIBS})
 pnl_add_postbuild(datas)
@@ -138,8 +138,8 @@ target_link_libraries(testDate gtest_main ${LIBS})
 pnl_add_postbuild(date)
 add_test(NAME date_test COMMAND testDate)
 
-set(SOURCES src/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
-set(HEADERS headers/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
+set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
+set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
 add_executable(testMarketData  ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testMarketData gtest_main ${LIBS})
 pnl_add_postbuild(data)
