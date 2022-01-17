@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
     // calcul de la volatilité et la correlation
     PnlMat* pathForVol = pnl_mat_create(1,1);
-    market->fiilPathMat(pathForVol, "2021-12-10", 5);
+    market->fillPathMat(pathForVol, "2021-12-10", 5);
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, pathForVol);
