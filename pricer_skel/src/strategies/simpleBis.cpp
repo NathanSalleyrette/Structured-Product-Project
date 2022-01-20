@@ -27,12 +27,13 @@ int main(int argc, char **argv)
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, pathForVol);
+    
     // On divise par deux car on prend 2 dates dans l'année dans ce test
-    pnl_vect_mult_scalar(volatilities, 1./365.);
+    pnl_vect_mult_scalar(volatilities, 1./2.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(pathForVol, corrMat);
-    pnl_mat_mult_double(corrMat, 1./365.);
+    // pnl_mat_mult_double(corrMat, 1./2.);
 
     // creation de performance
 
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
-    int nbSample = 20000;
+    int nbSample = 2000;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
     double prix, std_dev;
