@@ -230,7 +230,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     for (int t = 1; t < nbHedgeDate + 1; t++) // chaque t est une date de rebalancement, c'est la grille fine
     {
-        std::cout << "t = " << t << std::endl;
+        //std::cout << "t = " << t << std::endl;
         
         
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
