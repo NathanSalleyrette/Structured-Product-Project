@@ -86,6 +86,7 @@ int main(){
         pnl_vect_free(&sigma);
         pnl_mat_free(&past);
         pnl_rng_free(&rng);
+        pnl_mat_free(&past1);
         delete mc;
         delete bs;
         delete vanille;

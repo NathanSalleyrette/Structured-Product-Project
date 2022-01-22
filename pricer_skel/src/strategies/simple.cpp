@@ -26,11 +26,11 @@ int main(int argc, char **argv)
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, path);
-    pnl_vect_mult_scalar(volatilities, 1./365.);
+    pnl_vect_mult_scalar(volatilities, 1./16.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(path, corrMat);
-    pnl_mat_mult_double(corrMat, 1./365.);
+    pnl_mat_mult_double(corrMat, 1./16.);
 
     // creation de performance
 
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
-    mc->price(prix, std_dev); // si on commente cette ligne, on a pas le mme res pour prix en t
+    mc->price(prix, std_dev); 
     //std::cout << "Prix en 0 " << prix <<std::endl;
 
     double prixt;
@@ -115,11 +115,7 @@ int main(int argc, char **argv)
     // int H = datesFrom2014To2022.size() - 1;
     int H = 17;
     double T = 1;
-    // pnl_mat_resize(path, H, market->getNumOfActions());
 
-    // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
-    
-    // market->fiilPathMat(path, "2014-07-11", datesFrom2014To2022.size());
     pnl_mat_resize(path, 17, market->getNumOfActions());
     PnlVect* vectline = pnl_vect_new();
     for(int i = 0; i < past->m; i++){
