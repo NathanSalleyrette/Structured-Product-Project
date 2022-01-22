@@ -53,4 +53,7 @@ class MarketData {
          * @param simulationDates the dates associated
          */
         void fillfromPath(const PnlMat* path, vector<string> simulationDates);
+
+
+        void getPathFromDates(PnlMat* path, vector<string> dates);
 };

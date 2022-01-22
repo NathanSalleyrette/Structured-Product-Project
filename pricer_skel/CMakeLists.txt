@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # A decommenter si on veut enlever certains flag
 #unset (CMAKE_CXX_FLAGS CACHE)
+#set( CMAKE_CXX_FLAGS "-pg" )
 
 # Prefix
 if (NOT PREFIX)

@@ -30,21 +30,23 @@ int main() {
 
     vector<string> observeDates = {};
 
-    Performance *perf = new Performance(observeDates, market);
-
+    Performance *perf = new Performance(observeDates, market, observeDates);
+    PnlMat* path = pnl_mat_new();
 
     perf->niveauInitial();
 
     for (int i = 0; i < dates.size(); i++) {
         observeDates.push_back(dates[i]);
         perf->setObservationDates(observeDates);
-        //perf->printObservationDates();
-        //cout << endl;
-        double result = perf->calculPerfMoyenneFinale();
+        market->getPathFromDates(path, observeDates);
+        pnl_mat_set_row(path, perf->getNivInitAct(), 0);
+
+        double result = perf->calculPerfMoyenneFinale(path);
         string dialogue = "Perf moy finale du panier au " + dates[i] + " : ";
         cout << dialogue << result << "%" << endl;
     }
     
+    pnl_mat_free(&path);
     delete perf;
 
 }

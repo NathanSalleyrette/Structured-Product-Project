@@ -13,6 +13,9 @@ namespace
     
     // Vanilla Call's information
     double T = 1;
+
+    // Pour une option Vanille, avoir nbTimeSteps à 365 ne sert à rien, puisque le payoff est par rapport 
+    // au flux final
     int nbTimeSteps = 365;
     double K = 100;
     int size = 1;

@@ -243,7 +243,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         // Si on rebalance a chaque date données le marketData, alors tbrut = t;
         int t = (int) (tbrut*(marketData->m - 1) / nbHedgeDate);
 
-        //std::cout << "t = " << t << std::endl;
+        std::cout << "t = " << t << std::endl;
         
         // Attention Vigilance
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t

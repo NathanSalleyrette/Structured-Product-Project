@@ -10,29 +10,38 @@
 Performance::Performance(vector<string> observationDates, MarketData *md) {
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
+    spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
+
     this->md = md;
 }
 
 Performance::Performance(vector<string> observationDates, MarketData *md, vector<string> simulationDates){
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
+    spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
+
     this->md = md;
     this->simulationDates = simulationDates;
     Derivative::T_ = 1;
-    Derivative::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation
+    Derivative::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation (égal 16 dans notre cas)
     Derivative::size_= md->getNumOfActions();
     
 }
 
 Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
+    pnl_vect_free(&spotsOnDate);
+
 }
 
 
+// Calculons le payoff uniquement avec la matrice path
+// La ligne 0 étant le spot (ici le niveau initial)
 double Performance::payoff(const PnlMat* path) {
-    md->fillfromPath(path, this->simulationDates);
-    niveauInitial();
-    return .9 + calculPerfMoyenneFinale()/100.;
+    
+    //md->fillfromPath(path, this->simulationDates);
+    //niveauInitial();
+    return .9 + calculPerfMoyenneFinale(path)/100.;
 }
 
 void Performance::niveauInitial() {
@@ -56,15 +65,39 @@ double roundFourDecimal(double d) {
     return round(d * 10000.0) / 10000.0;
 }
 
+double Performance::calculPerfSemestre(PnlVect *semestre) {
+    
+    double perfSemestre = 0.;
+    double nivInit;
+    double perfAction;
+    for (int i = 0; i < semestre->size; i++) {
+            nivInit = GET(nivInitAct, i);
+            perfAction = (GET(semestre, i) - nivInit) / nivInit;
+            perfSemestre += perfAction;
+    }
+    
+    return std::max(perfSemestre / semestre->size, 0.);
+}
 
-double Performance::calculPerfMoyenneFinale() {
+
+double Performance::calculPerfMoyenneFinale(const PnlMat* path) {
+
+    // double perfMoyenne = 0.;
+    // vector<string>::iterator it;
+    // for (it = observationDates.begin(); it != observationDates.end(); it++) {
+    //         perfMoyenne += calculPerfDate(*it);
+    // }
+    // return 100*roundFourDecimal(perfMoyenne / observationDates.size());
 
     double perfMoyenne = 0.;
-    vector<string>::iterator it;
-    for (it = observationDates.begin(); it != observationDates.end(); it++) {
-            perfMoyenne += calculPerfDate(*it);
+    // On commence à 1 car la ligne 0 est le spot et donc le niveau initial
+    for (int i = 1; i < path->m; i++) {
+        pnl_mat_get_row(spotsOnDate, path, i);
+        perfMoyenne += calculPerfSemestre(spotsOnDate);
     }
+
     return 100*roundFourDecimal(perfMoyenne / observationDates.size());
+
 }
 
 // Calcul la performance des 30 actions sur un indice donnée
@@ -95,5 +128,7 @@ void Performance::setObservationDates(vector<string> od) {
 PnlVect *Performance::getNivInitAct() {
     return nivInitAct;
 }
+
+
 
 
