@@ -48,9 +48,21 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
 
 void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past)
 {
+
+
     // On considère que 1 = toute la période de 2014 à 2022, donc 6 mois (le temps entre deux dates simulées) égale à 1/16
     double timeDelta = T / nbTimeSteps; // T/N --> 1/16
     
+    
+    // On distingue le cas t est un temps de discrétisaition
+    bool isdiscretisation = std::fmod(t, timeDelta) == 0;
+    int simuremains = 0;
+    if (isdiscretisation) simuremains = path->m - past->m;
+    else simuremains = path->m - past->m + 1;
+    
+    int simulationStart = path->m - simuremains;
+
+
     double sqrtTimeDelta = sqrt(timeDelta);
     double interval;
     double sigma;
@@ -63,19 +75,23 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
         pnl_mat_set_row(path, &vecLine, i);
     }
 
-    int simulationStart = past->m - 1;
+    // On commence trop tôt ici, il faut enlever le -1
+    //int simulationStart = past->m - 1;
+
     // std::cout << MGET(path, simulationStart, 0) << std::endl;
     // std::cout << simulationStart << std::endl;
-    // 
-    interval = (simulationStart + 1) * timeDelta - t;
-    // std::cout << "timeDelat" << timeDelta * simulationStart << std::endl;
-    // std::cout << "t" << t << std::endl;
+    
+    // Faux aussi 
+    //interval = (simulationStart + 1) * timeDelta - t;
+    interval = timeDelta - std::fmod(t, timeDelta);
+   
     double sqrtInterval = sqrt(interval);
     // disjonction du cas si t est trop loin de t_{i+1}, on doit modifier la dernière valeur
-    if(abs(interval) > 1.e-10){
+    // NICOLAS : Pas compris ici
+    //if(abs(interval) > 1.e-10){
         // std::cout << interval << std::endl;
         // std::cout << "on rentre là dedans" << std::endl;
-
+    if(simuremains != 0) {
         //simulation de ti+1
         pnl_vect_rng_normal(G_, size_, rng);
         for(int d = 0; d<size_; d++){
@@ -83,7 +99,10 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
             // std::cout << "sigma" << sigma << std::endl;
             // pnl_vect_print(&vecLine);
-            MLET(path, simulationStart, d) *= exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
+
+            // ???????? POURQUOI *= ?????
+            //MLET(path, simulationStart, d) *= exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
+            MLET(path, simulationStart, d) = MGET(past, past->m - 1, d) * exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
     //simulation de ti+2..., tN

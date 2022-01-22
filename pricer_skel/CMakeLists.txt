@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 project(PriceBSCall CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+
+
+# A decommenter si on veut enlever certains flag
+#unset (CMAKE_CXX_FLAGS CACHE)
+
 # Prefix
 if (NOT PREFIX)
     set(PREFIX ${CMAKE_CURRENT_BINARY_DIR})
@@ -17,6 +22,7 @@ if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Debug' as none was specified.")
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
 endif ()
+
 
 
 # Detect PNL
