@@ -57,10 +57,10 @@ int main(){
         ParseCsv *parser = new ParseCsv("../data/callVanilleProf.csv", nbHedgeDate + 1, 1);
 
         double prix, stddev;
-        for(int i = 0; i < 50; i++){
-            cout << i<<endl;
+        for(int i = 1; i < 150; i++){
+        cout << i<<endl;
         mc->price(prix, stddev);
-        mc->pAndL(nbHedgeDate, errorHedge, parser->marketData_, prix);
+        mc->pAndL(i, errorHedge, parser->marketData_, prix);
 
         fprintf(f, "%lf \n", errorHedge);
         }
