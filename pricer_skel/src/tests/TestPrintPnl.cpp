@@ -57,7 +57,7 @@ int main(){
         ParseCsv *parser = new ParseCsv("../data/callVanilleProf.csv", nbHedgeDate + 1, 1);
 
         double prix, stddev;
-        for(int i = 1; i < 150; i++){
+        for(int i = 1; i < 60; i++){
         cout << i<<endl;
         mc->price(prix, stddev);
         mc->pAndL(i, errorHedge, parser->marketData_, prix);

@@ -4,6 +4,7 @@
 #include "../financialProducts/Derivative.hpp"
 #include "../models/BlackScholesModel.hpp"
 #include "pnl/pnl_random.h"
+#include<cstdio>
 
 /// \brief Monte Carlo
 class MonteCarlo

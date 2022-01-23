@@ -9,9 +9,9 @@ for i, arg in enumerate(sys.argv):
     if i >=1:
         data = pd.read_csv(arg, header = None)
         arg = arg[9:len(arg) - 4]
-        plt.plot(data)
-argtitle = argtitle[9:len(arg) - 4]
-plt.xlabel("Nombre de rebalancement")
-plt.ylabel("pnl")
+        plt.plot(data, label = arg)
+        plt.legend()
+plt.xlabel("date")
+plt.ylabel("valeur")
 plt.title(arg)
 plt.show()
