@@ -214,6 +214,8 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
 
     double V = 0.;
+    double prix = 0.;
+    double std_dev = 0.;
     //int s = path_->n;
     MonteCarlo::delta(deltaPrevious, stdDevDelta);
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
@@ -258,6 +260,18 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         pnl_vect_minus_vect(deltaPrevious, delta);
         V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine);
         pnl_vect_clone(deltaPrevious, delta);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // On compare ici la valeur du portefeuille à l'instant t avec le prix donné par le pricer
+        // Ce seront les données à afficher dans notre application pour le portefeuille de couverture
+       
+        MonteCarlo::price(subPast, tbrut*TOverH, prix, std_dev);
+        double valeurPort = V + pnl_vect_scalar_prod(delta, &vecLine);
+
+        std::cout << "En t = " << tbrut*TOverH << " V = " << valeurPort << " prix  = " << prix << endl;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         if (t % TOverN == 0 && subPast->m < past->m) // le t est un ti, le nombre de ligne de subPast doit être strictement inférieur
         // a celui de past, sinon cela veut dire qu'on est à t=T;

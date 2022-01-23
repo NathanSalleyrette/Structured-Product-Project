@@ -32,12 +32,18 @@ int main() {
 
     Performance *perf = new Performance(observeDates, market, observeDates);
     PnlMat* path = pnl_mat_new();
+    PnlMat* pathFull = pnl_mat_new();
+    
 
     perf->niveauInitial();
+
+    market->getPathFromDates(pathFull, dates);
+    pnl_mat_set_row(pathFull, perf->getNivInitAct(), 0);
 
     for (int i = 0; i < dates.size(); i++) {
         observeDates.push_back(dates[i]);
         perf->setObservationDates(observeDates);
+
         market->getPathFromDates(path, observeDates);
         pnl_mat_set_row(path, perf->getNivInitAct(), 0);
 
@@ -47,6 +53,7 @@ int main() {
     }
     
     pnl_mat_free(&path);
+    pnl_mat_free(&pathFull);
     delete perf;
 
 }

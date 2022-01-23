@@ -26,11 +26,11 @@ int main(int argc, char **argv)
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, path);
-    pnl_vect_mult_scalar(volatilities, 1./16.);
+    pnl_vect_mult_scalar(volatilities, 1. / 16.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(path, corrMat);
-    pnl_mat_mult_double(corrMat, 1./16.);
+    pnl_mat_mult_double(corrMat, 1.);
 
     // creation de performance
 
@@ -80,6 +80,9 @@ int main(int argc, char **argv)
     vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
+
+    PnlMat *pathFull = pnl_mat_new();
+    market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
 
     // Performance *perf = new Performance(observeDates, market, datesFrom2014To2022);
@@ -136,6 +139,7 @@ int main(int argc, char **argv)
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
+    pnl_mat_free(&pathFull);
 
     // on a pas le mme price en t si on calcule price en 0 avant ou pas 
     // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
