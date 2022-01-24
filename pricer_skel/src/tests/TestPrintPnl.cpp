@@ -57,13 +57,21 @@ int main(){
         ParseCsv *parser = new ParseCsv("../data/callVanilleProf.csv", nbHedgeDate + 1, 1);
 
         double prix, stddev;
-        for(int i = 1; i < 60; i++){
+        for(int i = 1; i < 150; i++){
         cout << i<<endl;
         mc->price(prix, stddev);
         mc->pAndL(i, errorHedge, parser->marketData_, prix);
 
-        fprintf(f, "%lf \n", errorHedge);
+        fprintf(f, "%lf \n", abs(errorHedge));
         }
+        FILE * fp;
+    fp = fopen ("dates.txt", "wt");
+    if (fp == NULL){
+    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+    for(int i = 1; i < 150; i++){
+        fprintf(fp, "%d \n", i);
+    }
+
 
 
         delete parser;
