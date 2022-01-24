@@ -8,6 +8,7 @@
 #include "financialProducts/Performance.hpp"
 #include "spdlog/log.hpp"
 #include <map>
+#include<cstdio>
 
 using namespace std;
 
@@ -136,6 +137,16 @@ int main(int argc, char **argv)
     mc->pAndL(H - 1, errorHedge, path, 1);
 
     SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
+
+    FILE * Pdatesfile;
+    Pdatesfile = fopen ("dates.txt", "wt");
+    if (Pdatesfile == NULL){
+    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+    for (int i = 0; i< Pdates.size(); i++){
+        
+        fprintf(Pdatesfile, "%s \n", Pdates[i].c_str());
+    }
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 

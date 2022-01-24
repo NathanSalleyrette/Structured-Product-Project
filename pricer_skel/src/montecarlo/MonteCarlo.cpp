@@ -221,6 +221,11 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     if (fp == NULL){
     std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
 
+    FILE * Pdates;
+    Pdates = fopen ("dates.txt", "wt");
+    if (Pdates == NULL){
+    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
     double V = 0.;
     double prix = 0.;
     double std_dev = 0.;
@@ -281,7 +286,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         fprintf(f, "%lf \n", valeurPort);
         fprintf(fp, "%lf \n", prix);
-
+        fprintf(Pdates, "%lf \n", tbrut *TOverH);
         if (t % TOverN == 0 && subPast->m < past->m) // le t est un ti, le nombre de ligne de subPast doit être strictement inférieur
         // a celui de past, sinon cela veut dire qu'on est à t=T;
         {
@@ -293,6 +298,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     }
     fclose(f);
     fclose(fp);
+    fclose(Pdates);
 
     errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) - prodd_->payoff(past); // calcule du PnL
     pnl_vect_free(&delta);

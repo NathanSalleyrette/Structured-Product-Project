@@ -4,12 +4,16 @@ import pandas as pd
 import sys
 
 argtitle = sys.argv[1]
+x = pd.read_csv("../build/dates.txt", header = None)
+plt.rcParams["figure.figsize"] = (200, 200)
+if( x[0].dtypes != "double" ):
+    pd.to_datetime(x[0])
 
 for i, arg in enumerate(sys.argv):
     if i >=1:
         data = pd.read_csv(arg, header = None)
         arg = arg[9:len(arg) - 4]
-        plt.plot(data, label = arg)
+        plt.plot(x[0],data[0], label = arg)
         plt.legend()
 plt.xlabel("date")
 plt.ylabel("valeur")
