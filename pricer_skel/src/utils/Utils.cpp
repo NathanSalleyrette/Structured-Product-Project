@@ -59,9 +59,16 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
 
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
     PnlVect* temp = pnl_vect_create(1);
+    PnlVect* returns = pnl_vect_create(volatilities->size);
     for (int i = 0; i < volatilities->size; i++){
         pnl_mat_get_col(temp, path, i);
-        LET(volatilities, i) = sqrt(covariance(temp,temp));
+        //On calcul les log rendements
+
+        for(int j = 1; j < temp->size; j++){
+            LET(returns, j) = log( GET(temp, j) / GET(temp, j - 1) );
+        }
+
+        LET(volatilities, i) = exp(sqrt(covariance(returns,returns)));
     }
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     SPDLOG_LOGGER_INFO(_logger, "Vols computed from path matrix");

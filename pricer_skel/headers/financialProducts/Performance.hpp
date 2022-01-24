@@ -22,6 +22,8 @@ class Performance: public Derivative {
 
         vector<string> simulationDates;
 
+        PnlVect *spotsOnDate;
+
 
     public:
         Performance(vector<string> observationDates, MarketData *md);
@@ -34,9 +36,11 @@ class Performance: public Derivative {
         // Calcul et mets dans le vecteur le niveau initial de chaque action
         void niveauInitial();
 
-        double calculPerfMoyenneFinale();
+        double calculPerfMoyenneFinale(const PnlMat* path);
 
         double calculPerfDate(string date);
+
+        double calculPerfSemestre(PnlVect *semestre);
 
         void printObservationDates();
 

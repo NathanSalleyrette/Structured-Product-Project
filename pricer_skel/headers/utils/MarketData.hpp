@@ -53,4 +53,15 @@ class MarketData {
          * @param simulationDates the dates associated
          */
         void fillfromPath(const PnlMat* path, vector<string> simulationDates);
+
+
+
+        /**
+         * @brief Set the spots of all the dates of Dates in the matrix path
+         * IMPORTANT : path is resized, and the first line is for the initial spots
+         * so it's not filled in this function, you have to fill it by our own
+         * @param path 
+         * @param dates 
+         */
+        void getPathFromDates(PnlMat* path, vector<string> dates);
 };

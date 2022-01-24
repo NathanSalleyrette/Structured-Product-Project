@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 project(PriceBSCall CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+
+
+# A decommenter si on veut enlever certains flag
+#unset (CMAKE_CXX_FLAGS CACHE)
+#set( CMAKE_CXX_FLAGS "-pg" )
+
 # Prefix
 if (NOT PREFIX)
     set(PREFIX ${CMAKE_CURRENT_BINARY_DIR})
@@ -17,6 +23,7 @@ if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Debug' as none was specified.")
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
 endif ()
+
 
 
 # Detect PNL
@@ -50,6 +57,11 @@ set(HEADERS headers/spdlog/log.hpp)
 add_executable(testLogger ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testLogger ${LIBS})
 pnl_add_postbuild(testLogger)
+
+set (SOURCES src/tests/testWriting.cpp)
+add_executable(testWrite ${SOURCES})
+target_link_libraries(testWrite ${LIBS})
+pnl_add_postbuild(testWrite)
 
 # Testing the parser
 set(SOURCES src/fs/ParseYahooCsv.cpp src/tests/testPerformance.cpp src/financialProducts/Performance.cpp src/utils/MarketData.cpp src/utils/Date.cpp)
@@ -90,14 +102,43 @@ add_executable(testSizeDifferents ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testSizeDifferents ${LIBS})
 pnl_add_postbuild(testSizeDifferents)
 
+#Testing printresults
 
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testResultsPrintVanilla.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanilleprint ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testVanilleprint ${LIBS})
+pnl_add_postbuild(testVanilleprint)
 
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testVanillePrintDelta.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanillePrintDelta ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testVanillePrintDelta ${LIBS})
+pnl_add_postbuild(testVanillePrintDelta)
 
-set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp)
-set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
-add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(datas ${LIBS})
-pnl_add_postbuild(datas)
+set(SOURCES src/fs/ParseCsv.cpp src/tests/TestVanillaCallPrixent.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(TestVanillaCallPrixent ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(TestVanillaCallPrixent ${LIBS})
+pnl_add_postbuild(TestVanillaCallPrixent)
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/TestPrintDeltaEnt.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(TestPrintDeltaEnt ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(TestPrintDeltaEnt ${LIBS})
+pnl_add_postbuild(TestPrintDeltaEnt)
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/TestPrintPnl.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(TestPrintPnl ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(TestPrintPnl ${LIBS})
+pnl_add_postbuild(TestPrintPnl)
+
+# set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp)
+# set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
+# add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
+# target_link_libraries(datas ${LIBS})
+# pnl_add_postbuild(datas)
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)

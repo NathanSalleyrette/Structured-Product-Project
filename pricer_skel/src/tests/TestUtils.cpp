@@ -37,4 +37,12 @@ int main(){
 
     Utils::correlationMatrix(path, corr);
 
+    PnlVect* test2 = pnl_vect_create_from_scalar(2,2.);
+    PnlMat* bb = pnl_mat_create_from_scalar(2,5,2.);
+    MLET(bb, 0,0) = 6.;
+    Utils::volsOnMat(test2, bb);
+
+    pnl_vect_print(test2);
+    
+
 }

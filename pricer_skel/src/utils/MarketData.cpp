@@ -112,3 +112,18 @@ void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
     }
 }
 
+// Ligne 0 = spot
+void MarketData::getPathFromDates(PnlMat* path, vector<string> dates) {
+    pnl_mat_resize(path, dates.size() + 1, actions.size());
+    PnlVect *temp = pnl_vect_create(actions.size());
+    vector<string>::iterator it;  
+    int i = 1;
+    for (it = dates.begin(); it != dates.end(); it++, i++) {
+        getSpotsFromDate(temp, *it);
+        pnl_mat_set_row(path, temp, i);
+    }
+
+    pnl_vect_free(&temp);
+
+}
+
