@@ -15,6 +15,7 @@ public:
     PnlVect *spot_; /// valeurs initiales des sous-jacents
     PnlMat *correlations_; /// matrice de correlation des sous-jacents
     PnlVect *G_; /// vecteur pour stocker les vecteurs gaussiens
+    PnlVect *div_; /// dividende pour faire la conversion du taux r en euro
 
     /**
      * Construit un modèle BlackScholes
@@ -24,8 +25,9 @@ public:
      * @param[in] rho paramètre de corrélation
      * @param[in] sigma vecteur de volatilités
      * @param[in] spot valeurs initiales des sous-jacents
+     * @param[in] div dividende pour la conversion de r en euro
      */
-    BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot);
+    BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot, PnlVect *div);
 
     /**
      * Détruit le modèle BlackScholes

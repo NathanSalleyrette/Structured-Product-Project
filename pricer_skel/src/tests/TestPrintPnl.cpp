@@ -50,8 +50,11 @@ int main(){
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
+        // creation dividende à 0 car sans dividendes
+        PnlVect *div = pnl_vect_create_from_zero(1);
+
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
-        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
+        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot, div);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
         ParseCsv *parser = new ParseCsv("../data/callVanilleProf.csv", nbHedgeDate + 1, 1);
@@ -82,4 +85,5 @@ int main(){
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
         pnl_rng_free(&rng);
+        pnl_vect_free(&div);
 }

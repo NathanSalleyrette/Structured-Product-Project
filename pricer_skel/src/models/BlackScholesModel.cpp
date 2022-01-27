@@ -4,7 +4,7 @@
 #include <cassert>
 #include "spdlog/log.hpp"
 
-BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot)
+BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *sigma, PnlVect *spot, PnlVect *div)
 {
     size_ = size;
     r_ = r;
@@ -17,6 +17,7 @@ BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *si
     pnl_mat_chol(correlations);
     correlations_ = correlations;
     G_ = pnl_vect_create_from_scalar(size_, 0);
+    div_ = div;
 }
 
 BlackScholesModel::~BlackScholesModel()
@@ -30,6 +31,7 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
     double interval = T / nbTimeSteps;
     double sqrtInterval = sqrt(interval);
     double sigma;
+    double div;
     PnlVect vecLine;
     pnl_mat_set_row(path, spot_, 0); // la première ligne de path contient les spot en t=0
     
@@ -38,9 +40,10 @@ void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *r
         for (int d=0;d<size_;d++) {
             //std::cout << d<<std::endl;
             sigma = GET(sigma_, d);
+            div = GET(div_, d);
             // std::cout<<sigma<<std::endl;
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
-            MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
+            MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - div - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
 
@@ -66,6 +69,7 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
     double sqrtTimeDelta = sqrt(timeDelta);
     double interval;
     double sigma;
+    double div;
     PnlVect vecLine;
     
 
@@ -97,12 +101,13 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
         for(int d = 0; d<size_; d++){
             sigma = GET(sigma_, d);
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
+            div = GET(div_, d);
             // std::cout << "sigma" << sigma << std::endl;
             // pnl_vect_print(&vecLine);
 
             // ???????? POURQUOI *= ?????
             //MLET(path, simulationStart, d) *= exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
-            MLET(path, simulationStart, d) = MGET(past, past->m - 1, d) * exp((r_ - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
+            MLET(path, simulationStart, d) = MGET(past, past->m - 1, d) * exp((r_ - div - (sigma * sigma)/2) * interval + sigma * sqrtInterval * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
     //simulation de ti+2..., tN
@@ -114,8 +119,9 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
         pnl_vect_rng_normal(G_, size_, rng);
         for (int d = 0; d<size_; d++) {
             sigma = GET(sigma_, d);
+            div = GET(div_, d);
             vecLine = pnl_vect_wrap_mat_row(correlations_, d);
-            MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - (sigma * sigma)/2) * timeDelta + sigma * sqrtTimeDelta * pnl_vect_scalar_prod(G_, &vecLine));
+            MLET(path, i, d) = MGET(path, i-1, d) * exp((r_ - div - (sigma * sigma)/2) * timeDelta + sigma * sqrtTimeDelta * pnl_vect_scalar_prod(G_, &vecLine));
         }
     }
 }
@@ -145,6 +151,7 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
     }
 }
 
+// faut -il faire - div ? 
 void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path)
 {   
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");

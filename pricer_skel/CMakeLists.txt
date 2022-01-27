@@ -146,26 +146,6 @@ pnl_add_postbuild(TestPrintPnl)
 # target_link_libraries(datas ${LIBS})
 # pnl_add_postbuild(datas)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testVanille ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testVanille ${LIBS})
-pnl_add_postbuild(testVanille)
-
-
-#Testing the price calculus
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testPrice ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testPrice ${LIBS})
-pnl_add_postbuild(testPrice)
-
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testPriceDate ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testPriceDate ${LIBS})
-pnl_add_postbuild(testPriceDate)
-
 #Testing the simulMarket function
 set(SOURCES src/fs/ParseCsv.cpp src/tests/TestSimulMarket.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)

@@ -52,6 +52,9 @@ int main(){
         PnlMat *past = pnl_mat_create_from_scalar(2,1, 100);
         PnlMat *past1 = pnl_mat_create_from_scalar(1, 1, 100.);
 
+        // creation dividende à 0 car sans dividendes
+        PnlVect *div = pnl_vect_create_from_zero(1);
+
         double theoricalPrice  = 100. * Nd1t - K*exp(-r*(T -t))*Nd2t;
         double price;
         double std_dev;
@@ -63,7 +66,7 @@ int main(){
         double std_dev1;
 
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
-        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
+        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot, div);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
         compteurJuste = 0;
@@ -87,6 +90,7 @@ int main(){
         pnl_mat_free(&past);
         pnl_rng_free(&rng);
         pnl_mat_free(&past1);
+        pnl_vect_free(&div);
         delete mc;
         delete bs;
         delete vanille;
