@@ -77,6 +77,12 @@ add_executable(simple ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleRebalancingEachDay.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleRebalancingEachDay ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(simpleRebalancingEachDay ${LIBS})
+pnl_add_postbuild(simpleRebalancingEachDay)
+
 set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleBis.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
 add_executable(simpleBis ${SOURCES} ${HEADERS} ${LOGGER})
