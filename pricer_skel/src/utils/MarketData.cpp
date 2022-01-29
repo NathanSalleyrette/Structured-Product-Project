@@ -17,6 +17,10 @@ using std::filesystem::directory_iterator;
 
 MarketData::MarketData() {}
 
+MarketData::~MarketData() {
+    data.clear();
+}
+
 map<string, map<string, double>> & MarketData::getData() {
     return data;
 }

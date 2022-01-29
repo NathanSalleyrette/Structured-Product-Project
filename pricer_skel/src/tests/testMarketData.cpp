@@ -44,6 +44,8 @@ namespace {
         cout << " " << endl;
 
         pnl_vect_free(&result);
+        delete parser;
+        delete market;
     }
 
     // Avec ce test, on verifie qu'aucune action n'est côtée un samedi ou un dimanche
@@ -58,6 +60,9 @@ namespace {
         for (it = data.begin(); it != data.end(); it++) {
             EXPECT_FALSE(Date::isSaturdayOrSunday(it->first));
         }
+
+        delete parser;
+        delete market;
 
     }
 }

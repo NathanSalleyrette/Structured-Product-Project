@@ -5,7 +5,7 @@ Utils::Utils(){}
 
 double Utils::covariance(const PnlVect* X, const PnlVect* Y){
     // std::cout<<X->size<<endl;
-    assert(("Vecteurs de tailles différentes pour le calcul de la covariance",X->size == Y->size));
+    //assert(("Vecteurs de tailles différentes pour le calcul de la covariance",X->size == Y->size));
     double E_x = esperance(X);
     double E_y = esperance(Y);
 
@@ -21,7 +21,7 @@ double Utils::covariance(const PnlVect* X, const PnlVect* Y){
 
 double Utils::esperance(const PnlVect* X){
     
-    assert(("Vecteur nul en argument pour un calcul d'esperance",X->size > 0));
+    //assert(("Vecteur nul en argument pour un calcul d'esperance",X->size > 0));
     double result = 0.;
 
     for(int i = 0; i < X->size; i++){
@@ -33,8 +33,8 @@ double Utils::esperance(const PnlVect* X){
 
 double Utils::correlation( const PnlVect* X,  const PnlVect* Y){
     double covXY = covariance(X, Y);
-    double sigmaX = sqrt(covariance(X,X));
-    double sigmaY = sqrt(covariance(Y,Y));
+    double sigmaX = std::sqrt(covariance(X,X));
+    double sigmaY = std::sqrt(covariance(Y,Y));
 
     return covXY/(sigmaX * sigmaY);
 }
@@ -53,6 +53,8 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
             MLET(corrMat, j, i) = correlation(X,Y);
         }
     }
+    pnl_vect_free(&X);
+    pnl_vect_free(&Y);
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     SPDLOG_LOGGER_INFO(_logger, "Correlation Matrix computed");
 }
@@ -60,6 +62,9 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
     PnlVect* temp = pnl_vect_create(1);
     PnlVect* returns = pnl_vect_create(volatilities->size);
+    double cov;
+    double sqrtcov;
+    double expsqrtcov;
     for (int i = 0; i < volatilities->size; i++){
         pnl_mat_get_col(temp, path, i);
         //On calcul les log rendements
@@ -67,9 +72,15 @@ void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
         for(int j = 1; j < temp->size; j++){
             LET(returns, j) = log( GET(temp, j) / GET(temp, j - 1) );
         }
+        cov = covariance(returns, returns);
+        sqrtcov = sqrt(cov);
+        expsqrtcov = exp(sqrtcov);
+        //LET(volatilities, i) = std::exp(std::sqrt(covariance(returns,returns)));
+        LET(volatilities, i) = expsqrtcov;
 
-        LET(volatilities, i) = exp(sqrt(covariance(returns,returns)));
     }
+    pnl_vect_free(&temp);
+    pnl_vect_free(&returns);
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     SPDLOG_LOGGER_INFO(_logger, "Vols computed from path matrix");
 }       

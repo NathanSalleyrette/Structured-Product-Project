@@ -41,8 +41,8 @@ int main(){
     FILE * f;
     f = fopen ("Delta_en_t.txt", "wt");
     if (f == NULL)
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;
-PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
+        std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;
+        PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
         pnl_rng_sseed(rng, time(NULL));
 
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
@@ -71,11 +71,13 @@ PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
 
         pnl_vect_free(&std_dev_delta);
         pnl_vect_free(&delta);
-
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
+
         pnl_mat_free(&past);
+
         pnl_rng_free(&rng);
+        
         delete mc;
         delete bs;
         delete vanille;

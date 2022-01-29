@@ -24,6 +24,7 @@ class MarketData {
 
         MarketData();
         map<string, map<string, double>> &getData();
+        ~MarketData();
         double getSpotFromDateAndAction(string date, string action);
         int getNumOfActions();
         void fillData(ParseYahooCsv *parser);

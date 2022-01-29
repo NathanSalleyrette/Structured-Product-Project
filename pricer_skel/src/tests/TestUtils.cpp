@@ -42,7 +42,19 @@ int main(){
     MLET(bb, 0,0) = 6.;
     Utils::volsOnMat(test2, bb);
 
-    pnl_vect_print(test2);
+    //pnl_vect_print(test2);
     
+    pnl_vect_free(&X);
+    pnl_vect_free(&Y);
+    pnl_vect_free(&N);
+    pnl_vect_free(&test2);
+
+    pnl_rng_free(&rng);
+
+    pnl_mat_free(&path);
+    pnl_mat_free(&corr);
+    pnl_mat_free(&bb);
+
+
 
 }
