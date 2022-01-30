@@ -151,7 +151,6 @@ int main(int argc, char **argv)
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
     pnl_mat_free(&pathFull);
-
     // on a pas le mme price en t si on calcule price en 0 avant ou pas 
     // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
 }

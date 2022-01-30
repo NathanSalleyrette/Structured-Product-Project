@@ -67,16 +67,6 @@ int main(int argc, char **argv)
     int nbSample = 2000;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
-    double prix, std_dev;
-    // mc->price(prix, std_dev);
-    // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
-    // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
-    // mc->delta(delta, std_dev_delta);
-    // pnl_vect_print(delta);
-    // mc->price(prix, std_dev);
-    // std::cout << "Prix" << prix <<std::endl;
-
-    //calcul du prix en t = auj
 
     // on calcul t
 
@@ -117,6 +107,8 @@ int main(int argc, char **argv)
 
     // pnl_mat_print(past);
 
+    double prix, std_dev;
+
 
     mc->price(past, t, prix, std_dev);
 
@@ -142,5 +134,5 @@ int main(int argc, char **argv)
 
 
     pnl_vect_free(&volatilities);
-    pnl_mat_free(&pathForVol); 
+    pnl_mat_free(&pathForVol);
 }

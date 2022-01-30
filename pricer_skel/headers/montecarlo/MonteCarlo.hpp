@@ -72,16 +72,18 @@ public:
      * @param[in] t date à laquelle le calcul est fait
      * @param[out] delta contient le vecteur de delta
      * @param[out] std_dev contient l'écart type de l'estimateur
+     * @param[in] dividende dividende pour la conversion de r en euro
      */
-    void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev);
+    void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev, PnlVect *dividende);
 
     /**
      * Calcule le delta du Derivative à la date 0
      *
      * @param[out] delta contient le vecteur de delta
      * @param[out] std_dev contient l'écart type de l'estimateur
+     * @param[in] dividende dividende pour la conversion de r en euro
      */
-    void delta(PnlVect *delta, PnlVect *std_dev);
+    void delta(PnlVect *delta, PnlVect *std_dev, PnlVect *dividende);
 
     /**
      * Calcule l'erreur de couverture P&L en T

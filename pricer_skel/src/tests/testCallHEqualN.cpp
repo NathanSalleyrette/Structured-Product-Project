@@ -90,6 +90,9 @@ namespace
 
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
+
+        // creation dividende à 0 car sans dividendes
+        PnlVect *div = pnl_vect_create_from_zero(1);
         
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
@@ -102,7 +105,7 @@ namespace
         compteurJuste = 0;
 
         for (int i = 0; i < compteurGlobal; i ++) {
-            mc->delta(delta, std_dev_delta);
+            mc->delta(delta, std_dev_delta, div);
             juste = abs(GET(delta,0) - Nd1) < 1.96*GET(std_dev_delta,0);
             if (juste){
                 compteurJuste ++;
@@ -119,6 +122,7 @@ namespace
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
         pnl_rng_free(&rng);
+        pnl_vect_free(&div);
         delete mc;
         delete bs;
         delete vanille;
@@ -175,6 +179,9 @@ namespace
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
         PnlMat *past = pnl_mat_create_from_scalar(2,1, 100);
 
+        // creation dividende à 0 car sans dividendes
+        PnlVect *div = pnl_vect_create_from_zero(1);
+
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
@@ -185,7 +192,7 @@ namespace
         compteurJuste = 0;
 
         for (int i = 0; i < compteurGlobal; i ++) {
-            mc->delta(past, t, delta, std_dev_delta);
+            mc->delta(past, t, delta, std_dev_delta, div);
             juste = abs(GET(delta,0) - Nd1t) < 1.96*GET(std_dev_delta,0);
             if (juste){
                 compteurJuste ++;
@@ -203,6 +210,7 @@ namespace
         pnl_vect_free(&sigma);
         pnl_mat_free(&past);
         pnl_rng_free(&rng);
+        pnl_vect_free(&div);
         delete mc;
         delete bs;
         delete vanille;
