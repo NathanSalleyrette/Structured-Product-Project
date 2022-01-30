@@ -180,6 +180,13 @@ target_link_libraries(testVanilleGtest gtest_main ${LIBS})
 pnl_add_postbuild(testVanilleGtest)
 add_test(NAME vanille_test COMMAND testVanilleGtest)
 
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testVanilleDiv.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanilleDiv ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testVanilleDiv gtest_main ${LIBS})
+pnl_add_postbuild(testVanilleDiv)
+add_test(NAME vanille_test_div COMMAND testVanilleDiv)
+
 set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallHEqualN.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
 add_executable(testVanilleHEqualN ${SOURCES} ${HEADERS})

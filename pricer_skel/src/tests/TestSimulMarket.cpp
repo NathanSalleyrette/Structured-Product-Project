@@ -23,15 +23,12 @@ int main(int argc, char **argv)
     PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
     PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
-    // creation dividende à 0 car sans dividendes
-    PnlVect *div = pnl_vect_create_from_zero(1);
-
     double prix, stddev;
 
     ParseCsv *parser = new ParseCsv("../data/data.csv", 13, 1);
     PnlMat *past = pnl_mat_create(0, 0);
     
-    BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot, div);
+    BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
     PnlMat *path = pnl_mat_create_from_zero(nbHedgeDate+1, size);
     PnlVect *trend = pnl_vect_create_from_scalar(size, r);
 
@@ -56,7 +53,6 @@ int main(int argc, char **argv)
     pnl_rng_free(&rng);
     pnl_mat_free(&path);
     pnl_vect_free(&trend);
-    pnl_vect_free(&div);
 
     exit(0);  
 }

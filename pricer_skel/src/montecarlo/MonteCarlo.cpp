@@ -100,7 +100,7 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_d
     SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
 }
 
-void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev)
+void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev, PnlVect *dividende)
 {
     double payoffPlus;
     double payoffMinus;
@@ -116,7 +116,7 @@ void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev)
     {
 
         //simulation des trajectoires
-        mod_->asset(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_); // M simulations
+        mod_->assetDelta(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_, dividende); // M simulations
 
         for (int d=0; d< prodd_->size_; d++)
         {
@@ -153,7 +153,7 @@ void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev)
 
 }
 
-void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev)
+void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev, PnlVect *dividende)
 {
     double payoffPlus;
     double payoffMinus;
@@ -168,7 +168,7 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
     for (int i = 0; i < nbSamples_; i++)
     {
         //simulation des trajectoires
-        mod_->asset(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past); // M simulations
+        mod_->assetDelta(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past, dividende); // M simulations
         for (int d=0; d< prodd_->size_; d++)
         {
             mod_->shiftAsset(shiftPath_, path_, d, fdStep_, t, TOverN);
@@ -229,8 +229,12 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     double V = 0.;
     double prix = 0.;
     double std_dev = 0.;
+
+    // creation dividende à 0 car sans dividendes
+    PnlVect *div = pnl_vect_create_from_zero(marketData->n);
+
     //int s = path_->n;
-    MonteCarlo::delta(deltaPrevious, stdDevDelta);
+    MonteCarlo::delta(deltaPrevious, stdDevDelta, div);
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
     int TOverN = (int) prodd_->T_ * (marketData->m - 1) / prodd_->nbTimeSteps_;
     double TOverH = prodd_->T_/nbHedgeDate;
@@ -269,7 +273,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
         pnl_mat_set_row(subPast, &vecLine, pastIndex);
         
-        MonteCarlo::delta(subPast, tbrut*TOverH, delta, stdDevDelta); // on rebalance donc on calcule le delta
+        MonteCarlo::delta(subPast, tbrut*TOverH, delta, stdDevDelta, div); // on rebalance donc on calcule le delta
         pnl_vect_minus_vect(deltaPrevious, delta);
         V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine);
         pnl_vect_clone(deltaPrevious, delta);

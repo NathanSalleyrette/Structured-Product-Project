@@ -35,9 +35,6 @@ int main(int argc, char **argv)
     Utils::correlationMatrix(pathForVol, corrMat);
     // pnl_mat_mult_double(corrMat, 1./2.);
 
-    // creation dividende à 0 car sans dividendes
-    PnlVect *div = pnl_vect_create_from_zero(market->getNumOfActions());
-
     // creation de performance
 
 
@@ -59,7 +56,7 @@ int main(int argc, char **argv)
     //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
     PnlVect* spots = perf->getNivInitAct();
     // pnl_mat_get_row(spots, path, 0);
-    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots, div);
+    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots);
     pnl_mat_chol(corrMat);
     bs->correlations_ = corrMat;
 
@@ -70,16 +67,6 @@ int main(int argc, char **argv)
     int nbSample = 2000;
 
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
-    double prix, std_dev;
-    // mc->price(prix, std_dev);
-    // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
-    // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
-    // mc->delta(delta, std_dev_delta);
-    // pnl_vect_print(delta);
-    // mc->price(prix, std_dev);
-    // std::cout << "Prix" << prix <<std::endl;
-
-    //calcul du prix en t = auj
 
     // on calcul t
 
@@ -120,6 +107,8 @@ int main(int argc, char **argv)
 
     // pnl_mat_print(past);
 
+    double prix, std_dev;
+
 
     mc->price(past, t, prix, std_dev);
 
@@ -145,6 +134,5 @@ int main(int argc, char **argv)
 
 
     pnl_vect_free(&volatilities);
-    pnl_mat_free(&pathForVol); 
-    pnl_vect_free(&div);
+    pnl_mat_free(&pathForVol);
 }

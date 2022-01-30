@@ -33,9 +33,6 @@ int main(int argc, char **argv)
     Utils::correlationMatrix(path, corrMat);
     pnl_mat_mult_double(corrMat, 1.);
 
-    // creation dividende à 0 car sans dividendes
-    PnlVect *div = pnl_vect_create_from_zero(market->getNumOfActions());
-
     // creation de performance
 
 
@@ -57,7 +54,7 @@ int main(int argc, char **argv)
     //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
     PnlVect* spots = perf->getNivInitAct();
     // pnl_mat_get_row(spots, path, 0);
-    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots, div);
+    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots);
     pnl_mat_chol(corrMat);
     bs->correlations_ = corrMat;
 
@@ -154,8 +151,6 @@ int main(int argc, char **argv)
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
     pnl_mat_free(&pathFull);
-    pnl_vect_free(&div);
-
     // on a pas le mme price en t si on calcule price en 0 avant ou pas 
     // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
 }

@@ -50,11 +50,8 @@ int main(){
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
 
-        // creation dividende à 0 car sans dividendes
-        PnlVect *div = pnl_vect_create_from_zero(1);
-
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
-        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot, div);
+        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
         double theoricalPrice  = 100. * Nd1 - K*exp(-r*T)*Nd2;
@@ -76,7 +73,6 @@ int main(){
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
         pnl_rng_free(&rng);
-        pnl_vect_free(&div);
         delete mc;
         delete bs;
         delete vanille;

@@ -53,7 +53,7 @@ int main(){
         PnlVect *div = pnl_vect_create_from_zero(1);
         
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
-        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot, div);
+        BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
 
         PnlVect *std_dev_delta = pnl_vect_create_from_scalar(1,1);
@@ -63,7 +63,7 @@ int main(){
         compteurJuste = 0;
 
         for (int i = 0; i < compteurGlobal; i ++) {
-            mc->delta(delta, std_dev_delta);
+            mc->delta(delta, std_dev_delta, div);
             fprintf(f, "%lf \n", GET(delta, 0) - Nd1);
             juste = abs(GET(delta,0) - Nd1) < 1.96*GET(std_dev_delta,0);
             if (juste){

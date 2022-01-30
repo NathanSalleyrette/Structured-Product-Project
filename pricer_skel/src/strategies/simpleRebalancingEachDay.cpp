@@ -33,9 +33,6 @@ int main(int argc, char **argv)
     Utils::correlationMatrix(path, corrMat);
     pnl_mat_mult_double(corrMat, 1.);
 
-    // creation dividende à 0 car sans dividendes
-    PnlVect *div = pnl_vect_create_from_zero(market->getNumOfActions());
-
     // creation de performance
 
 
@@ -53,7 +50,7 @@ int main(int argc, char **argv)
     perf->niveauInitial();
 
     PnlVect* spots = perf->getNivInitAct();
-    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots, div);
+    BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(),r,1,volatilities, spots);
     pnl_mat_chol(corrMat);
     bs->correlations_ = corrMat;
 
@@ -99,6 +96,5 @@ int main(int argc, char **argv)
     pnl_mat_free(&path); 
     pnl_mat_free(&pathFull);
     pnl_mat_free(&past);
-    pnl_vect_free(&div);
 
 }
