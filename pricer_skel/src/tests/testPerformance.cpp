@@ -55,5 +55,7 @@ int main() {
     pnl_mat_free(&path);
     pnl_mat_free(&pathFull);
     delete perf;
+    delete market;
+    delete parser;
 
 }

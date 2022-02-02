@@ -9,6 +9,7 @@
 
 
 int main(){
+    log::init();
     double T = 1;
     int nbTimeSteps = 1;
     double K = 100;
@@ -33,7 +34,7 @@ int main(){
 
     // variables used to test the 95% proportion
     int compteurJuste = 0;
-    int compteurGlobal = 5000;
+    int compteurGlobal = 10;
     bool juste;
     double proportion;
     double precision = 0.01;
@@ -75,7 +76,12 @@ int main(){
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
         pnl_rng_free(&rng);
+
+        pnl_vect_free(&std_dev_delta);
+        pnl_vect_free(&delta);
+
         pnl_vect_free(&div);
+
         delete mc;
         delete bs;
         delete vanille;

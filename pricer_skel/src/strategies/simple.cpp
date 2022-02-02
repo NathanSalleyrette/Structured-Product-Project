@@ -151,6 +151,22 @@ int main(int argc, char **argv)
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
     pnl_mat_free(&pathFull);
+    pnl_rng_free(&rng);
+    pnl_vect_free(&trend);
+    //pnl_vect_free(&spots); ?? PK 
+    pnl_mat_free(&past);
+    pnl_vect_free(&vecteurPast);
+    pnl_vect_free(&vectline);
+
+    // pnl_mat_free(&corrMat);
+
+    delete mc;
+    delete bs;
+    delete perf;
+    delete parser;
+    delete market;
+
+
     // on a pas le mme price en t si on calcule price en 0 avant ou pas 
     // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
 }

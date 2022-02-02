@@ -34,17 +34,17 @@ int main(){
 
     // variables used to test the 95% proportion
     int compteurJuste = 0;
-    int compteurGlobal = 500;
+    int compteurGlobal = 1;
     bool juste;
     double proportion;
     double precision = 0.01;
     double precisionPnL = 0.2;
-    FILE * f;
-    f = fopen ("Prix_en_t.txt", "wt");
-    if (f == NULL){
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+    //FILE * f;
+    //f = fopen ("Prix_en_t.txt", "wt");
+    //if (f == NULL){
+    //std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
 
-    PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
+        PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
         pnl_rng_sseed(rng, time(NULL));
 
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
@@ -72,14 +72,14 @@ int main(){
             mc->price(price0, std_dev0);
             mc->price(past1, 0., price1, std_dev1);
             mc->price(past, t, price, std_dev);
-            fprintf(f, "%lf \n", price - theoricalPrice );
-            juste = abs(price - theoricalPrice) < 1.96*std_dev;
+            //fprintf(f, "%lf \n", price - theoricalPrice );
+            juste = abs(price - theoricalPrice) < 1.96*std_dev0;
             if (juste){
                 compteurJuste ++;
             }
         }
 
-        proportion = (double) compteurJuste / compteurGlobal;
+       proportion = (double) compteurJuste / compteurGlobal;
 
 
         pnl_vect_free(&spot);

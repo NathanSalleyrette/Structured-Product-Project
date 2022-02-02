@@ -11,11 +11,11 @@ BlackScholesModel::BlackScholesModel(int size, double r, double rho, PnlVect *si
     rho_ = rho;
     sigma_ = sigma;
     spot_ = spot;
-    PnlMat *correlations = pnl_mat_create(size, size);
-    pnl_mat_set_all(correlations, rho);
-    pnl_mat_set_diag(correlations, 1, 0);
-    pnl_mat_chol(correlations);
-    correlations_ = correlations;
+    correlations_ = pnl_mat_create(size, size);
+    pnl_mat_set_all(correlations_, rho);
+    pnl_mat_set_diag(correlations_, 1, 0);
+    pnl_mat_chol(correlations_); // Problème de leak ici
+    // Mais bon, on peut pas faire grand chose ducoup [3,104 bytes in 9 blocks]
     G_ = pnl_vect_create_from_scalar(size_, 0);
 }
 
@@ -23,6 +23,7 @@ BlackScholesModel::~BlackScholesModel()
 {
     pnl_mat_free(&correlations_);
     pnl_vect_free(&G_);
+
 }
 
 void BlackScholesModel::asset(PnlMat *path, double T, int nbTimeSteps, PnlRng *rng)

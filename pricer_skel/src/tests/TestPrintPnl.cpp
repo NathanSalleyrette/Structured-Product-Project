@@ -34,7 +34,7 @@ int main(){
 
     // variables used to test the 95% proportion
     int compteurJuste = 0;
-    int compteurGlobal = 500;
+    int compteurGlobal = 150;
     bool juste;
     double proportion;
     double precision = 0.01;
@@ -57,7 +57,7 @@ int main(){
         ParseCsv *parser = new ParseCsv("../data/callVanilleProf.csv", nbHedgeDate + 1, 1);
 
         double prix, stddev;
-        for(int i = 1; i < 150; i++){
+        for(int i = 1; i < compteurGlobal; i++){
         cout << i<<endl;
         mc->price(prix, stddev);
         mc->pAndL(i, errorHedge, parser->marketData_, prix);
@@ -68,7 +68,7 @@ int main(){
     fp = fopen ("dates.txt", "wt");
     if (fp == NULL){
     std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
-    for(int i = 1; i < 150; i++){
+    for(int i = 1; i < compteurGlobal; i++){
         fprintf(fp, "%d \n", i);
     }
 
