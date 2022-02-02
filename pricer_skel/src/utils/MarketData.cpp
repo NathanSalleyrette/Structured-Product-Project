@@ -33,8 +33,8 @@ double MarketData::getSpotFromDateAndAction(string date, string action) {
 int MarketData::getNumOfActions() { return actions.size(); }
 
 
-void MarketData::fillData(ParseYahooCsv *parser) {
-    string pathFiles = "../data/DATA";
+void MarketData::fillData(ParseYahooCsv *parser, string pathFiles ) {
+
     string action;
     for (const auto & entry : directory_iterator(pathFiles)) {
         action = entry.path(); //pas mieux path().filename().toString() ?
