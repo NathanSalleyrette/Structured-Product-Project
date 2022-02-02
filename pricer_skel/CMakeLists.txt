@@ -77,6 +77,12 @@ add_executable(simple ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simple ${LIBS})
 pnl_add_postbuild(simple)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleRebalancingEachDay.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleRebalancingEachDay ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(simpleRebalancingEachDay ${LIBS})
+pnl_add_postbuild(simpleRebalancingEachDay)
+
 set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleBis.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
 add_executable(simpleBis ${SOURCES} ${HEADERS} ${LOGGER})
@@ -140,26 +146,6 @@ pnl_add_postbuild(TestPrintPnl)
 # target_link_libraries(datas ${LIBS})
 # pnl_add_postbuild(datas)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestHedge.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testVanille ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testVanille ${LIBS})
-pnl_add_postbuild(testVanille)
-
-
-#Testing the price calculus
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testPrice ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testPrice ${LIBS})
-pnl_add_postbuild(testPrice)
-
-set(SOURCES src/fs/ParseCsv.cpp src/tests/oldTests/TestPriceDateCall.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testPriceDate ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testPriceDate ${LIBS})
-pnl_add_postbuild(testPriceDate)
-
 #Testing the simulMarket function
 set(SOURCES src/fs/ParseCsv.cpp src/tests/TestSimulMarket.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
@@ -193,6 +179,13 @@ add_executable(testVanilleGtest ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testVanilleGtest gtest_main ${LIBS})
 pnl_add_postbuild(testVanilleGtest)
 add_test(NAME vanille_test COMMAND testVanilleGtest)
+
+set(SOURCES src/fs/ParseCsv.cpp src/tests/testVanilleDiv.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+add_executable(testVanilleDiv ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testVanilleDiv gtest_main ${LIBS})
+pnl_add_postbuild(testVanilleDiv)
+add_test(NAME vanille_test_div COMMAND testVanilleDiv)
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallHEqualN.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)

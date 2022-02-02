@@ -49,6 +49,9 @@ int main(){
 
         PnlVect *sigma = pnl_vect_create_from_scalar(1, 0.2);
         PnlVect *spot = pnl_vect_create_from_scalar(1, 100);
+
+        // creation dividende à 0 car sans dividendes
+        PnlVect *div = pnl_vect_create_from_zero(1);
         
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
@@ -61,7 +64,7 @@ int main(){
         compteurJuste = 0;
 
         for (int i = 0; i < compteurGlobal; i ++) {
-            mc->delta(delta, std_dev_delta);
+            mc->delta(delta, std_dev_delta, div);
             fprintf(f, "%lf \n", GET(delta, 0) - Nd1);
             juste = abs(GET(delta,0) - Nd1) < 1.96*GET(std_dev_delta,0);
             if (juste){
@@ -73,8 +76,12 @@ int main(){
         pnl_vect_free(&spot);
         pnl_vect_free(&sigma);
         pnl_rng_free(&rng);
+
         pnl_vect_free(&std_dev_delta);
         pnl_vect_free(&delta);
+
+        pnl_vect_free(&div);
+
         delete mc;
         delete bs;
         delete vanille;
