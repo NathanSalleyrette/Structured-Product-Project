@@ -44,6 +44,14 @@ double Performance::payoff(const PnlMat* path) {
     return .9 + calculPerfMoyenneFinale(path)/100.;
 }
 
+
+double Performance::payoff(const PnlMat* path, const PnlMat* changes) {
+    
+    //md->fillfromPath(path, this->simulationDates);
+    //niveauInitial();
+    return .9 + calculPerfMoyenneFinale(path, changes)/100.;
+}
+
 void Performance::niveauInitial() {
 
     PnlVect * add = pnl_vect_create(md->getNumOfActions());
@@ -81,6 +89,26 @@ double Performance::calculPerfSemestre(PnlVect *semestre) {
 
 
 double Performance::calculPerfMoyenneFinale(const PnlMat* path) {
+
+    // double perfMoyenne = 0.;
+    // vector<string>::iterator it;
+    // for (it = observationDates.begin(); it != observationDates.end(); it++) {
+    //         perfMoyenne += calculPerfDate(*it);
+    // }
+    // return 100*roundFourDecimal(perfMoyenne / observationDates.size());
+
+    double perfMoyenne = 0.;
+    // On commence à 1 car la ligne 0 est le spot et donc le niveau initial
+    for (int i = 1; i < path->m; i++) {
+        pnl_mat_get_row(spotsOnDate, path, i);
+        perfMoyenne += calculPerfSemestre(spotsOnDate);
+    }
+
+    return 100*roundFourDecimal(perfMoyenne / observationDates.size());
+
+}
+
+double Performance::calculPerfMoyenneFinale(const PnlMat* path, const PnlMat* changes) {
 
     // double perfMoyenne = 0.;
     // vector<string>::iterator it;

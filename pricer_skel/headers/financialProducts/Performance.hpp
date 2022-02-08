@@ -32,11 +32,12 @@ class Performance: public Derivative {
         ~Performance();
 
         double payoff(const PnlMat* path);
-
+        double payoff(const PnlMat* path, const PnlMat* changes);
         // Calcul et mets dans le vecteur le niveau initial de chaque action
         void niveauInitial();
 
         double calculPerfMoyenneFinale(const PnlMat* path);
+        double calculPerfMoyenneFinale(const PnlMat* path, const PnlMat* changes);
 
         double calculPerfDate(string date);
 
