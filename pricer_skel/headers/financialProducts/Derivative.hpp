@@ -21,6 +21,7 @@ public:
      * @return the payoff : phi(path)
      */
     virtual double payoff(const PnlMat *path) = 0;
+    virtual double payoff(PnlMat* path, const PnlMat* changes) = 0;
     
     /**
      * @brief free the product
