@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     log::init();
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     
-    map<string, double> rPerCountry = { {"EUR", 0.21/100}, {"USD", .89/100}, {"JAP", -0.11/100}, {"GBP", 0.37/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 0.25/100}, {"MXN", 5.5}};
+    map<string, double> rPerCountry = { {"EUR", 0.0/100}, {"USD", 0.00/100}, {"JAP", -0.11/100}, {"GBP", 0.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 0.25/100}, {"MXN", 5.5/100}};
 
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
@@ -63,17 +63,17 @@ int main(int argc, char **argv)
             LET(divRates, i) = 0.;
         } else if (country[i] == 6){
             //c'est de l'usd
-            LET(divRates, i) = rPerCountry["EUR"] - rPerCountry["USD"];
+            LET(divRates, i) =  - rPerCountry["USD"];
 
         } else if (country[i] == 4){
-            LET(divRates, i) = rPerCountry["EUR"] - rPerCountry["JAP"];
+            LET(divRates, i) =  - rPerCountry["JAP"];
         }else if (country[i] == 5)
         {
-            LET(divRates, i) = rPerCountry["EUR"] - rPerCountry["MXN"];
+            LET(divRates, i) =  - rPerCountry["MXN"];
         }else if (country[i] == 3){
-            LET(divRates, i) = rPerCountry["EUR"] - rPerCountry["CAD"];
+            LET(divRates, i) =  - rPerCountry["CAD"];
         }else if(country[i] == 0){
-            LET(divRates, i) = rPerCountry["EUR"] - rPerCountry["GBP"];
+            LET(divRates, i) = - rPerCountry["GBP"];
         }
     }
 
@@ -88,7 +88,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     vector<string> Pdates = 
      { "2015-01-12", "2015-07-13"
      , "2016-01-11", "2016-07-11"
@@ -100,20 +99,38 @@ int main(int argc, char **argv)
      , "2022-01-11", "2022-07-11"};
 
     // Performance *perf = new Performance(observeDates, market, dates);
-    Performance *perf = new Performance(Pdates, market, Pdates);
+    Performance *perf = new Performance(Pdates, market, country);
+
     perf->niveauInitial();
 
     // vector<string>  dates = Date::getListOfDates("2021-10-12", "2022-12-12");
     //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
     PnlVect* spots = perf->getNivInitAct();
-    PnlVect* spotsRates = pnl_vect_create(rates->getNumOfActions());
-    rates->getSpotsFromDate( spotsRates,Pdates[0] );
 
-    for(int i = 0; i < rates->getNumOfActions(); i++){
+    PnlVect* spotsRates = pnl_vect_create(rates->getNumOfActions());
+    PnlVect * add = pnl_vect_create(rates->getNumOfActions());
+
+    rates->getSpotsFromDate(spotsRates, "2014-07-11");
+    rates->getSpotsFromDate(add, "2014-07-15");
+    
+    pnl_vect_plus_vect(spotsRates, add);
+    
+    rates->getSpotsFromDate(spotsRates, "2014-07-16");
+    pnl_vect_plus_vect(spotsRates, add);
+
+    pnl_vect_div_scalar(spotsRates, 3.);
+    //  pnl_vect_print(spots);
+    //  cout << "-----"<<endl;
+    for(int i = 0; i < market->getNumOfActions(); i++){
+
         if( country[i] != 7 ){
             LET(spots, i) = GET(spots,i) * GET(spotsRates, country[i]);
         }
     }
+    // pnl_vect_print(spots);
+   // assert(1==2);
+
+
 
     
     // pnl_mat_get_row(spots, path, 0);
@@ -124,21 +141,22 @@ int main(int argc, char **argv)
 
     rates->getSpotsFromDate( spotsRates,Pdates[0] );
     BlackScholesModel *bsRates = new BlackScholesModel(rates->getNumOfActions(), rPerCountry["EUR"], 1, volRates, spotsRates );
-
+    pnl_mat_chol(corrRatesMat);
+    bsRates->correlations_ = corrRatesMat;
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
     int nbSample = 5000;
 
-    MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
+    MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng, bsRates);
     double prix, std_dev;
     // mc->price(prix, std_dev);
     // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
     // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
-    mc->price(prix, std_dev); 
+    mc->price(prix, std_dev, divForStocks, divRates); 
     std::cout << "Prix en 0 " << prix <<std::endl;
 
     double prixt;
@@ -197,7 +215,7 @@ int main(int argc, char **argv)
     // pnl_mat_print(past);
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-    mc->price(past, t, prixt, std_dev);
+    mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
 
     cout << "prix auj " << prixt <<endl;
 

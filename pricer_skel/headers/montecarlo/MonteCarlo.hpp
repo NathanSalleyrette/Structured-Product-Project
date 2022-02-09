@@ -20,9 +20,11 @@ private:
     //PnlVect *deltaPrevious_; /*! vecteur contenant les deltas en t_(i-1) */
     //PnlVect *stdDevDelta_; /*! vecteur contenant les écart-types de delta */
 
+    PnlMat* changesPath_;
+
 public:
     BlackScholesModel *mod_; /*! pointeur vers le modèle */
-
+    BlackScholesModel *modRates_;
     Derivative *prodd_; /*! pointeur sur le Derivative */
     PnlRng *rng_; /*! pointeur sur le générateur */
     double fdStep_; /*! pas de différence finie */
@@ -39,6 +41,9 @@ public:
      * @param[in] nbSamples nombre de tirages Monte Carlo
      */
     MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng);
+
+
+    MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng, BlackScholesModel *modRates);
 
     /**
      * Détruit le moteur Monte Carlo
@@ -108,6 +113,20 @@ public:
      * @param divRates vecteur contenant les dividendes pour les changes
      */
     void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates);
+
+    /**
+     * Calcule le prix du Derivative à la date 0
+     *
+     * @param[out] prix valeur de l'estimateur Monte Carlo
+     * @param[out] ic écart type de l'estimateur
+     * @param divStocks dividende pour les actions
+     * @param divRates dividende pour les taux de changes
+     */
+
+    void price(double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates);
+
+
+    void price(const PnlMat *past, double t, double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates, PnlMat* pastRates);
 };
 
 

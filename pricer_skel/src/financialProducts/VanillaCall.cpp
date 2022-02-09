@@ -13,3 +13,7 @@ double VanillaCall::payoff(const PnlMat *path)
 {
     return fmax(MGET(path, nbTimeSteps_, 0) - K_, 0);
 }
+
+double VanillaCall::payoff(PnlMat* path, const PnlMat* changes) {
+return fmax(MGET(path, nbTimeSteps_, 0) - K_, 0);
+};
