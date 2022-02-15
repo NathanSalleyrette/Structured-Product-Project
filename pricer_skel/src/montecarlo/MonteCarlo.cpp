@@ -601,18 +601,21 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
 }
 
 
-void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates)
+void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp)
 {
 
     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
     PnlVect *deltaPrevious = pnl_vect_create(marketData->n); /*! vecteur contenant les deltas en t_(i-1) */
 
-    PnlVect* deltaChange = pnl_vect_create(changesPath_->n);
-    PnlVect* deltapreviousChange = pnl_vect_create(changesPath_->n);
+    PnlVect* deltaChange = pnl_vect_create(pathRates->n);
+    PnlVect* deltapreviousChange = pnl_vect_create(pathRates->n);
 
     PnlVect *stdDevDelta = pnl_vect_create(marketData->n); /*! vecteur contenant les écart-types de delta */
     PnlMat *past = pnl_mat_create(prodd_->nbTimeSteps_ + 1, marketData->n); /*! trajectoires du passé */
+    PnlMat* pastRates = pnl_mat_create( prodd_->nbTimeSteps_+1, pathRates->n );
+
     PnlMat *subPast = pnl_mat_create(1, marketData->n); /*! trajectoires du passé, de taille variable */
+    PnlMat* subChangePath = pnl_mat_create(1, pathRates->n);
     FILE * f;
     f = fopen ("Pvalue.txt", "wt");
     if (f == NULL){
@@ -633,10 +636,10 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     double std_dev = 0.;
 
     // creation dividende à 0 car sans dividendes
-    PnlVect *div = pnl_vect_create_from_zero(marketData->n);
+    //PnlVect *div = pnl_vect_create_from_zero(marketData->n);
 
     //int s = path_->n;
-    MonteCarlo::delta(deltaPrevious, stdDevDelta, div);
+    MonteCarlo::delta(deltaPrevious, stdDevDelta, divStocks, deltapreviousChange, divRates, country );
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
     int TOverN = (int) prodd_->T_ * (marketData->m - 1) / prodd_->nbTimeSteps_;
     double TOverH = prodd_->T_/nbHedgeDate;
@@ -644,20 +647,24 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
 
     PnlVect vecLine = pnl_vect_wrap_mat_row(marketData, 0);
-
-    V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious, &vecLine);
+    PnlVect vectChangeLine = pnl_vect_wrap_mat_row(pathRates, 0);
+    PnlVect* valuechange = pnl_vect_create(pathRates->n);
+    pnl_vect_clone(valuechange, &vectChangeLine);
+    pnl_vect_mult_vect_term(valuechange, vectexp);
+    V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
     
-
+    pnl_mat_set_row(pathRates, &vectChangeLine,0);
     pnl_mat_set_row(past, &vecLine, 0);
 
     int pastIndex = 1;
 
     pnl_mat_resize(subPast, pastIndex + 1, prodd_->size_);
-
+    pnl_mat_resize(subChangePath, pastIndex+1, pathRates->n );
     // On a commenté car c'est la même chose que la ligne 215
     //vecLine = pnl_vect_wrap_mat_row(marketData, 0);
      
     pnl_mat_set_row(subPast,  &vecLine, 0);
+    pnl_mat_set_row(subChangePath, &vectChangeLine,0);
 
     for (int tbrut = 1; tbrut < nbHedgeDate + 1; tbrut++) // chaque t est une date de rebalancement, c'est la grille fine
     {
@@ -668,25 +675,30 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         
         // Attention Vigilance
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
+        vectChangeLine = pnl_vect_wrap_mat_row(pathRates, t);
         if (t % TOverN == 0) // le t est un ti (une date de constatation)
         {
             pnl_mat_set_row(past, &vecLine, pastIndex);
+            pnl_mat_set_row(pastRates, &vectChangeLine, pastIndex);
         }
 
         pnl_mat_set_row(subPast, &vecLine, pastIndex);
-        
-        MonteCarlo::delta(subPast, tbrut*TOverH, delta, stdDevDelta, div); // on rebalance donc on calcule le delta
+        pnl_mat_set_row(subChangePath, &vectChangeLine, pastIndex);
+        MonteCarlo::delta(subPast, tbrut*TOverH, delta, stdDevDelta, divStocks,deltaChange, divRates, country, subChangePath); // on rebalance donc on calcule le delta
         pnl_vect_minus_vect(deltaPrevious, delta);
-        V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine);
+        pnl_vect_minus_vect(deltapreviousChange, deltaChange);
+        pnl_vect_clone(valuechange, &vectChangeLine);
+        pnl_vect_mult_vect_term(valuechange, vectexp);
+        V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine) + pnl_vect_scalar_prod( deltapreviousChange, valuechange);
         pnl_vect_clone(deltaPrevious, delta);
-
+        pnl_vect_clone(deltapreviousChange, deltaChange);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // On compare ici la valeur du portefeuille à l'instant t avec le prix donné par le pricer
         // Ce seront les données à afficher dans notre application pour le portefeuille de couverture
        
-        MonteCarlo::price(subPast, tbrut*TOverH, prix, std_dev);
-        double valeurPort = V + pnl_vect_scalar_prod(delta, &vecLine);
+        MonteCarlo::price(subPast, tbrut*TOverH, prix, std_dev, divStocks, divRates, subChangePath);
+        double valeurPort = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange);
 
         std::cout << "En t = " << tbrut*TOverH << " V = " << valeurPort << " prix  = " << prix << endl;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -699,6 +711,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
             // Problème ici, car lorsqu'on resize, toutes les données de subPast sont perdus
             pastIndex ++;
             pnl_mat_extract_subblock(subPast, past, 0, pastIndex + 1, 0, prodd_->size_); // on garde les données de cette date ti et on fait de la place pour les prochaines dates intermediaires t 
+            pnl_mat_extract_subblock(subChangePath, pastRates, 0, pastIndex+1, 0, pathRates->n);
         }
 
     }
@@ -706,7 +719,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     fclose(fp);
     fclose(Pdates);
 
-    errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) - prodd_->payoff(past); // calcule du PnL
+    errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange) - prodd_->payoff(past); // calcule du PnL
     pnl_vect_free(&delta);
     pnl_vect_free(&deltaPrevious);
     pnl_vect_free(&stdDevDelta);

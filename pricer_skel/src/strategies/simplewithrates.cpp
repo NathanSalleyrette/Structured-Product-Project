@@ -80,6 +80,8 @@ int main(int argc, char **argv)
             LET(divRates, i) = - rPerCountry["GBP"];
         }
     }
+    double arrayexp[5] = {exp(rPerCountry["GBP"]), exp(rPerCountry["CAD"]), exp(rPerCountry["JAP"]), exp(rPerCountry["MXN"]), exp(rPerCountry["USD"])};
+    PnlVect* vectexp = pnl_vect_create_from_ptr(5, arrayexp);
 
     PnlVect* divForStocks = pnl_vect_create(market->getNumOfActions());
     pnl_vect_clone(divForStocks, divRates);
@@ -270,7 +272,7 @@ cout<< "------------------------"<<endl;
 
     double errorHedge;
 
-    // mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates);
+    mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country,vectexp);
 
     // SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 

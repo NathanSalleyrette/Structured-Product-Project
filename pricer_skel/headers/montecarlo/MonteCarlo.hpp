@@ -115,7 +115,7 @@ public:
      * @param divStocks vecteur contenant les dividandes pour les actions
      * @param divRates vecteur contenant les dividendes pour les changes
      */
-    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates);
+    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp);
 
     /**
      * Calcule le prix du Derivative à la date 0
