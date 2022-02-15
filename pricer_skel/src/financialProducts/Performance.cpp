@@ -68,17 +68,19 @@ double Performance::payoff(PnlMat* path, const PnlMat* changes) {
     //niveauInitial();
 
     //on remet le bon path en multipliant par l'inverse du taux de change
-
+    PnlMat* pathclone = pnl_mat_create(path->m, path->n);
+    pnl_mat_clone(pathclone, path);
     for(int i = 0; i < path->m; i ++){
         for(int j = 0; j < path->n; j++){
+
             if (country_[j] !=7){
-                MLET(path, i, j) = MGET(path,i,j) / MGET(changes, i, country_[j]);
+                MLET(pathclone, i, j) = MGET(path,i,j) / MGET(changes, i, country_[j]);
                 
             }
         }
     }
 
-    return .9 + calculPerfMoyenneFinale(path)/100.;
+    return .9 + calculPerfMoyenneFinale(pathclone)/100.;
 }
 
 void Performance::niveauInitial() {

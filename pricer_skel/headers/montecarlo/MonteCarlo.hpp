@@ -13,12 +13,15 @@ private:
     PnlMat *path_; /*! matrice de taille (N+1)*D contenant les trajectoires des sous-jacents */
     PnlMat *shiftPath_; /*! matrice de taille (N+1)*D contenant les trajectoires des sous-jacents, shiftées à partir de t pour le sous-jacent d*/
     //PnlMat *past_; /*! trajectoires du passé */
+    PnlMat* shiftpathchange_;
     //PnlMat *subPast_; /*! trajectoires du passé, de taille variable */
     PnlVect *vectSt_; /*! vecteur contenant les prix des sous-jacents en t */
     PnlVect *sum_; /*! vecteur contenant la somme des payoff puis vecteur permettant de réaliser des opérations */
     //PnlVect *delta_; /*! vecteur contenant les deltas en t_i */
     //PnlVect *deltaPrevious_; /*! vecteur contenant les deltas en t_(i-1) */
     //PnlVect *stdDevDelta_; /*! vecteur contenant les écart-types de delta */
+    PnlVect* ratesSum_;
+    PnlVect* vectStRate_;
 
     PnlMat* changesPath_;
 
@@ -127,6 +130,11 @@ public:
 
 
     void price(const PnlMat *past, double t, double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates, PnlMat* pastRates);
+
+    void delta(PnlVect *delta, PnlVect *std_dev, PnlVect *dividende, PnlVect* deltachange, PnlVect* divRates, int country[]);
+
+    void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev, PnlVect *dividende, PnlVect* deltachange, PnlVect* divRates, int country[], PnlMat* pastRates);
+
 };
 
 

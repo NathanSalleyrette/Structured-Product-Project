@@ -24,10 +24,12 @@ class Performance: public Derivative {
 
         PnlVect *spotsOnDate;
 
-        int country_[30];
 
 
     public:
+
+
+        int country_[30];
         Performance(vector<string> observationDates, MarketData *md);
         Performance(vector<string> observationDates, MarketData *md, vector<string> simulationDates);
         Performance(vector<string> observationDates, MarketData *md, int country[]);

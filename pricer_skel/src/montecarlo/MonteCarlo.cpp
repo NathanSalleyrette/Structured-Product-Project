@@ -12,7 +12,7 @@ MonteCarlo::MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep,
     nbSamples_ = nbSamples;
     rng_ = rng;
     path_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, prodd_->size_);
-
+    
     shiftPath_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, prodd_->size_);
     vectSt_ = pnl_vect_create_from_zero(prodd_->size_);
     sum_ = pnl_vect_create_from_zero(prodd_->size_);
@@ -32,12 +32,17 @@ MonteCarlo::MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep,
     nbSamples_ = nbSamples;
     rng_ = rng;
     path_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, prodd_->size_);
- 
+                   
     shiftPath_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, prodd_->size_);
-    changesPath_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, modRates->size_);
-    vectSt_ = pnl_vect_create_from_zero(prodd_->size_);
-    sum_ = pnl_vect_create_from_zero(prodd_->size_);
     modRates_ = modRates;
+    changesPath_ = pnl_mat_create_from_zero(prodd_->nbTimeSteps_+1, modRates->size_);
+    shiftpathchange_ = pnl_mat_create(prodd_->nbTimeSteps_+1, modRates->size_);
+
+    vectSt_ = pnl_vect_create_from_zero(prodd_->size_);
+    vectStRate_ = pnl_vect_create_from_zero(modRates->size_);
+    sum_ = pnl_vect_create_from_zero(prodd_->size_);
+    ratesSum_ = pnl_vect_create_from_zero(modRates_->size_);
+    
     // delta_ = pnl_vect_create_from_zero(prodd_->size_);
     // deltaPrevious_ = pnl_vect_create_from_zero(prodd_->size_);
     // stdDevDelta_ = pnl_vect_create_from_zero(prodd_->size_);
@@ -336,11 +341,275 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 }
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// On passe maintenant aux fonctions de prix et delta prenant en compte les taux de changes
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void MonteCarlo::price(double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates)
+{
+
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t = 0");
+    double resPayoff;
+    double sum = 0;
+    double sumSquared = 0;
+    double oneOverM = (1/(double)nbSamples_);
+    
+    for (int i = 0; i < nbSamples_; i++)
+    {
+        
+        //simulation des trajectoires
+
+        mod_->assetDelta(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divStocks);
+
+        modRates_->assetDelta(changesPath_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divRates);
+        
+        //payoff pour la trajectoire simulée
+        resPayoff = prodd_->payoff(path_, changesPath_);
+        //std::cout << resPayoff << std::endl;
+        sum += resPayoff;
+        
+        sumSquared += resPayoff * resPayoff;
+        // std::cout<<resPayoff<<std::endl;
+    }
+
+    double oneOverMTimesSum = oneOverM * sum;
+
+    double varianceEstim = exp(-2 * mod_->r_ * prodd_->T_) * (oneOverM * sumSquared - oneOverMTimesSum * oneOverMTimesSum);
+
+    //actualisation du payoff simulé par MonteCarlo
+    prix = exp(-mod_->r_ * prodd_->T_) * oneOverMTimesSum;
+    std_dev = sqrt(varianceEstim*oneOverM);
+    SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 computed");
+}
+
+
+
+
+void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates, PnlMat* pastRates)
+{
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t");
+    double resPayoff;
+    double sum = 0;
+    double sumSquared = 0;
+    double oneOverM = (1/(double)nbSamples_);
+    
+    for (int i = 0; i < nbSamples_; i++)
+    {
+
+        //simulation des trajectoires
+        mod_->assetDelta(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past, divStocks);
+        modRates_->assetDelta(changesPath_,t, prodd_->T_, prodd_->nbTimeSteps_, rng_, pastRates ,divRates);
+
+        // pnl_mat_print(path_);
+        //payoff pour la trajectoire simulée
+        resPayoff = prodd_->payoff(path_, changesPath_);
+        // std::cout << resPayoff << std::endl;
+        sum += resPayoff;
+        //SPDLOG_LOGGER_INFO(_logger, sum);
+
+        sumSquared += resPayoff * resPayoff;
+    }
+    double oneOverMTimesSum = oneOverM * sum;
+
+    double varianceEstim = exp(-2 * mod_->r_ * (prodd_->T_-t)) * (oneOverM * sumSquared - oneOverMTimesSum * oneOverMTimesSum);
+
+    //actualisation du payoff simulé par MonteCarlo
+    prix = exp(-mod_->r_ * (prodd_->T_ - t)) * oneOverMTimesSum;
+    std_dev = sqrt(varianceEstim*oneOverM);
+    SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
+}
+
+
+void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev, PnlVect *dividende, PnlVect* deltachange, PnlVect* divRates, int country[])
+{
+    double payoffPlus;
+    double payoffMinus;
+    double resPayoff;
+
+    double expon = exp(- mod_->r_ * (prodd_->T_))/ (2*fdStep_);
+    double TOverN = prodd_->T_/prodd_->nbTimeSteps_;
+    
+
+
+    pnl_vect_set_zero(std_dev);
+    pnl_vect_set_zero(sum_);
+
+    for (int i = 0; i < nbSamples_; i++)
+    {
+
+        //simulation des trajectoires
+        mod_->assetDelta(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_, dividende); // M simulations
+        modRates_->assetDelta(changesPath_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divRates);
+        for (int d=0; d< prodd_->size_; d++)
+        {
+            mod_->shiftAsset(shiftPath_, path_, d, fdStep_, 0, TOverN);
+            
+            payoffPlus = prodd_->payoff(shiftPath_, changesPath_);
+            mod_->shiftAsset(shiftPath_, path_, d, -fdStep_, 0, TOverN);
+            payoffMinus = prodd_->payoff(shiftPath_, changesPath_);
+
+           
+            
+            resPayoff = payoffPlus - payoffMinus;
+
+            LET(sum_, d) += resPayoff; // M addition
+            LET(std_dev, d) += resPayoff * resPayoff;
+        }
+
+        for (int d=0; d< modRates_->size_; d++)
+        {
+            
+            modRates_->shiftAsset(shiftpathchange_ , changesPath_ , d, fdStep_, 0, TOverN);
+            
+            payoffPlus = prodd_->payoff(path_, shiftpathchange_);
+
+          
+            mod_->shiftAsset(shiftpathchange_, changesPath_, d, -fdStep_, 0, TOverN);
+           
+           
+            payoffMinus = prodd_->payoff(path_, shiftpathchange_);
+            
+            resPayoff = payoffPlus - payoffMinus;
+            //sstd::cout << resPayoff<< std::endl;
+            LET( ratesSum_ , d) += resPayoff; // M addition
+            //LET(std_dev, d) += resPayoff * resPayoff;
+        }
+
+    }
+            
+    // ensemble de transformations pour obtenir le delta
+    pnl_vect_clone(vectSt_, mod_->spot_);
+    pnl_vect_div_scalar(sum_, ((double)nbSamples_));
+    pnl_vect_clone(delta, sum_);
+    pnl_vect_mult_scalar(delta, expon);
+    pnl_vect_div_vect_term(delta, vectSt_);
+
+     
+    //On calcul les delta pour les changes
+    pnl_vect_clone(vectStRate_, modRates_->spot_);
+    pnl_vect_div_scalar(ratesSum_ , ((double)nbSamples_));
+    pnl_vect_clone( deltachange , ratesSum_);
+    pnl_vect_mult_scalar(deltachange, expon);
+    pnl_vect_div_vect_term(deltachange, vectStRate_);
+
+    // for(int i = 0; i < mod_->size_; i++){
+    //     if(country[i]!= 7)
+    //     LET(deltachange, country[i]) = +GET(deltachange, country[i]) + GET(delta, i)/GET(modRates_->spot_, country[i])*GET(mod_->spot_, i);
+    // }
+
+
+    //calcul erreur pour test
+    pnl_vect_div_scalar(std_dev, (double)nbSamples_);
+    pnl_vect_mult_vect_term(sum_, sum_);
+
+    pnl_vect_minus_vect(std_dev, sum_);
+   
+    pnl_vect_mult_scalar(std_dev, expon*expon);
+    pnl_vect_mult_vect_term(vectSt_, vectSt_);
+    pnl_vect_div_vect_term(std_dev, vectSt_);
+    pnl_vect_div_scalar(std_dev, (double)nbSamples_);
+    pnl_vect_map_inplace(std_dev, sqrt);
+
+}
+
+void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev, PnlVect *dividende, PnlVect* deltachange, PnlVect* divRates, int country[], PnlMat* pastRates)
+{
+    double payoffPlus;
+    double payoffMinus;
+    double resPayoff;
+
+    double expon = exp(- mod_->r_ * (prodd_->T_ - t))/ (2*fdStep_);
+    double TOverN = prodd_->T_/prodd_->nbTimeSteps_;
+
+    pnl_vect_set_zero(std_dev);
+    pnl_vect_set_zero(sum_);
+    
+    for (int i = 0; i < nbSamples_; i++)
+    {
+        //simulation des trajectoires
+        mod_->assetDelta(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past, dividende); // M simulations
+        modRates_->assetDelta(changesPath_,t, prodd_->T_, prodd_->nbTimeSteps_, rng_,pastRates, divRates);
+
+        for (int d=0; d< prodd_->size_; d++)
+        {
+            mod_->shiftAsset(shiftPath_, path_, d, fdStep_, t, TOverN);
+            payoffPlus = prodd_->payoff(shiftPath_, changesPath_);
+            mod_->shiftAsset(shiftPath_, path_, d, -fdStep_, t, TOverN);
+            payoffMinus = prodd_->payoff(shiftPath_, changesPath_);
+            resPayoff = payoffPlus - payoffMinus;
+
+            LET(sum_, d) += resPayoff; // M addition
+            LET(std_dev, d) += resPayoff * resPayoff;
+        }
+ 
+        for (int d=0; d< modRates_->size_; d++)
+        {
+            
+            modRates_->shiftAsset(shiftpathchange_ , changesPath_ , d, fdStep_, t, TOverN);
+            
+            payoffPlus = prodd_->payoff(path_, shiftpathchange_);
+
+            // cout << payoffPlus <<endl;
+            mod_->shiftAsset(shiftpathchange_, changesPath_, d, -fdStep_, t, TOverN);
+            payoffMinus = prodd_->payoff(path_, shiftpathchange_);
+            // cout << payoffMinus <<endl;
+            
+
+            resPayoff = payoffPlus - payoffMinus;
+            //sstd::cout << resPayoff<< std::endl;
+            LET( ratesSum_ , d) += resPayoff; // M addition
+            //LET(std_dev, d) += resPayoff * resPayoff;
+        }
+    }
+
+
+
+    // ensemble de transformations pour obtenir le delta
+    pnl_mat_get_row(vectSt_, past, past->m-1);
+    pnl_vect_div_scalar(sum_, ((double)nbSamples_));
+    pnl_vect_clone(delta, sum_);
+    pnl_vect_mult_scalar(delta, expon);
+    pnl_vect_div_vect_term(delta, vectSt_);
+
+    //On fait pour les changes
+    pnl_mat_get_row(vectStRate_ , pastRates, pastRates->m-1);
+    pnl_vect_div_scalar(ratesSum_, ((double)nbSamples_));
+    pnl_vect_clone(deltachange, ratesSum_);
+    pnl_vect_mult_scalar(deltachange, expon);
+    pnl_vect_div_vect_term(deltachange, vectStRate_);
+
+    // for(int i = 0; i < mod_->size_; i++){
+    //     if(country[i]!= 7)
+    //     LET(deltachange, country[i]) = -GET(deltachange, country[i]) + GET(delta, i)/GET(modRates_->spot_, country[i])*GET(mod_->spot_, i);
+    // }
+
+    pnl_vect_div_scalar(std_dev, (double)nbSamples_);
+    pnl_vect_mult_vect_term(sum_, sum_);
+
+    pnl_vect_minus_vect(std_dev, sum_);
+   
+    pnl_vect_mult_scalar(std_dev, expon*expon);
+    pnl_vect_mult_vect_term(vectSt_, vectSt_);
+    pnl_vect_div_vect_term(std_dev, vectSt_);
+    pnl_vect_div_scalar(std_dev, (double)nbSamples_);
+    pnl_vect_map_inplace(std_dev, sqrt);
+}
+
+
 void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates)
 {
 
     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
     PnlVect *deltaPrevious = pnl_vect_create(marketData->n); /*! vecteur contenant les deltas en t_(i-1) */
+
+    PnlVect* deltaChange = pnl_vect_create(changesPath_->n);
+    PnlVect* deltapreviousChange = pnl_vect_create(changesPath_->n);
+
     PnlVect *stdDevDelta = pnl_vect_create(marketData->n); /*! vecteur contenant les écart-types de delta */
     PnlMat *past = pnl_mat_create(prodd_->nbTimeSteps_ + 1, marketData->n); /*! trajectoires du passé */
     PnlMat *subPast = pnl_mat_create(1, marketData->n); /*! trajectoires du passé, de taille variable */
@@ -443,85 +712,4 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     pnl_vect_free(&stdDevDelta);
     pnl_mat_free(&past);
     pnl_mat_free(&subPast);
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// On passe maintenant aux fonctions de prix et delta prenant en compte les taux de changes
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void MonteCarlo::price(double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates)
-{
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t = 0");
-    double resPayoff;
-    double sum = 0;
-    double sumSquared = 0;
-    double oneOverM = (1/(double)nbSamples_);
-    
-    for (int i = 0; i < nbSamples_; i++)
-    {
-        
-        //simulation des trajectoires
-
-        mod_->assetDelta(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divStocks);
-
-        modRates_->assetDelta(changesPath_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divRates);
-        
-        //payoff pour la trajectoire simulée
-        resPayoff = prodd_->payoff(path_, changesPath_);
-        //std::cout << resPayoff << std::endl;
-        sum += resPayoff;
-        
-        sumSquared += resPayoff * resPayoff;
-        // std::cout<<resPayoff<<std::endl;
-    }
-
-    double oneOverMTimesSum = oneOverM * sum;
-
-    double varianceEstim = exp(-2 * mod_->r_ * prodd_->T_) * (oneOverM * sumSquared - oneOverMTimesSum * oneOverMTimesSum);
-
-    //actualisation du payoff simulé par MonteCarlo
-    prix = exp(-mod_->r_ * prodd_->T_) * oneOverMTimesSum;
-    std_dev = sqrt(varianceEstim*oneOverM);
-    SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 computed");
-}
-
-
-
-
-void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_dev, PnlVect* divStocks, PnlVect* divRates, PnlMat* pastRates)
-{
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t");
-    double resPayoff;
-    double sum = 0;
-    double sumSquared = 0;
-    double oneOverM = (1/(double)nbSamples_);
-    
-    for (int i = 0; i < nbSamples_; i++)
-    {
-
-        //simulation des trajectoires
-        mod_->assetDelta(path_, t, prodd_->T_, prodd_->nbTimeSteps_, rng_, past, divStocks);
-        modRates_->assetDelta(changesPath_,t, prodd_->T_, prodd_->nbTimeSteps_, rng_, pastRates ,divRates);
-
-        // pnl_mat_print(path_);
-        //payoff pour la trajectoire simulée
-        resPayoff = prodd_->payoff(path_, changesPath_);
-        // std::cout << resPayoff << std::endl;
-        sum += resPayoff;
-        //SPDLOG_LOGGER_INFO(_logger, sum);
-
-        sumSquared += resPayoff * resPayoff;
-    }
-    double oneOverMTimesSum = oneOverM * sum;
-
-    double varianceEstim = exp(-2 * mod_->r_ * (prodd_->T_-t)) * (oneOverM * sumSquared - oneOverMTimesSum * oneOverMTimesSum);
-
-    //actualisation du payoff simulé par MonteCarlo
-    prix = exp(-mod_->r_ * (prodd_->T_ - t)) * oneOverMTimesSum;
-    std_dev = sqrt(varianceEstim*oneOverM);
-    SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
 }

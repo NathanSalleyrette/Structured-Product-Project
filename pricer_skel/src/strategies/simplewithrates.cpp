@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     log::init();
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     
-    map<string, double> rPerCountry = { {"EUR", 0.0/100}, {"USD", 0.00/100}, {"JAP", -0.11/100}, {"GBP", 0.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 0.25/100}, {"MXN", 5.5/100}};
+    map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
 
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
@@ -25,6 +25,10 @@ int main(int argc, char **argv)
     MarketData *rates = new MarketData();
     string pathFiles = "../data/RATE";
     rates->fillData(parser, pathFiles);
+    // for(int i = 0; i < rates->actions.size(); i++){
+    //     cout<< rates->actions[i] << endl;
+    // }
+    // assert(1==2);
     // calcul de la volatilité et la correlation
     PnlMat* path = pnl_mat_create(1,1);
     market->fillPathMat(path, "2021-12-10", 5);
@@ -53,7 +57,7 @@ int main(int argc, char **argv)
     PnlVect* divRates = pnl_vect_create(market->getNumOfActions());
     int const nbAction = market->getNumOfActions();
     
-    int country[30] = {7, 6, 6, 7, 7, 6,6,4,3, 6,6,6, 6, 6,6, 6,6,6,6,5,6,6,6,6,4,7,7,0,6,6};
+    int country[30] = {7, 4, 4, 7, 7, 4,4,2,1, 4,4,4, 4, 4,4, 4,4,4,4,3,4,4,4,4,2,7,7,0,4,4};
 
 //On a maintenant la part fixe du div ( rd - rf)
 
@@ -61,16 +65,16 @@ int main(int argc, char **argv)
     for(int i = 0; i < divRates->size; i++){
         if (country[i] == 7){
             LET(divRates, i) = 0.;
-        } else if (country[i] == 6){
+        } else if (country[i] == 4){
             //c'est de l'usd
             LET(divRates, i) =  - rPerCountry["USD"];
 
-        } else if (country[i] == 4){
+        } else if (country[i] == 2){
             LET(divRates, i) =  - rPerCountry["JAP"];
-        }else if (country[i] == 5)
+        }else if (country[i] == 3)
         {
             LET(divRates, i) =  - rPerCountry["MXN"];
-        }else if (country[i] == 3){
+        }else if (country[i] == 1){
             LET(divRates, i) =  - rPerCountry["CAD"];
         }else if(country[i] == 0){
             LET(divRates, i) = - rPerCountry["GBP"];
@@ -129,7 +133,7 @@ int main(int argc, char **argv)
     }
     // pnl_vect_print(spots);
    // assert(1==2);
-
+    //pnl_vect_inv_term(spotsRates);
 
 
     
@@ -142,23 +146,34 @@ int main(int argc, char **argv)
     rates->getSpotsFromDate( spotsRates,Pdates[0] );
     BlackScholesModel *bsRates = new BlackScholesModel(rates->getNumOfActions(), rPerCountry["EUR"], 1, volRates, spotsRates );
     pnl_mat_chol(corrRatesMat);
+ 
     bsRates->correlations_ = corrRatesMat;
+
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
     pnl_rng_sseed(rng, time(NULL));
 
     double fdstep = .01;
     int nbSample = 5000;
-
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng, bsRates);
+
     double prix, std_dev;
+
     // mc->price(prix, std_dev);
     // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
     // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     // mc->delta(delta, std_dev_delta);
     // pnl_vect_print(delta);
     mc->price(prix, std_dev, divForStocks, divRates); 
-    std::cout << "Prix en 0 " << prix <<std::endl;
 
+    std::cout << "Prix en 0 " << prix <<std::endl;
+    PnlVect* delta = pnl_vect_create(market->getNumOfActions());
+    PnlVect* deltaChange = pnl_vect_create(rates->getNumOfActions());
+    PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
+    mc->delta(delta, std_dev_delta, divForStocks, deltaChange, divRates, country);
+cout<< "------------------------"<<endl;
+pnl_vect_print(deltaChange);
+
+cout<< "------------------------"<<endl;
     double prixt;
 
     //calcul du prix en t = auj
@@ -211,13 +226,23 @@ int main(int argc, char **argv)
         //pnl_mat_set_row(past, vecteurPast , i+1);
     }
     
-
-    // pnl_mat_print(past);
+    for(int i = 0; i < pastRates->m; i++){
+        pnl_mat_get_row(vecteurRates,pastRates, i);
+        pnl_vect_inv_term(vecteurRates);
+        pnl_mat_set_row(pastRates, vecteurRates  ,i);
+    }
+    pnl_mat_print(pastRates);
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
     mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
 
     cout << "prix auj " << prixt <<endl;
+
+    mc->delta(past , t,delta, std_dev_delta, divForStocks, deltaChange, divRates, country, pastRates);
+cout<< "------------------------"<<endl;
+pnl_vect_print(deltaChange);
+
+cout<< "------------------------"<<endl;
 
 
     //calcul P&L
