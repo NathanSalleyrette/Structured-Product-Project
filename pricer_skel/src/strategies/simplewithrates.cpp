@@ -226,12 +226,12 @@ cout<< "------------------------"<<endl;
         //pnl_mat_set_row(past, vecteurPast , i+1);
     }
     
-    for(int i = 0; i < pastRates->m; i++){
-        pnl_mat_get_row(vecteurRates,pastRates, i);
-        pnl_vect_inv_term(vecteurRates);
-        pnl_mat_set_row(pastRates, vecteurRates  ,i);
-    }
-    pnl_mat_print(pastRates);
+    // for(int i = 0; i < pastRates->m; i++){
+    //     pnl_mat_get_row(vecteurRates,pastRates, i);
+    //     pnl_vect_inv_term(vecteurRates);
+    //     pnl_mat_set_row(pastRates, vecteurRates  ,i);
+    // }
+    // pnl_mat_print(pastRates);
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
     mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
@@ -270,9 +270,9 @@ cout<< "------------------------"<<endl;
 
     double errorHedge;
 
-    mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates);
+    // mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates);
 
-    SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
+    // SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 
     FILE * Pdatesfile;
     Pdatesfile = fopen ("dates.txt", "wt");
