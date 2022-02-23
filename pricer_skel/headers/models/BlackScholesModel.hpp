@@ -109,6 +109,10 @@ public:
      */
     void simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path);
 
+
+    void shiftAssetChange(PnlMat *shift_path, const PnlMat *path, int d, double h, double t, double timestep);
+    
+
 };
 
 

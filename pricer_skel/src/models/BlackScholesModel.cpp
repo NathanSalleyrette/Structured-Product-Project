@@ -223,6 +223,31 @@ void BlackScholesModel::shiftAsset(PnlMat *shift_path, const PnlMat *path, int d
     }
 }
 
+void BlackScholesModel::shiftAssetChange(PnlMat *shift_path, const PnlMat *path, int d, double h, double t, double timestep) // timestep = T/N 
+{
+    double nbTimeSteps = path->m-1;
+    int simulation_start;
+
+    int i = (int)(t/timestep);
+    double ti = i * timestep;
+
+
+    //on vérifie si l'on est sur une date de constatation (donc une date % T/N)
+    if (t-ti <= 10E-10)
+    {
+        simulation_start = i;
+    }
+    else
+    {
+        simulation_start = i+1;
+    }
+    pnl_mat_clone(shift_path, path);
+
+    for (int i = simulation_start; i <= nbTimeSteps; i++){
+        MLET(shift_path, i, d) /= (1+h);
+    }
+}
+
 // faut -il faire - div ? 
 void BlackScholesModel::simul_market(PnlMat *past, double T, PnlRng *rng, PnlVect *trend, int nbHedgeDate, PnlMat *path)
 {   

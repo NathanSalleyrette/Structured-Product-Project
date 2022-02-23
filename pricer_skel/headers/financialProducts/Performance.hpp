@@ -25,14 +25,19 @@ class Performance: public Derivative {
         PnlVect *spotsOnDate;
 
 
+
     public:
+
+
+        int country_[30];
         Performance(vector<string> observationDates, MarketData *md);
         Performance(vector<string> observationDates, MarketData *md, vector<string> simulationDates);
+        Performance(vector<string> observationDates, MarketData *md, int country[]);
 
         ~Performance();
 
         double payoff(const PnlMat* path);
-
+        double payoff(PnlMat* path, const PnlMat* changes);
         // Calcul et mets dans le vecteur le niveau initial de chaque action
         void niveauInitial();
 

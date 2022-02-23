@@ -44,6 +44,7 @@ void MarketData::fillData(ParseYahooCsv *parser, string pathFiles ) {
         action = entry.path(); //pas mieux path().filename().toString() ?
         action.erase(action.end()-4, action.end());
         action.erase(action.begin(), action.begin()+13);
+        //std::cout << action << std::endl;
         bool in = false;
         for(int i = 0; i < actions.size(); i++){
             if (actions[i] == action){

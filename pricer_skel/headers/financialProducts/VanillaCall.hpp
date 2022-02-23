@@ -34,5 +34,6 @@ public:
      * par la fonction asset.
      * @return phi(trajectoire)
      */
-    virtual double payoff(const PnlMat *path);
+    double payoff(const PnlMat *path);
+    double payoff(PnlMat* path, const PnlMat* changes);
 };

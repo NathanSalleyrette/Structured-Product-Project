@@ -42,6 +42,8 @@ double Utils::correlation( const PnlVect* X,  const PnlVect* Y){
 void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
     PnlVect* X = pnl_vect_create(path->m);
     PnlVect* Y = pnl_vect_create(path->m);
+    PnlVect* returnsX = pnl_vect_create(path->m - 1);
+    PnlVect* returnsY = pnl_vect_create(path->m - 1);
 
     int m = path->n;
     
@@ -49,8 +51,14 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
         for(int j = i; j < m; j++){
             pnl_mat_get_col(X, path, i);
             pnl_mat_get_col(Y, path, j);
-            MLET(corrMat, i, j) = correlation(X,Y);
-            MLET(corrMat, j, i) = correlation(X,Y);
+
+            for(int l = 0; l < X->size - 1; l++){
+                LET(returnsX, l) = GET(X,l + 1)/GET(X, l);
+                LET(returnsY, l) = GET(Y,l + 1)/GET(Y, l);
+            }
+
+            MLET(corrMat, i, j) = correlation(returnsX,returnsY);
+            MLET(corrMat, j, i) = correlation(returnsX,returnsY);
         }
     }
     pnl_vect_free(&X);
