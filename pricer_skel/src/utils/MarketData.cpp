@@ -100,6 +100,19 @@ void MarketData::fillPathMat(PnlMat* path, string startDate, int nbOfDays) {
     SPDLOG_LOGGER_INFO(_logger, "Path matrix created from map");
 }
 
+void MarketData::fillPathMatFromFinalDate(PnlMat* path, string finalDate, int nbOfDays) {
+    pnl_mat_resize(path, nbOfDays, actions.size());
+    PnlVect* spotsOfDate = pnl_vect_create(actions.size());
+    string date = finalDate;
+    for (int i = nbOfDays - 1; i >= 0; i--){
+        getSpotsFromDate(spotsOfDate, date);
+        pnl_mat_set_row(path, spotsOfDate, i);
+        date = Date::previousDate(date);
+    }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Path matrix created from map");
+}
+
 void MarketData::fillfromPath(const PnlMat* path, vector<string> dates){
     
     for(int i = 0; i < dates.size(); i++){

@@ -1,7 +1,7 @@
 #include <string>
 #include "utils/MarketData.hpp"
 #include "fs/ParseYahooCsv.hpp"
-#include "utils/Utils.hpp"
+// #include "utils/Utils.hpp"
 #include "utils/Date.hpp"
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
@@ -31,6 +31,9 @@ int main(int argc, char **argv)
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(path, corrMat);
+    std::cout << "-----------------corrMat---------------" << std::endl;
+            pnl_mat_print(corrMat);
+            std::cout << "--------------------------------" << std::endl;
     pnl_mat_mult_double(corrMat, 1.);
 
     // creation de performance
@@ -64,7 +67,7 @@ int main(int argc, char **argv)
     double fdstep = .01;
     int nbSample = 5000;
 
-    MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng);
+    MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng, market);
     double prix, std_dev;
     // mc->price(prix, std_dev);
     // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
@@ -129,12 +132,9 @@ int main(int argc, char **argv)
     bs->simul_market(past, T, rng, trend, H - 1, path);
     
 
-
-    
-
     double errorHedge;
-
-    mc->pAndL(H - 1, errorHedge, path, 1);
+    int windowSize = 5;
+    mc->pAndLWindow(H - 1, errorHedge, path, 1, windowSize, Pdates);
 
     SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 

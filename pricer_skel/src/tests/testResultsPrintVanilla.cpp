@@ -5,7 +5,7 @@
 #include "models/BlackScholesModel.hpp"
 #include "financialProducts/VanillaCall.hpp"
 #include "spdlog/log.hpp"
-#include<cstdio>
+#include <cstdio>
 
 
 int main(){
