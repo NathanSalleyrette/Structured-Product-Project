@@ -1,0 +1,23 @@
+{
+  "name": "test_de_0",
+  "version": "1.0.0",
+  "description": "test d'interfacage pour c++",
+  "main": "index.js",
+  "engines": {
+    "node": ">= 14.0.0"
+  },
+
+  "scripts": {
+    "install": "cmake-js compile --CDCMAKE_PREFIX_PATH=/home/peyrichou/PNL/pnl/build/"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cmake-js": "^6.3.0",
+    "node-gyp": "^8.4.1"
+  },
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^4.3.0"
+  }
+}
