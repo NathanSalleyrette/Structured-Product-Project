@@ -31,9 +31,9 @@ int main(int argc, char **argv)
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(path, corrMat);
-    std::cout << "-----------------corrMat---------------" << std::endl;
-            pnl_mat_print(corrMat);
-            std::cout << "--------------------------------" << std::endl;
+    // std::cout << "-----------------corrMat---------------" << std::endl;
+    //         pnl_mat_print(corrMat);
+    //         std::cout << "--------------------------------" << std::endl;
     pnl_mat_mult_double(corrMat, 1.);
 
     // creation de performance

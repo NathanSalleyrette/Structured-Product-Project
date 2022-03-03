@@ -434,18 +434,22 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
             // Fenetre glissante volatilités et corrélation
             market_->fillPathMatFromFinalDate(pathWindow, rebalancingDates[tbrut - 1], windowSize);
 
+            // std::cout << "-----------------pathwindow---------------" << std::endl;
+            // pnl_mat_print(pathWindow);
+            // std::cout << "--------------------------------" << std::endl;
+
             // volatilité
             // PnlVect* volatilities = pnl_vect_create(market_->getNumOfActions());
             Utils::volsOnMat(mod_->sigma_, pathWindow);
             pnl_vect_mult_scalar(mod_->sigma_, 1. / 16.); // pq 1/16 ??
 
-
+            // pathWindow = pnl_mat_create_from_scalar(pathWindow->m, pathWindow->n, 2.0);
 
             // correlation
             Utils::correlationMatrix(pathWindow, corrMat);
-            std::cout << "-----------------corrMat---------------" << std::endl;
-            pnl_mat_print(corrMat);
-            std::cout << "--------------------------------" << std::endl;
+            // std::cout << "-----------------corrMat---------------" << std::endl;
+            // pnl_mat_print(corrMat);
+            // std::cout << "--------------------------------" << std::endl;
             pnl_mat_mult_double(corrMat, 1.);
             pnl_mat_chol(corrMat);
             mod_->correlations_ = corrMat;
