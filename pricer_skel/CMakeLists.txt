@@ -89,6 +89,12 @@ add_executable(simpleBis ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simpleBis ${LIBS})
 pnl_add_postbuild(simpleBis)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simplewithrates.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleRates ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(simpleRates ${LIBS})
+pnl_add_postbuild(simpleRates)
+
 #Testing the utils class
 set(SOURCES src/utils/Utils.cpp src/tests/TestUtils.cpp)
 set(HEADERS headers/utils/Utils.hpp)

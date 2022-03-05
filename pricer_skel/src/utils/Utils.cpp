@@ -69,16 +69,18 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
 
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
     PnlVect* temp = pnl_vect_create(1);
-    PnlVect* returns = pnl_vect_create(volatilities->size);
+    PnlVect* returns = pnl_vect_create(path->m - 1);
     double cov;
     double sqrtcov;
     double expsqrtcov;
     for (int i = 0; i < volatilities->size; i++){
         pnl_mat_get_col(temp, path, i);
+
         //On calcul les log rendements
 
         for(int j = 1; j < temp->size; j++){
-            LET(returns, j) = log( GET(temp, j) / GET(temp, j - 1) );
+            
+            LET(returns, j - 1) = log( GET(temp, j) / GET(temp, j - 1) );
         }
         cov = covariance(returns, returns);
         sqrtcov = sqrt(cov);

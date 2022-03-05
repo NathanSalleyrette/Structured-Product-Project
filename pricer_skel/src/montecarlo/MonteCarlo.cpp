@@ -640,6 +640,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     //int s = path_->n;
     MonteCarlo::delta(deltaPrevious, stdDevDelta, divStocks, deltapreviousChange, divRates, country );
+    MonteCarlo::price(prix, std_dev, divStocks, divRates);
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
     int TOverN = (int) prodd_->T_ * (marketData->m - 1) / prodd_->nbTimeSteps_;
     double TOverH = prodd_->T_/nbHedgeDate;
@@ -651,7 +652,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     PnlVect* valuechange = pnl_vect_create(pathRates->n);
     pnl_vect_clone(valuechange, &vectChangeLine);
     pnl_vect_mult_vect_term(valuechange, vectexp);
-    V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
+    V = prix - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
     
     pnl_mat_set_row(pathRates, &vectChangeLine,0);
     pnl_mat_set_row(past, &vecLine, 0);
@@ -665,12 +666,15 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
      
     pnl_mat_set_row(subPast,  &vecLine, 0);
     pnl_mat_set_row(subChangePath, &vectChangeLine,0);
-
+    fprintf(f, "%lf \n", prix);
+    fprintf(fp, "%lf \n", prix);
+        
     for (int tbrut = 1; tbrut < nbHedgeDate + 1; tbrut++) // chaque t est une date de rebalancement, c'est la grille fine
     {
         // Si on rebalance a chaque date données le marketData, alors tbrut = t;
         int t = (int) (tbrut*(marketData->m - 1) / nbHedgeDate);
-
+        
+      
         std::cout << "t = " << t << std::endl;
         
         // Attention Vigilance
