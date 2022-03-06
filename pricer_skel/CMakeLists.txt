@@ -41,15 +41,15 @@ include_directories(headers)
 set(LOGGER headers/spdlog/log.hpp src/spdlog/log.cpp headers/spdlog/spdlog.h)
 
 # GoogleTest
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  # Specify the commit you depend on and update it regularly.
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+# include(FetchContent)
+# FetchContent_Declare(
+#   googletest
+#   # Specify the commit you depend on and update it regularly.
+#   URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+# )
+# # For Windows: Prevent overriding the parent project's compiler/linker settings
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(googletest)
 
 # Testing the logger
 set(SOURCES src/spdlog/log.cpp src/tests/testLogger.cpp)
@@ -160,45 +160,45 @@ target_link_libraries(testSimulMarket ${LIBS})
 pnl_add_postbuild(testSimulMarket)
 
 #GOOGLETEST
-add_executable(googletest src/tests/googletest.cpp)
-target_link_libraries(googletest gtest_main)
-add_test(NAME googletest_test COMMAND googletest)
+# add_executable(googletest src/tests/googletest.cpp)
+# target_link_libraries(googletest gtest_main)
+# add_test(NAME googletest_test COMMAND googletest)
 
-set(SOURCES src/utils/Date.cpp src/tests/testDate.cpp)
-set(HEADERS headers/utils/Date.hpp)
-add_executable(testDate ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testDate gtest_main ${LIBS})
-pnl_add_postbuild(date)
-add_test(NAME date_test COMMAND testDate)
+# set(SOURCES src/utils/Date.cpp src/tests/testDate.cpp)
+# set(HEADERS headers/utils/Date.hpp)
+# add_executable(testDate ${SOURCES} ${HEADERS} ${LOGGER})
+# target_link_libraries(testDate gtest_main ${LIBS})
+# pnl_add_postbuild(date)
+# add_test(NAME date_test COMMAND testDate)
 
-set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
-set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
-add_executable(testMarketData  ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testMarketData gtest_main ${LIBS})
-pnl_add_postbuild(data)
-add_test(NAME marketdata_test COMMAND testMarketData)
+# set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp src/tests/testMarketData.cpp src/utils/Date.cpp)
+# set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp)
+# add_executable(testMarketData  ${SOURCES} ${HEADERS} ${LOGGER})
+# target_link_libraries(testMarketData gtest_main ${LIBS})
+# pnl_add_postbuild(data)
+# add_test(NAME marketdata_test COMMAND testMarketData)
 
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallVanille.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testVanilleGtest ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testVanilleGtest gtest_main ${LIBS})
-pnl_add_postbuild(testVanilleGtest)
-add_test(NAME vanille_test COMMAND testVanilleGtest)
+# set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallVanille.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+# set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+# add_executable(testVanilleGtest ${SOURCES} ${HEADERS} ${LOGGER})
+# target_link_libraries(testVanilleGtest gtest_main ${LIBS})
+# pnl_add_postbuild(testVanilleGtest)
+# add_test(NAME vanille_test COMMAND testVanilleGtest)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/testVanilleDiv.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testVanilleDiv ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testVanilleDiv gtest_main ${LIBS})
-pnl_add_postbuild(testVanilleDiv)
-add_test(NAME vanille_test_div COMMAND testVanilleDiv)
+# set(SOURCES src/fs/ParseCsv.cpp src/tests/testVanilleDiv.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+# set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+# add_executable(testVanilleDiv ${SOURCES} ${HEADERS} ${LOGGER})
+# target_link_libraries(testVanilleDiv gtest_main ${LIBS})
+# pnl_add_postbuild(testVanilleDiv)
+# add_test(NAME vanille_test_div COMMAND testVanilleDiv)
 
-set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallHEqualN.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
-set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
-add_executable(testVanilleHEqualN ${SOURCES} ${HEADERS})
-target_link_libraries(testVanilleHEqualN gtest_main ${LIBS})
-pnl_add_postbuild(testVanilleHEqualN)
-add_test(NAME vanilleHEqualN_test COMMAND testVanilleHEqualN)
+# set(SOURCES src/fs/ParseCsv.cpp src/tests/testCallHEqualN.cpp src/montecarlo/MonteCarlo.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
+# set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
+# add_executable(testVanilleHEqualN ${SOURCES} ${HEADERS})
+# target_link_libraries(testVanilleHEqualN gtest_main ${LIBS})
+# pnl_add_postbuild(testVanilleHEqualN)
+# add_test(NAME vanilleHEqualN_test COMMAND testVanilleHEqualN)
 
 
 # Print compiler flags

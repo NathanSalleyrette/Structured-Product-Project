@@ -18,15 +18,18 @@ int main(int argc, char **argv)
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     string pathFiles = "../data/RATE";
     string pathData = "../data/DATA";
-    string refDate = "2021-12-10";
-    double fdstep = .01;
+    
+    int initialWindow = 10;
+    string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
+    
+    double fdstep = .01; // 1+h pour les deltas
     int H = 33;
     double T = 1;
     int nbSample = 5000;
     int nbDatesInPast = H - 2;
     map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
-    double divVol = 1./3;
-    int initialWindow = 10;
+    double divVol = 1./sqrt(H-1);
+    cout << divVol;
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
     market->fillData(parser, pathData); // on remplit le dictionnaire avec les données du csv
@@ -151,7 +154,7 @@ int main(int argc, char **argv)
 
     bs->correlations_ = corrMat;
 
-    rates->getSpotsFromDate( spotsRates,Pdates[0] );
+    //rates->getSpotsFromDate( spotsRates,Pdates[0] );
     BlackScholesModel *bsRates = new BlackScholesModel(rates->getNumOfActions(), rPerCountry["EUR"], 1, volRates, spotsRates );
     pnl_mat_chol(corrRatesMat);
  
@@ -241,6 +244,19 @@ int main(int argc, char **argv)
     pnl_mat_set_row(pastRates, spotsRates, 0);
     bs->simul_market(past, T, rng, trend, H - 1, path);
     bsRates->simul_market(pastRates, T, rng, trend, H-1, pathRates);
+    FILE * Pmarket;
+    Pmarket = fopen ("marketvalue.txt", "wt");
+    if (Pmarket == NULL){
+    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+    for (int i = 0; i< path->m; i++){
+        
+        for(int j = 0; j < path->n; j++){
+            fprintf(Pmarket, "%lf, ", MGET(path, i, j));
+        }
+        fprintf(Pmarket, "\n");
+    }
+
     
 
 

@@ -11,7 +11,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md) {
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
-
+    pathclone = pnl_mat_create(1, 1);
     this->md = md;
 }
 
@@ -19,6 +19,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md, vector
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
+    pathclone = pnl_mat_create(1, 1);
 
     this->md = md;
     this->simulationDates = simulationDates;
@@ -32,6 +33,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md, int co
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
+    pathclone = pnl_mat_create(1, 1);
 
     this->md = md;
     Derivative::T_ = 1;
@@ -48,7 +50,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md, int co
 Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
     pnl_vect_free(&spotsOnDate);
-
+    pnl_mat_free(&pathclone);
 }
 
 
@@ -68,7 +70,7 @@ double Performance::payoff(PnlMat* path, const PnlMat* changes) {
     //niveauInitial();
 
     //on remet le bon path en multipliant par l'inverse du taux de change
-    PnlMat* pathclone = pnl_mat_create(path->m, path->n);
+    //pnl_mat_resize(pathclone, path->m, path->n);
     pnl_mat_clone(pathclone, path);
     for(int i = 0; i < path->m; i ++){
         for(int j = 0; j < path->n; j++){
@@ -79,8 +81,8 @@ double Performance::payoff(PnlMat* path, const PnlMat* changes) {
             }
         }
     }
-
-    return .9 + calculPerfMoyenneFinale(pathclone)/100.;
+    double perfMoyenneFinale = calculPerfMoyenneFinale(pathclone);
+    return .9 + perfMoyenneFinale/100.;
 }
 
 void Performance::niveauInitial() {

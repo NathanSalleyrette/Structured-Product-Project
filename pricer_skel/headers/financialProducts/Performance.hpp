@@ -24,7 +24,7 @@ class Performance: public Derivative {
 
         PnlVect *spotsOnDate;
 
-
+        PnlMat* pathclone;
 
     public:
 
