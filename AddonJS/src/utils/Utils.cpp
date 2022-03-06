@@ -52,8 +52,8 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
             pnl_mat_get_col(Y, path, j);
 
             for(int l = 0; l < X->size - 1; l++){
-                LET(returnsX, l) = GET(X,l + 1)/GET(X, l);
-                LET(returnsY, l) = GET(Y,l + 1)/GET(Y, l);
+                LET(returnsX, l) = (GET(X,l + 1) - GET(X, l))/GET(X, l);
+                LET(returnsY, l) = (GET(Y,l + 1) - GET(Y, l))/GET(Y, l);
             }
 
             MLET(corrMat, i, j) = correlation(returnsX,returnsY);
@@ -66,7 +66,7 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
 
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
     PnlVect* temp = pnl_vect_create(1);
-    PnlVect* returns = pnl_vect_create(volatilities->size);
+    PnlVect* returns = pnl_vect_create(path->m - 1);
     double cov;
     double sqrtcov;
     double expsqrtcov;
@@ -75,13 +75,13 @@ void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
         //On calcul les log rendements
 
         for(int j = 1; j < temp->size; j++){
-            LET(returns, j) = log( GET(temp, j) / GET(temp, j - 1) );
+            LET(returns, j - 1) = log( GET(temp, j) / GET(temp, j - 1) );
         }
         cov = covariance(returns, returns);
         sqrtcov = sqrt(cov);
-        expsqrtcov = exp(sqrtcov);
+        //expsqrtcov = exp(sqrtcov);
         //LET(volatilities, i) = std::exp(std::sqrt(covariance(returns,returns)));
-        LET(volatilities, i) = expsqrtcov;
+        LET(volatilities, i) = sqrtcov;
 
     }
     pnl_vect_free(&temp);

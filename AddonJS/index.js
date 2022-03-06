@@ -28,9 +28,11 @@ async function Dates() {
 
 
 
-obj.CalculPnl()
+//obj.CalculPnl()
 
-obj.Simple('../../peps/pricer_skel/data/DATA')
+//obj.Simple('../../peps/pricer_skel/data/DATA')
+
+obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 417, 100, "2021-12-10")
 
 console.log("uwu")
 

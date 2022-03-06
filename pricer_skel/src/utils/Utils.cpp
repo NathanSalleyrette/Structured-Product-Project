@@ -53,8 +53,8 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
             pnl_mat_get_col(Y, path, j);
 
             for(int l = 0; l < X->size - 1; l++){
-                LET(returnsX, l) = GET(X,l + 1)/GET(X, l);
-                LET(returnsY, l) = GET(Y,l + 1)/GET(Y, l);
+                LET(returnsX, l) = (GET(X,l + 1) - GET(X, l))/GET(X, l);
+                LET(returnsY, l) = (GET(Y,l + 1) - GET(Y, l))/GET(Y, l);
             }
 
             MLET(corrMat, i, j) = correlation(returnsX,returnsY);
@@ -86,7 +86,7 @@ void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
         sqrtcov = sqrt(cov);
         expsqrtcov = exp(sqrtcov);
         //LET(volatilities, i) = std::exp(std::sqrt(covariance(returns,returns)));
-        LET(volatilities, i) = expsqrtcov;
+        LET(volatilities, i) = sqrtcov;
 
     }
     pnl_vect_free(&temp);

@@ -91,7 +91,7 @@ void MarketData::fillPathMat(PnlMat* path, string startDate, int nbOfDays) {
     for (int i = 0; i < nbOfDays; i++){
         getSpotsFromDate(spotsOfDate, date);
         pnl_mat_set_row(path, spotsOfDate, i);
-        date = Date::nextDate(date);
+        date = Date::previousDate(date);
     }
 }
 

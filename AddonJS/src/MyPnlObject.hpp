@@ -34,6 +34,7 @@ class MyPnlObject : public Napi::ObjectWrap<MyPnlObject> {
         std::vector<double> dates;
         Napi::Value CalculPnl(const Napi::CallbackInfo& info);
         Napi::Value Simple(const Napi::CallbackInfo& info);
+        Napi::Value SimpleRates(const Napi::CallbackInfo& info);
         Napi::Value Dates(const Napi::CallbackInfo& info);
         Napi::Value Spots(const Napi::CallbackInfo& info);
         Napi::Value Prices(const Napi::CallbackInfo& info);

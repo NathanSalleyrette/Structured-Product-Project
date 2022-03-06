@@ -589,7 +589,7 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
 }
 
 
-void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp)
+void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, std::vector<double>& spots, std::vector<double>& prices, std::vector<double>& dates)
 {
 
     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
@@ -604,20 +604,22 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     PnlMat *subPast = pnl_mat_create(1, marketData->n); /*! trajectoires du passé, de taille variable */
     PnlMat* subChangePath = pnl_mat_create(1, pathRates->n);
-    FILE * f;
-    f = fopen ("Pvalue.txt", "wt");
-    if (f == NULL){
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+   
 
-    FILE * fp;
-    fp = fopen ("Payoff.txt", "wt");
-    if (fp == NULL){
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+    // FILE * f;
+    // f = fopen ("Pvalue.txt", "wt");
+    // if (f == NULL){
+    // std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
 
-    FILE * Pdates;
-    Pdates = fopen ("dates.txt", "wt");
-    if (Pdates == NULL){
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+    // FILE * fp;
+    // fp = fopen ("Payoff.txt", "wt");
+    // if (fp == NULL){
+    // std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+    // FILE * Pdates;
+    // Pdates = fopen ("dates.txt", "wt");
+    // if (Pdates == NULL){
+    // std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
 
     double V = 0.;
     double prix = 0.;
@@ -628,19 +630,22 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     //int s = path_->n;
     MonteCarlo::delta(deltaPrevious, stdDevDelta, divStocks, deltapreviousChange, divRates, country );
+    MonteCarlo::price(prix, std_dev, divStocks, divRates);
+
     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
     int TOverN = (int) prodd_->T_ * (marketData->m - 1) / prodd_->nbTimeSteps_;
     double TOverH = prodd_->T_/nbHedgeDate;
     double expon = exp(mod_->r_*TOverH);
 
-
     PnlVect vecLine = pnl_vect_wrap_mat_row(marketData, 0);
     PnlVect vectChangeLine = pnl_vect_wrap_mat_row(pathRates, 0);
+
     PnlVect* valuechange = pnl_vect_create(pathRates->n);
     pnl_vect_clone(valuechange, &vectChangeLine);
+
     pnl_vect_mult_vect_term(valuechange, vectexp);
-    V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
-    
+    V = prix - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
+
     pnl_mat_set_row(pathRates, &vectChangeLine,0);
     pnl_mat_set_row(past, &vecLine, 0);
 
@@ -653,6 +658,13 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
      
     pnl_mat_set_row(subPast,  &vecLine, 0);
     pnl_mat_set_row(subChangePath, &vectChangeLine,0);
+
+
+    spots.push_back(prix);
+    dates.push_back(0.0);
+    prices.push_back(prix);
+
+
 
     for (int tbrut = 1; tbrut < nbHedgeDate + 1; tbrut++) // chaque t est une date de rebalancement, c'est la grille fine
     {
@@ -668,6 +680,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         {
             pnl_mat_set_row(past, &vecLine, pastIndex);
             pnl_mat_set_row(pastRates, &vectChangeLine, pastIndex);
+            std::cout << "Date de constatation" << std::endl;
         }
 
         pnl_mat_set_row(subPast, &vecLine, pastIndex);
@@ -690,9 +703,13 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
         std::cout << "En t = " << tbrut*TOverH << " V = " << valeurPort << " prix  = " << prix << std::endl;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        fprintf(f, "%lf \n", valeurPort);
-        fprintf(fp, "%lf \n", prix);
-        fprintf(Pdates, "%lf \n", tbrut *TOverH);
+        // fprintf(f, "%lf \n", valeurPort);
+        // fprintf(fp, "%lf \n", prix);
+        // fprintf(Pdates, "%lf \n", tbrut *TOverH);
+        spots.push_back(valeurPort);
+        dates.push_back(tbrut*TOverH);
+        prices.push_back(prix);
+
         if (t % TOverN == 0 && subPast->m < past->m) // le t est un ti, le nombre de ligne de subPast doit être strictement inférieur
         // a celui de past, sinon cela veut dire qu'on est à t=T;
         {
@@ -703,9 +720,9 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         }
 
     }
-    fclose(f);
-    fclose(fp);
-    fclose(Pdates);
+    // fclose(f);
+    // fclose(fp);
+    // fclose(Pdates);
 
     errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange) - prodd_->payoff(past); // calcule du PnL
     pnl_vect_free(&delta);
