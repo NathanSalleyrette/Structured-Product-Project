@@ -21,15 +21,24 @@ int main(int argc, char **argv)
     
     int initialWindow = 10;
     string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
-    
+    string endFinishDate = "2021-12-15";
     double fdstep = .01; // 1+h pour les deltas
-    int H = 33;
+    int H = 17;
     double T = 1;
     int nbSample = 5000;
-    int nbDatesInPast = H - 2;
+    
     map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
-    double divVol = sqrt(252./(H-1));
-    cout << divVol;
+    double divVol = sqrt(8. * 252./(H-1));
+    int nDayStep = 252*8/( H - 1 );
+    vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
+    vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
+    int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
+    int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
+
+    int nbDatesInPast = H - nDatesToSim + nDatesSimed;
+    //on calcul de combien on doit avancer 
+    
+
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
     market->fillData(parser, pathData); // on remplit le dictionnaire avec les données du csv
@@ -180,10 +189,10 @@ int main(int argc, char **argv)
 
     //calcul du prix en t = auj
 
-    vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
-    vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
+    
+    
     PnlMat *pathFull = pnl_mat_new();
     market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
@@ -200,9 +209,10 @@ int main(int argc, char **argv)
     PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
     PnlVect * vecteurRates = pnl_vect_create(rates->getNumOfActions());
     for (int i = 0; i < nbDatesInPast - 1; i ++) {
-        market->getSpotsFromDate(vecteurPast, datesFrom2014To2022[i]);
+
+        market->getSpotsFromDate(vecteurPast, datesFrom2014ToToday[i * nDayStep]);
         // pnl_mat_set_row(past, vecteurPast, i+1);
-        rates->getSpotsFromDate( vecteurRates,datesFrom2014To2022[i] );
+        rates->getSpotsFromDate( vecteurRates,datesFrom2014ToToday[i * nDayStep] );
         pnl_mat_set_row(pastRates, vecteurRates, i+1);
 
 
@@ -217,8 +227,6 @@ int main(int argc, char **argv)
 
     }
     
-   
-
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
    // mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
 
@@ -228,20 +236,21 @@ int main(int argc, char **argv)
 
 
 
-    pnl_mat_resize(path, H, market->getNumOfActions());
-    PnlVect* vectline = pnl_vect_new();
-    for(int i = 0; i < past->m; i++){
-        pnl_mat_get_row(vectline, past, i);
-        pnl_mat_set_row(path, vectline ,i);
-    }
+     pnl_mat_resize(path, H, market->getNumOfActions());
+    // PnlVect* vectline = pnl_vect_new();
+    // for(int i = 0; i < past->m; i++){
+    //     pnl_mat_get_row(vectline, past, i);
+    //     pnl_mat_set_row(path, vectline ,i);
+    // }
 
     PnlMat* pathRates = pnl_mat_create(H , rates->getNumOfActions());
 
     PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), rPerCountry["EUR"]);
-    past = pnl_mat_create(1, market->getNumOfActions());
+    //past = pnl_mat_create(1, market->getNumOfActions());
     pnl_mat_set_row(past, spots, 0);
-    pastRates = pnl_mat_create(1, rates->getNumOfActions());
-    pnl_mat_set_row(pastRates, spotsRates, 0);
+    //pastRates = pnl_mat_create(1, rates->getNumOfActions());
+    //pnl_mat_set_row(pastRates, spotsRates, 0);
+
     bs->simul_market(past, T, rng, trend, H - 1, path);
     bsRates->simul_market(pastRates, T, rng, trend, H-1, pathRates);
     FILE * Pmarket;
@@ -257,7 +266,7 @@ int main(int argc, char **argv)
         fprintf(Pmarket, "\n");
     }
 
-    
+    fclose(Pmarket);
 
 
     
