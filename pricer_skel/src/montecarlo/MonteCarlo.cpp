@@ -428,15 +428,14 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
 
     for (int tbrut = 1; tbrut < nbHedgeDate + 1; tbrut++) // chaque t est une date de rebalancement, c'est la grille fine
     {
-        listDatesWindow = Date::getListOfDates("2014-07-11", rebalancingDates[tbrut - 1]);
 
+
+        listDatesWindow = Date::getListOfDates("2014-07-11", rebalancingDates[tbrut - 1]);
+        
         if (listDatesWindow.size() > windowSize) { // on a besoin d'avoir assez de données dans le passé pour commencer à faire la fenetre glissante
             // Fenetre glissante volatilités et corrélation
-            market_->fillPathMatFromFinalDate(pathWindow, rebalancingDates[tbrut - 1], windowSize);
 
-            // std::cout << "-----------------pathwindow---------------" << std::endl;
-            // pnl_mat_print(pathWindow);
-            // std::cout << "--------------------------------" << std::endl;
+            market_->fillPathMatFromFinalDate(pathWindow, rebalancingDates[tbrut - 1], windowSize);
 
             // volatilité
             // PnlVect* volatilities = pnl_vect_create(market_->getNumOfActions());
@@ -447,9 +446,7 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
 
             // correlation
             Utils::correlationMatrix(pathWindow, corrMat);
-            // std::cout << "-----------------corrMat---------------" << std::endl;
-            // pnl_mat_print(corrMat);
-            // std::cout << "--------------------------------" << std::endl;
+
             pnl_mat_mult_double(corrMat, 1.);
             pnl_mat_chol(corrMat);
             mod_->correlations_ = corrMat;
@@ -459,8 +456,6 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
         
         // Si on rebalance a chaque date données le marketData, alors tbrut = t;
         int t = (int) (tbrut*(marketData->m - 1) / nbHedgeDate);
-
-        // std::cout << "t = " << t << std::endl;
         
         // Attention Vigilance
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
@@ -489,6 +484,8 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
         fprintf(f, "%lf \n", valeurPort);
         fprintf(fp, "%lf \n", prix);
         fprintf(Pdates, "%lf \n", tbrut *TOverH);
+
+
         if (t % TOverN == 0 && subPast->m < past->m) // le t est un ti, le nombre de ligne de subPast doit être strictement inférieur
         // a celui de past, sinon cela veut dire qu'on est à t=T;
         {
@@ -496,8 +493,8 @@ void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *market
             pastIndex ++;
             pnl_mat_extract_subblock(subPast, past, 0, pastIndex + 1, 0, prodd_->size_); // on garde les données de cette date ti et on fait de la place pour les prochaines dates intermediaires t 
         }
-
     }
+
     fclose(f);
     fclose(fp);
     fclose(Pdates);
@@ -529,8 +526,7 @@ void MonteCarlo::price(double &prix, double &std_dev, PnlVect* divStocks, PnlVec
     double oneOverM = (1/(double)nbSamples_);
     
     for (int i = 0; i < nbSamples_; i++)
-    {
-        
+    { 
         //simulation des trajectoires
 
         mod_->assetDelta(path_, prodd_->T_, prodd_->nbTimeSteps_, rng_, divStocks);
@@ -539,11 +535,10 @@ void MonteCarlo::price(double &prix, double &std_dev, PnlVect* divStocks, PnlVec
         
         //payoff pour la trajectoire simulée
         resPayoff = prodd_->payoff(path_, changesPath_);
-        //std::cout << resPayoff << std::endl;
+
         sum += resPayoff;
         
         sumSquared += resPayoff * resPayoff;
-        // std::cout<<resPayoff<<std::endl;
     }
 
     double oneOverMTimesSum = oneOverM * sum;
