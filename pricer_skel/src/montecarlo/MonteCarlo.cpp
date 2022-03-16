@@ -892,7 +892,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     pnl_mat_free(&subPast);
 }
 
-
+// simplewithRates : copier vol et correlations dans vol et corr with rates et voir si ca marche tjs
 // void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, int windowSize, vector<string> rebalancingDates)
 // {
 
