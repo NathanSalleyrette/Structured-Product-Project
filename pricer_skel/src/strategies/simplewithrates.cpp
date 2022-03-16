@@ -23,8 +23,8 @@ int main(int argc, char **argv)
     string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
     string endFinishDate = "2021-12-15";
     double fdstep = .01; // 1+h pour les deltas
-    int H = 17;
-    double T = 1;
+    int H = 49;
+    double T = 8;
     int nbSample = 5000;
     
     map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
      , "2022-01-11", "2022-07-11"};
 
     // Performance *perf = new Performance(observeDates, market, dates);
-    Performance *perf = new Performance(Pdates, market, country);
+    Performance *perf = new Performance(Pdates,H, market, country);
 
     perf->niveauInitial();
 
