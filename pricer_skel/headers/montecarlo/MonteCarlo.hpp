@@ -149,6 +149,23 @@ public:
      */
     void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp);
 
+    // /**
+    //  * @brief Calcule l'erreur de couverture P&L en T
+    //  * 
+    //  * @param[in] nbHedgeDate nombre de pas des observations du marché
+    //  * @param[out] errorHedge résultat de l'erreur de couverture P&L
+    //  * @param[in] marketData matrice qui contient les données du marché
+    //  * @param[in] valLiqRef valeur liquidative de référence : valeur dont on dispose au départ pour se couvrir
+    //  * @param pathRates matrice qui contient les données de change
+    //  * @param divStocks vecteur contenant les dividandes pour les actions
+    //  * @param divRates vecteur contenant les dividendes pour les changes
+    //  * @param[in] windowSize taille de la fenetre glissante pour calculer la volatilité et la corrélation
+    //  * @param[in] rebalancingDates dates de rebalancement (H dates) écrites en string
+    //  */
+    // void pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, int windowSize, vector<string> rebalancingDates);
+
+
+
     /**
      * Calcule le prix du Derivative à la date 0
      *

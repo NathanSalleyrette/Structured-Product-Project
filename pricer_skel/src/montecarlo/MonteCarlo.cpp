@@ -891,3 +891,137 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     pnl_mat_free(&past);
     pnl_mat_free(&subPast);
 }
+
+
+// void MonteCarlo::pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, int windowSize, vector<string> rebalancingDates)
+// {
+
+//     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
+//     PnlVect *deltaPrevious = pnl_vect_create(marketData->n); /*! vecteur contenant les deltas en t_(i-1) */
+
+//     PnlVect* deltaChange = pnl_vect_create(pathRates->n);
+//     PnlVect* deltapreviousChange = pnl_vect_create(pathRates->n);
+
+//     PnlVect *stdDevDelta = pnl_vect_create(marketData->n); /*! vecteur contenant les écart-types de delta */
+//     PnlMat *past = pnl_mat_create(prodd_->nbTimeSteps_ + 1, marketData->n); /*! trajectoires du passé */
+//     PnlMat* pastRates = pnl_mat_create( prodd_->nbTimeSteps_+1, pathRates->n );
+
+//     PnlMat *subPast = pnl_mat_create(1, marketData->n); /*! trajectoires du passé, de taille variable */
+//     PnlMat* subChangePath = pnl_mat_create(1, pathRates->n);
+//     FILE * f;
+//     f = fopen ("Pvalue.txt", "wt");
+//     if (f == NULL){
+//     std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+//     FILE * fp;
+//     fp = fopen ("Payoff.txt", "wt");
+//     if (fp == NULL){
+//     std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+//     FILE * Pdates;
+//     Pdates = fopen ("dates.txt", "wt");
+//     if (Pdates == NULL){
+//     std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
+
+//     double V = 0.;
+//     double prix = 0.;
+//     double std_dev = 0.;
+
+//     // creation dividende à 0 car sans dividendes
+//     //PnlVect *div = pnl_vect_create_from_zero(marketData->n);
+
+//     //int s = path_->n;
+//     MonteCarlo::delta(deltaPrevious, stdDevDelta, divStocks, deltapreviousChange, divRates, country );
+//     int HOverN = (int)(nbHedgeDate / prodd_->nbTimeSteps_);
+//     int TOverN = (int) prodd_->T_ * (marketData->m - 1) / prodd_->nbTimeSteps_;
+//     double TOverH = prodd_->T_/nbHedgeDate;
+//     double expon = exp(mod_->r_*TOverH);
+
+
+//     PnlVect vecLine = pnl_vect_wrap_mat_row(marketData, 0);
+//     PnlVect vectChangeLine = pnl_vect_wrap_mat_row(pathRates, 0);
+//     PnlVect* valuechange = pnl_vect_create(pathRates->n);
+//     pnl_vect_clone(valuechange, &vectChangeLine);
+//     pnl_vect_mult_vect_term(valuechange, vectexp);
+//     V = valLiqRef - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
+    
+//     pnl_mat_set_row(pathRates, &vectChangeLine,0);
+//     pnl_mat_set_row(past, &vecLine, 0);
+
+//     int pastIndex = 1;
+
+//     pnl_mat_resize(subPast, pastIndex + 1, prodd_->size_);
+//     pnl_mat_resize(subChangePath, pastIndex+1, pathRates->n );
+//     // On a commenté car c'est la même chose que la ligne 215
+//     //vecLine = pnl_vect_wrap_mat_row(marketData, 0);
+     
+//     pnl_mat_set_row(subPast,  &vecLine, 0);
+//     pnl_mat_set_row(subChangePath, &vectChangeLine,0);
+
+
+//     // création de la matrice pour la fenetre glissante
+//     PnlMat* pathWindow = pnl_mat_create(1,1);
+
+//     vector<string> listDatesWindow;
+//     PnlMat* corrMat = pnl_mat_create(market_->getNumOfActions(), market_->getNumOfActions());
+
+//     for (int tbrut = 1; tbrut < nbHedgeDate + 1; tbrut++) // chaque t est une date de rebalancement, c'est la grille fine
+//     {
+//         // Si on rebalance a chaque date données le marketData, alors tbrut = t;
+//         int t = (int) (tbrut*(marketData->m - 1) / nbHedgeDate);
+
+//         std::cout << "t = " << t << std::endl;
+        
+//         // Attention Vigilance
+//         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
+//         vectChangeLine = pnl_vect_wrap_mat_row(pathRates, t);
+//         if (t % TOverN == 0) // le t est un ti (une date de constatation)
+//         {
+//             pnl_mat_set_row(past, &vecLine, pastIndex);
+//             pnl_mat_set_row(pastRates, &vectChangeLine, pastIndex);
+//         }
+
+//         pnl_mat_set_row(subPast, &vecLine, pastIndex);
+//         pnl_mat_set_row(subChangePath, &vectChangeLine, pastIndex);
+//         MonteCarlo::delta(subPast, tbrut*TOverH, delta, stdDevDelta, divStocks,deltaChange, divRates, country, subChangePath); // on rebalance donc on calcule le delta
+//         pnl_vect_minus_vect(deltaPrevious, delta);
+//         pnl_vect_minus_vect(deltapreviousChange, deltaChange);
+//         pnl_vect_clone(valuechange, &vectChangeLine);
+//         pnl_vect_mult_vect_term(valuechange, vectexp);
+//         V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine) + pnl_vect_scalar_prod( deltapreviousChange, valuechange);
+//         pnl_vect_clone(deltaPrevious, delta);
+//         pnl_vect_clone(deltapreviousChange, deltaChange);
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//         // On compare ici la valeur du portefeuille à l'instant t avec le prix donné par le pricer
+//         // Ce seront les données à afficher dans notre application pour le portefeuille de couverture
+       
+//         MonteCarlo::price(subPast, tbrut*TOverH, prix, std_dev, divStocks, divRates, subChangePath);
+//         double valeurPort = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange);
+
+//         std::cout << "En t = " << tbrut*TOverH << " V = " << valeurPort << " prix  = " << prix << endl;
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//         fprintf(f, "%lf \n", valeurPort);
+//         fprintf(fp, "%lf \n", prix);
+//         fprintf(Pdates, "%lf \n", tbrut *TOverH);
+//         if (t % TOverN == 0 && subPast->m < past->m) // le t est un ti, le nombre de ligne de subPast doit être strictement inférieur
+//         // a celui de past, sinon cela veut dire qu'on est à t=T;
+//         {
+//             // Problème ici, car lorsqu'on resize, toutes les données de subPast sont perdus
+//             pastIndex ++;
+//             pnl_mat_extract_subblock(subPast, past, 0, pastIndex + 1, 0, prodd_->size_); // on garde les données de cette date ti et on fait de la place pour les prochaines dates intermediaires t 
+//             pnl_mat_extract_subblock(subChangePath, pastRates, 0, pastIndex+1, 0, pathRates->n);
+//         }
+
+//     }
+//     fclose(f);
+//     fclose(fp);
+//     fclose(Pdates);
+
+//     errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange) - prodd_->payoff(past); // calcule du PnL
+//     pnl_vect_free(&delta);
+//     pnl_vect_free(&deltaPrevious);
+//     pnl_vect_free(&stdDevDelta);
+//     pnl_mat_free(&past);
+//     pnl_mat_free(&subPast);
+// }
