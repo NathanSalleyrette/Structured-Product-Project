@@ -30,7 +30,7 @@ double MarketData::getSpotFromDateAndAction(string date, string action) {
     while (!(data.find(date) != data.end() && data[date].find(action) != data[date].end())) {
         date = Date::nextDate(date);
     }
-    
+
     return data[date][action];
 }
 
@@ -68,6 +68,7 @@ void MarketData::fillData(ParseYahooCsv *parser, string pathFiles ) {
 void MarketData::getSpotsFromDate(PnlVect* spots, string date) {
     vector<string>::iterator it;  
     int i = 0;
+
     for (it = actions.begin(); it != actions.end(); it++, i++) {
         LET(spots, i) = getSpotFromDateAndAction(date, *it);
     }
@@ -95,6 +96,21 @@ void MarketData::fillPathMat(PnlMat* path, string startDate, int nbOfDays) {
         getSpotsFromDate(spotsOfDate, date);
         pnl_mat_set_row(path, spotsOfDate, i);
         date = Date::nextDate(date);
+    }
+    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
+    SPDLOG_LOGGER_INFO(_logger, "Path matrix created from map");
+}
+
+void MarketData::fillPathMatFromFinalDate(PnlMat* path, string finalDate, int nbOfDays) {
+    
+    pnl_mat_resize(path, nbOfDays, actions.size());
+    PnlVect* spotsOfDate = pnl_vect_create(actions.size());
+    string date = finalDate;
+    
+    for (int i = nbOfDays - 1; i >= 0; i--){
+        getSpotsFromDate(spotsOfDate, date);
+        pnl_mat_set_row(path, spotsOfDate, i);
+        date = Date::previousDate(date);
     }
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
     SPDLOG_LOGGER_INFO(_logger, "Path matrix created from map");

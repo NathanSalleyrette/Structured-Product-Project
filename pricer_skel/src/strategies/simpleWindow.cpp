@@ -133,8 +133,9 @@ int main(int argc, char **argv)
     
 
     double errorHedge;
+    int windowSize = 5;
 
-    mc->pAndL(H - 1, errorHedge, path, prix);
+    mc->pAndLWindow(H - 1, errorHedge, path, prix, windowSize, Pdates);
 
     SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 

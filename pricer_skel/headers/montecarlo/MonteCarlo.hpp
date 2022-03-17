@@ -5,6 +5,11 @@
 #include "../models/BlackScholesModel.hpp"
 #include "pnl/pnl_random.h"
 #include<cstdio>
+#include "utils/MarketData.hpp"
+#include <string>
+#include <vector>
+#include "utils/Date.hpp"
+#include "utils/Utils.hpp"
 
 /// \brief Monte Carlo
 class MonteCarlo
@@ -25,6 +30,8 @@ private:
 
     PnlMat* changesPath_;
 
+   
+
 public:
     BlackScholesModel *mod_; /*! pointeur vers le modèle */
     BlackScholesModel *modRates_;
@@ -32,6 +39,7 @@ public:
     PnlRng *rng_; /*! pointeur sur le générateur */
     double fdStep_; /*! pas de différence finie */
     int nbSamples_; /*! nombre de tirages Monte Carlo */
+    MarketData *market_;
 
 
     /**
@@ -44,6 +52,17 @@ public:
      * @param[in] nbSamples nombre de tirages Monte Carlo
      */
     MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng);
+
+    /**
+     * Construit un moteur Monte Carlo
+     * 
+     * @param[in] mod pointeur vers le modèle
+
+     * @param[in] prodd pointeur sur le Derivative
+     * @param[in] fdStep pas de différence finie
+     * @param[in] nbSamples nombre de tirages Monte Carlo
+     */
+    MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng, MarketData *market);
 
 
     MonteCarlo(BlackScholesModel *mod, Derivative *prodd, double fdStep, int nbSamples, PnlRng *rng, BlackScholesModel *modRates);
@@ -105,6 +124,19 @@ public:
 
 
     /**
+     * Calcule l'erreur de couverture P&L en T avec une fenetre glissante pour la volatilité et la correlation
+     * 
+     * @param[in] nbHedgeDate nombre de pas des observations du marché
+     * @param[out] errorHedge résultat de l'erreur de couverture P&L
+     * @param[in] marketData matrice qui contient les données du marché
+     * @param[in] valLiqRef valeur liquidative de référence : valeur dont on dispose au départ pour se couvrir
+     * @param[in] market MarketData pour appeler la fonction fillPathMat
+     * @param[in] windowSize taille de la fenetre glissante pour calculer la volatilité et la corrélation
+     * @param[in] rebalancingDates dates de rebalancement (H dates) écrites en string
+     */
+    void pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, int windowSize, vector<string> rebalancingDates);
+
+    /**
      * @brief Calcule l'erreur de couverture P&L en T
      * 
      * @param[in] nbHedgeDate nombre de pas des observations du marché
@@ -116,6 +148,23 @@ public:
      * @param divRates vecteur contenant les dividendes pour les changes
      */
     void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp);
+
+    // /**
+    //  * @brief Calcule l'erreur de couverture P&L en T
+    //  * 
+    //  * @param[in] nbHedgeDate nombre de pas des observations du marché
+    //  * @param[out] errorHedge résultat de l'erreur de couverture P&L
+    //  * @param[in] marketData matrice qui contient les données du marché
+    //  * @param[in] valLiqRef valeur liquidative de référence : valeur dont on dispose au départ pour se couvrir
+    //  * @param pathRates matrice qui contient les données de change
+    //  * @param divStocks vecteur contenant les dividandes pour les actions
+    //  * @param divRates vecteur contenant les dividendes pour les changes
+    //  * @param[in] windowSize taille de la fenetre glissante pour calculer la volatilité et la corrélation
+    //  * @param[in] rebalancingDates dates de rebalancement (H dates) écrites en string
+    //  */
+    // void pAndLWindow(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, int windowSize, vector<string> rebalancingDates);
+
+
 
     /**
      * Calcule le prix du Derivative à la date 0

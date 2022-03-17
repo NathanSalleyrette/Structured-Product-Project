@@ -36,6 +36,13 @@ double Utils::correlation( const PnlVect* X,  const PnlVect* Y){
     double sigmaX = std::sqrt(covariance(X,X));
     double sigmaY = std::sqrt(covariance(Y,Y));
 
+    if(sigmaX < 1E-6){
+        sigmaX = 1;
+    }
+    if(sigmaY < 1E-6){
+        sigmaY = 1;
+    }
+
     return covXY/(sigmaX * sigmaY);
 }
 
@@ -53,8 +60,8 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
             pnl_mat_get_col(Y, path, j);
 
             for(int l = 0; l < X->size - 1; l++){
-                LET(returnsX, l) = GET(X,l + 1)/GET(X, l);
-                LET(returnsY, l) = GET(Y,l + 1)/GET(Y, l);
+                LET(returnsX, l) = log(GET(X,l + 1)/GET(X, l));
+                LET(returnsY, l) = log(GET(Y,l + 1)/GET(Y, l));
             }
 
             MLET(corrMat, i, j) = correlation(returnsX,returnsY);

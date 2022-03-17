@@ -64,12 +64,18 @@ bool Date::isSaturdayOrSunday(string date) {
 
 vector<string> Date::getListOfDates(string begin_date, string end_date) {
     // Verifier que les deux dates ne sont pas des samedis ou dimanches
+
+    while (isSaturdayOrSunday(end_date)){
+        end_date = previousDate(end_date);
+    }
+
     vector<string> list_dates = {begin_date};
     string next = begin_date;
     while (next != end_date) {
         next = nextDate(next);
         list_dates.push_back(next);
     }
+
     return list_dates;
 
 }

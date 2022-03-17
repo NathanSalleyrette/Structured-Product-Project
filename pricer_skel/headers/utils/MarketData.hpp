@@ -10,6 +10,7 @@
 #include "pnl/pnl_matrix.h"
 
 
+
 using namespace std;
 
 class MarketData {
@@ -46,6 +47,15 @@ class MarketData {
          * @param nbOfDays size of the window
          */
         void fillPathMat(PnlMat* path, string startDate, int nbOfDays);
+
+        /**
+         * @brief fill a path matrix of all shares on a specific window
+         * 
+         * @param path the path matrix
+         * @param finalDate final day of the window 
+         * @param nbOfDays size of the window
+         */
+        void fillPathMatFromFinalDate(PnlMat* path, string finalDate, int nbOfDays);
 
         /**
          * @brief Construct a new fillfrom Path object
