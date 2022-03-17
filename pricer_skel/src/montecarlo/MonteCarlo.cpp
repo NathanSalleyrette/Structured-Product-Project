@@ -679,6 +679,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         
         // Attention Vigilance
         vecLine = pnl_vect_wrap_mat_row(marketData, t); // on recupere les données historique de la date t
+
         vectChangeLine = pnl_vect_wrap_mat_row(pathRates, t);
         if (t % TOverN == 0) // le t est un ti (une date de constatation)
         {

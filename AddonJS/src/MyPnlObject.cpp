@@ -253,26 +253,50 @@
         int initialWindow = info[3].As<Napi::Number>().Int32Value();
 
         string refDate = info[4].ToString(); // Date vers laquelle on veut créer notre fenêtre
-    
+        //string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
+
+        string endFinishDate = "2021-12-15";
+        
         double fdstep = .01; // 1+h pour les deltas
+
+        int nbTimeSteps= 17;
+
+        bool simulated = true;
+
         double T = 1;
-
-        int nbSample = 5000; // Nombre de monte-Carlo
-
-        int nbDatesInPast = H - 2;
-
+        int nbSample = info[5].As<Napi::Number>().Int32Value();
+        
         map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
     
-        double divVol = sqrt(252./(H-1));
+    // Facteur multiplié à la vol annuelle 
+        double divVol = sqrt(8. * 252./(nbTimeSteps-1));
         
+        // int nDayStep = 252*8/( H - 1 );
+        vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
+        vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
+        // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
+        // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
+
+        int nDatesInPast = datesFrom2014ToToday.size() * H / datesFrom2014To2022.size();
+
+        int nDayStep = datesFrom2014To2022.size() / H;
+
+        if (simulated) nDatesInPast = 1;
+
+        //int nbDatesInPast = H - nDatesToSim + nDatesSimed;
+        //on calcul de combien on doit avancer 
+        
+
         ParseYahooCsv *parser = new ParseYahooCsv();
         MarketData *market = new MarketData();
         market->fillData(parser, pathData); // on remplit le dictionnaire avec les données du csv
         MarketData *rates = new MarketData();
-    
-        std::cout << market->actions[6] << std::endl;
+        
         rates->fillData(parser, pathFiles);
-
+        // for(int i = 0; i < rates->actions.size(); i++){
+        //     cout<< rates->actions[i] << endl;
+        // }
+        // assert(1==2);
         // calcul de la volatilité et la correlation
         PnlMat* path = pnl_mat_create(1,1);
         market->fillPathMat(path, refDate, initialWindow);
@@ -280,8 +304,6 @@
         PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
         Utils::volsOnMat(volatilities, path);
         pnl_vect_mult_scalar(volatilities, divVol);
-        
-        pnl_vect_print(volatilities);
 
         PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
         Utils::correlationMatrix(path, corrMat);
@@ -292,9 +314,9 @@
         PnlMat* ratesPath = pnl_mat_create(1,1);
         rates->fillPathMat(ratesPath, refDate, initialWindow);
         PnlVect* volRates = pnl_vect_create(rates->getNumOfActions());
-    
+        
         Utils::volsOnMat(volRates, ratesPath);
- 
+    
         pnl_vect_mult_scalar(volRates, divVol);
 
         PnlMat* corrRatesMat = pnl_mat_create(rates->getNumOfActions(), rates->getNumOfActions());
@@ -302,11 +324,10 @@
 
         PnlVect* divRates = pnl_vect_create(market->getNumOfActions());
         int const nbAction = market->getNumOfActions();
-    
-        // Chaque action à un numéro de pays qui lui correspond
+        
         int country[30] = {7, 4, 4, 7, 7, 4,4,2,1, 4,4,4, 4, 4,4, 4,4,4,4,3,4,4,4,4,2,7,7,0,4,4};
 
-        //On a maintenant la part fixe du div ( rd - rf)
+    //On a maintenant la part fixe du div ( rd - rf)
 
 
         for(int i = 0; i < divRates->size; i++){
@@ -352,22 +373,23 @@
         , "2022-01-11", "2022-07-11"};
 
         // Performance *perf = new Performance(observeDates, market, dates);
-        Performance *perf = new Performance(Pdates, market, country);
+
+        Performance *perf = new Performance(Pdates, nbTimeSteps, market, country);
 
         perf->niveauInitial();
 
         // vector<string>  dates = Date::getListOfDates("2021-10-12", "2022-12-12");
         //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
-        PnlVect* spotsInit = perf->getNivInitAct();
+        PnlVect* spotsStock = perf->getNivInitAct();
 
         PnlVect* spotsRates = pnl_vect_create(rates->getNumOfActions());
         PnlVect * add = pnl_vect_create(rates->getNumOfActions());
 
         rates->getSpotsFromDate(spotsRates, "2014-07-11");
         rates->getSpotsFromDate(add, "2014-07-15");
-    
+        
         pnl_vect_plus_vect(spotsRates, add);
-    
+        
         rates->getSpotsFromDate(spotsRates, "2014-07-16");
         pnl_vect_plus_vect(spotsRates, add);
 
@@ -377,15 +399,15 @@
         for(int i = 0; i < market->getNumOfActions(); i++){
 
             if( country[i] != 7 ){
-                LET(spotsInit, i) = GET(spotsInit,i) * GET(spotsRates, country[i]);
+                LET(spotsStock, i) = GET(spotsStock,i) * GET(spotsRates, country[i]);
             }
         }
 
 
 
-    
+        
         // pnl_mat_get_row(spots, path, 0);
-        BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(), rPerCountry["EUR"]  ,1,volatilities, spotsInit);
+        BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(), rPerCountry["EUR"]  ,1,volatilities, spotsStock);
         pnl_mat_chol(corrMat);
 
         bs->correlations_ = corrMat;
@@ -411,36 +433,35 @@
         PnlVect* deltaChange = pnl_vect_create(rates->getNumOfActions());
         PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
         mc->delta(delta, std_dev_delta, divForStocks, deltaChange, divRates, country);
-        
 
         double prixt;
 
         //calcul du prix en t = auj
 
-        vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
-        vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
+        
+        
         PnlMat *pathFull = pnl_mat_new();
         market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
-        PnlMat *past = pnl_mat_create(nbDatesInPast, market->getNumOfActions());
+        PnlMat *past = pnl_mat_create(nDatesInPast, market->getNumOfActions());
 
- 
+    
 
-        pnl_mat_set_row(past, spotsInit, 0);
+        pnl_mat_set_row(past, spotsStock, 0);
 
-        PnlMat* pastRates = pnl_mat_create(nbDatesInPast, rates->getNumOfActions());
+        PnlMat* pastRates = pnl_mat_create(nDatesInPast, rates->getNumOfActions());
         pnl_mat_set_row(pastRates, spotsRates ,0 );
         //on va maintenant creer sx ce qui va nous donner notre path que l'on pourrat bien simuler sous proba risque neutre!!!
 
-
         PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
         PnlVect * vecteurRates = pnl_vect_create(rates->getNumOfActions());
-        for (int i = 0; i < nbDatesInPast - 1; i ++) {
-            market->getSpotsFromDate(vecteurPast, datesFrom2014To2022[i]);
-            // pnl_mat_set_row(past, vecteurPast, i+1);
-            rates->getSpotsFromDate( vecteurRates,datesFrom2014To2022[i] );
+        for (int i = 0; i < nDatesInPast - 1; i ++) {
+
+            market->getSpotsFromDate(vecteurPast, datesFrom2014ToToday[(i+1) * nDayStep]);
+
+            rates->getSpotsFromDate( vecteurRates,datesFrom2014ToToday[(i+1) * nDayStep] );
             pnl_mat_set_row(pastRates, vecteurRates, i+1);
 
 
@@ -454,67 +475,38 @@
             }
 
         }
-    
-   
-
+        
         double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-    // mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
-
-        // cout << "prix auj " << prixt <<endl;
-
-        // mc->delta(past , t,delta, std_dev_delta, divForStocks, deltaChange, divRates, country, pastRates);
-
 
 
         pnl_mat_resize(path, H, market->getNumOfActions());
-        PnlVect* vectline = pnl_vect_new();
-        for(int i = 0; i < past->m; i++){
-            pnl_mat_get_row(vectline, past, i);
-            pnl_mat_set_row(path, vectline ,i);
-        }
 
         PnlMat* pathRates = pnl_mat_create(H , rates->getNumOfActions());
-        std::cout << pathRates->m << "  "<< pathRates->n <<std::endl;
 
         PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), rPerCountry["EUR"]);
-        past = pnl_mat_create(1, market->getNumOfActions());
-        pnl_mat_set_row(past, spotsInit, 0);
-        pastRates = pnl_mat_create(1, rates->getNumOfActions());
-        pnl_mat_set_row(pastRates, spotsRates, 0);
+
+        pnl_mat_set_row(past, spotsStock, 0);
+
         bs->simul_market(past, T, rng, trend, H - 1, path);
         bsRates->simul_market(pastRates, T, rng, trend, H-1, pathRates);
-    
-        FILE * Pmarket;
-        Pmarket = fopen ("marketvalue.txt", "wt");
-        if (Pmarket == NULL){
-        std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
 
-        for (int i = 0; i< path->m; i++){
-            
-            for(int j = 0; j < path->n; j++){
-                fprintf(Pmarket, "%lf, ", MGET(path, i, j));
+        double res = 0.0;
+        if (simulated) {
+            res = perf->payoff(path, pathRates);
+            while (res < 1.1)  {
+                bs->simul_market(past, T, rng, trend, H - 1, path);
+                res = perf->payoff(path, pathRates);
             }
-            fprintf(Pmarket, "\n");
+
         }
-        fclose(Pmarket);
 
-
+        
 
         double errorHedge;
 
+
         mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country, vectexp, spots, prices, dates);
 
-        // SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
-
-        // FILE * Pdatesfile;
-        // Pdatesfile = fopen ("dates.txt", "wt");
-        // if (Pdatesfile == NULL){
-        // std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
-
-        // for (int i = 0; i< Pdates.size(); i++){
-            
-        //     fprintf(Pdatesfile, "%s \n", Pdates[i].c_str());
-        // }
 
         pnl_vect_free(&volatilities);
         pnl_mat_free(&path); 

@@ -12,6 +12,7 @@ Performance::Performance(vector<string> observationDates, MarketData *md) {
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
     pathclone = pnl_mat_create(1, 1);
+    pathPerf = pnl_mat_create(observationDates.size() + 1, md->getNumOfActions());
     this->md = md;
 }
 
@@ -20,24 +21,30 @@ Performance::Performance(vector<string> observationDates, MarketData *md, vector
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
     pathclone = pnl_mat_create(1, 1);
+    pathPerf = pnl_mat_create(observationDates.size() + 1, md->getNumOfActions());
 
     this->md = md;
     this->simulationDates = simulationDates;
+
+    // A modifier
     Derivative::T_ = 1;
     Derivative::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation (égal 16 dans notre cas)
     Derivative::size_= md->getNumOfActions();
     
 }
 
-Performance::Performance(vector<string> observationDates, MarketData *md, int country[]) {
+Performance::Performance(vector<string> observationDates, int nbTimeSteps, MarketData *md, int country[]) {
     this->observationDates = observationDates;
     nivInitAct = pnl_vect_create_from_zero(md->getNumOfActions());
     spotsOnDate = pnl_vect_create_from_zero(md->getNumOfActions());
     pathclone = pnl_mat_create(1, 1);
+    pathPerf = pnl_mat_create(observationDates.size() + 1, md->getNumOfActions());
 
     this->md = md;
+
+    // A modifier
     Derivative::T_ = 1;
-    Derivative::nbTimeSteps_ = observationDates.size(); /// nombre de pas de temps de discrétisation (égal 16 dans notre cas)
+    Derivative::nbTimeSteps_ = nbTimeSteps - 1; /// nombre de pas de temps de discrétisation
     Derivative::size_= md->getNumOfActions();
     
     for(int i = 0; i < 30; i++){
@@ -51,16 +58,29 @@ Performance::~Performance() {
     pnl_vect_free(&nivInitAct);
     pnl_vect_free(&spotsOnDate);
     pnl_mat_free(&pathclone);
+    pnl_mat_free(&pathPerf);
 }
 
+// path est une matrice de taille nbTimeSteps
+void Performance::getObservationPath(const PnlMat* path) {
+    int jump = (int) ((path->m - 1) / observationDates.size());
+    for (int i = 0; i < pathPerf->m; i ++) {
+        for (int j = 0; j < pathPerf->n; j++) {
+            MLET(pathPerf, i, j) = MGET(path, i*jump, j);
+        }
+        // pnl_mat_set_row(pathPerf, &pnl_vect_wrap_mat_row(path, i *jump), i);
+    }
+
+}
 
 // Calculons le payoff uniquement avec la matrice path
 // La ligne 0 étant le spot (ici le niveau initial)
 double Performance::payoff(const PnlMat* path) {
     
+    getObservationPath(path);
     //md->fillfromPath(path, this->simulationDates);
     //niveauInitial();
-    return .9 + calculPerfMoyenneFinale(path)/100.;
+    return .9 + calculPerfMoyenneFinale(pathPerf)/100.;
 }
 
 
@@ -71,12 +91,15 @@ double Performance::payoff(PnlMat* path, const PnlMat* changes) {
 
     //on remet le bon path en multipliant par l'inverse du taux de change
     //pnl_mat_resize(pathclone, path->m, path->n);
-    pnl_mat_clone(pathclone, path);
-    for(int i = 0; i < path->m; i ++){
-        for(int j = 0; j < path->n; j++){
+
+    getObservationPath(path);
+
+    pnl_mat_clone(pathclone, pathPerf);
+    for(int i = 0; i < pathPerf->m; i ++){
+        for(int j = 0; j < pathPerf->n; j++){
 
             if (country_[j] !=7){
-                MLET(pathclone, i, j) = MGET(path,i,j) / MGET(changes, i, country_[j]);
+                MLET(pathclone, i, j) = MGET(pathPerf,i,j) / MGET(changes, i, country_[j]);
                 
             }
         }
@@ -137,7 +160,8 @@ double Performance::calculPerfMoyenneFinale(const PnlMat* path) {
         perfMoyenne += calculPerfSemestre(spotsOnDate);
     }
 
-    return 100*roundFourDecimal(perfMoyenne / observationDates.size());
+    // On remplace observationDates.size() par path->m - 1 pour enlever sa dépendance
+    return 100*roundFourDecimal(perfMoyenne / (path->m - 1));
 
 }
 

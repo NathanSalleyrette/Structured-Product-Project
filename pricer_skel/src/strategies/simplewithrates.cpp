@@ -23,19 +23,33 @@ int main(int argc, char **argv)
     string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
     string endFinishDate = "2021-12-15";
     double fdstep = .01; // 1+h pour les deltas
-    int H = 49;
-    double T = 8;
+    int H = 417;
+
+    int nbTimeSteps= 17;
+
+    bool simulated = false;
+
+    double T = 1;
     int nbSample = 5000;
     
     map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
-    double divVol = sqrt(8. * 252./(H-1));
-    int nDayStep = 252*8/( H - 1 );
+   
+   // Facteur multiplié à la vol annuelle 
+    double divVol = sqrt(8. * 252./(nbTimeSteps-1));
+    
+    // int nDayStep = 252*8/( H - 1 );
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
     vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
-    int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
-    int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
+    // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
+    // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
 
-    int nbDatesInPast = H - nDatesToSim + nDatesSimed;
+    int nDatesInPast = datesFrom2014ToToday.size() * H / datesFrom2014To2022.size();
+
+    int nDayStep = datesFrom2014To2022.size() / H;
+
+    if (simulated) nDatesInPast = 1;
+
+    //int nbDatesInPast = H - nDatesToSim + nDatesSimed;
     //on calcul de combien on doit avancer 
     
 
@@ -125,7 +139,8 @@ int main(int argc, char **argv)
      , "2022-01-11", "2022-07-11"};
 
     // Performance *perf = new Performance(observeDates, market, dates);
-    Performance *perf = new Performance(Pdates,H, market, country);
+
+    Performance *perf = new Performance(Pdates, nbTimeSteps, market, country);
 
     perf->niveauInitial();
 
@@ -196,23 +211,23 @@ int main(int argc, char **argv)
     PnlMat *pathFull = pnl_mat_new();
     market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
-    PnlMat *past = pnl_mat_create(nbDatesInPast, market->getNumOfActions());
+    PnlMat *past = pnl_mat_create(nDatesInPast, market->getNumOfActions());
 
  
 
     pnl_mat_set_row(past, spots, 0);
 
-    PnlMat* pastRates = pnl_mat_create(nbDatesInPast, rates->getNumOfActions());
+    PnlMat* pastRates = pnl_mat_create(nDatesInPast, rates->getNumOfActions());
     pnl_mat_set_row(pastRates, spotsRates ,0 );
     //on va maintenant creer sx ce qui va nous donner notre path que l'on pourrat bien simuler sous proba risque neutre!!!
 
     PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
     PnlVect * vecteurRates = pnl_vect_create(rates->getNumOfActions());
-    for (int i = 0; i < nbDatesInPast - 1; i ++) {
+    for (int i = 0; i < nDatesInPast - 1; i ++) {
 
-        market->getSpotsFromDate(vecteurPast, datesFrom2014ToToday[i * nDayStep]);
+        market->getSpotsFromDate(vecteurPast, datesFrom2014ToToday[(i+1) * nDayStep]);
         // pnl_mat_set_row(past, vecteurPast, i+1);
-        rates->getSpotsFromDate( vecteurRates,datesFrom2014ToToday[i * nDayStep] );
+        rates->getSpotsFromDate( vecteurRates,datesFrom2014ToToday[(i+1) * nDayStep] );
         pnl_mat_set_row(pastRates, vecteurRates, i+1);
 
 
@@ -253,6 +268,17 @@ int main(int argc, char **argv)
 
     bs->simul_market(past, T, rng, trend, H - 1, path);
     bsRates->simul_market(pastRates, T, rng, trend, H-1, pathRates);
+
+    double res = 0.0;
+    if (simulated) {
+        res = perf->payoff(path, pathRates);
+        while (res < 1.1)  {
+            bs->simul_market(past, T, rng, trend, H - 1, path);
+            res = perf->payoff(path, pathRates);
+        }
+
+    }
+
     FILE * Pmarket;
     Pmarket = fopen ("marketvalue.txt", "wt");
     if (Pmarket == NULL){

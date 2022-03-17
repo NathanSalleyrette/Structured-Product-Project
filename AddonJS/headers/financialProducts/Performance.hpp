@@ -26,13 +26,15 @@ class Performance: public Derivative {
 
         PnlMat* pathclone;
 
+        PnlMat* pathPerf; // Matrice de taille observationDates * nbActions qui sera utilisé pour calculer la perf
+
     public:
 
 
         int country_[30];
         Performance(vector<string> observationDates, MarketData *md);
         Performance(vector<string> observationDates, MarketData *md, vector<string> simulationDates);
-        Performance(vector<string> observationDates, MarketData *md, int country[]);
+        Performance(vector<string> observationDates, int nbTimeSteps, MarketData *md, int country[]);
 
         ~Performance();
 
@@ -50,6 +52,8 @@ class Performance: public Derivative {
         void printObservationDates();
 
         void setObservationDates(vector<string> od);
+
+        void getObservationPath(const PnlMat* path);
 
         PnlVect *getNivInitAct();
 };

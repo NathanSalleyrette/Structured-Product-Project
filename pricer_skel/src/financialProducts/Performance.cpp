@@ -25,6 +25,8 @@ Performance::Performance(vector<string> observationDates, MarketData *md, vector
 
     this->md = md;
     this->simulationDates = simulationDates;
+
+    // A modifier
     Derivative::T_ = 1;
     Derivative::nbTimeSteps_ = simulationDates.size(); /// nombre de pas de temps de discrétisation (égal 16 dans notre cas)
     Derivative::size_= md->getNumOfActions();
@@ -39,6 +41,8 @@ Performance::Performance(vector<string> observationDates, int nbTimeSteps, Marke
     pathPerf = pnl_mat_create(observationDates.size() + 1, md->getNumOfActions());
 
     this->md = md;
+
+    // A modifier
     Derivative::T_ = 1;
     Derivative::nbTimeSteps_ = nbTimeSteps - 1; /// nombre de pas de temps de discrétisation
     Derivative::size_= md->getNumOfActions();
@@ -59,7 +63,7 @@ Performance::~Performance() {
 
 // path est une matrice de taille nbTimeSteps
 void Performance::getObservationPath(const PnlMat* path) {
-    int jump = (int) ((Derivative::nbTimeSteps_) / observationDates.size());
+    int jump = (int) ((path->m - 1) / observationDates.size());
     for (int i = 0; i < pathPerf->m; i ++) {
         for (int j = 0; j < pathPerf->n; j++) {
             MLET(pathPerf, i, j) = MGET(path, i*jump, j);

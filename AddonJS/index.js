@@ -32,7 +32,7 @@ async function Dates() {
 
 //obj.Simple('../../peps/pricer_skel/data/DATA')
 
-obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 417, 100, "2021-12-10")
+obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", 1000)
 
 console.log("uwu")
 
