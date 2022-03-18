@@ -32,8 +32,12 @@ async function Dates() {
 
 //obj.Simple('../../peps/pricer_skel/data/DATA')
 
-obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", 1000)
+obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", "2021-12-15", 1000, true)
 
+console.log(obj.Dates())
+console.log(obj.Spots())
+console.log(obj.Prices())
+console.log(obj.DatesString())
 console.log("uwu")
 
 // obj.CalculPnl(function () {

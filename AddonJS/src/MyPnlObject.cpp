@@ -255,16 +255,18 @@
         string refDate = info[4].ToString(); // Date vers laquelle on veut créer notre fenêtre
         //string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
 
-        string endFinishDate = "2021-12-15";
+        string endFinishDate = info[5].ToString(); // Date jusqu'à laquelle on récupère les données historiques
+        // Ne pas pas être supérieur à Aujourd'hui - 2 jours 
         
         double fdstep = .01; // 1+h pour les deltas
 
-        int nbTimeSteps= 17;
-
-        bool simulated = true;
-
+        int nbTimeSteps= 17; // Ne changerons jamais
         double T = 1;
-        int nbSample = info[5].As<Napi::Number>().Int32Value();
+
+        int nbSample = info[6].As<Napi::Number>().Int32Value();
+
+        bool simulated = info[7].As<Napi::Boolean>();
+
         
         map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
     
@@ -273,7 +275,7 @@
         
         // int nDayStep = 252*8/( H - 1 );
         vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
-        vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
+        vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-11");
         // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
         // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
 
@@ -508,6 +510,12 @@
         mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country, vectexp, spots, prices, dates);
 
 
+
+        datesString.clear();
+        for(int i = 0; i < H; i++) {
+            datesString.push_back(datesFrom2014To2022[(int) ((datesFrom2014To2022.size() - 1) * i / (H - 1))]);
+        }
+
         pnl_vect_free(&volatilities);
         pnl_mat_free(&path); 
         pnl_mat_free(&pathFull);
@@ -552,12 +560,25 @@
         return outputArray;
     }
 
+        Napi::Value MyPnlObject::DatesString(const Napi::CallbackInfo& info) {
+        
+        Napi::Env env = info.Env();       
+        Napi::Array outputArray = Napi::Array::New(env, datesString.size());
+
+        for (int i = 0; i < datesString.size(); i++) {
+            outputArray[i] = Napi::String::New(env, datesString[i]);
+
+        }
+        return outputArray;
+    }
+
 
 
     Napi::Object MyPnlObject::Init(Napi::Env env, Napi::Object exports) {
         Napi::Function func = DefineClass(env, "MyPnlObject", {
             InstanceMethod("Spots", &MyPnlObject::Spots),
             InstanceMethod("Dates", &MyPnlObject::Dates),
+            InstanceMethod("DatesString", &MyPnlObject::DatesString),
             InstanceMethod("Prices", &MyPnlObject::Prices),
             InstanceMethod("CalculPnl", &MyPnlObject::CalculPnl),
             InstanceMethod("Simple", &MyPnlObject::Simple),
