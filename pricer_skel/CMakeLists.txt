@@ -70,6 +70,12 @@ add_executable(testPerformance ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testPerformance ${LIBS})
 pnl_add_postbuild(testPerformance)
 
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleWindow.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(simpleWindow ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(simpleWindow ${LIBS})
+pnl_add_postbuild(simpleWindow)
+
 
 set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simple.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
 set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
@@ -94,12 +100,6 @@ set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/ut
 add_executable(simpleRates ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(simpleRates ${LIBS})
 pnl_add_postbuild(simpleRates)
-
-set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/simpleWindow.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
-set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
-add_executable(simpleWindow ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(simpleWindow ${LIBS})
-pnl_add_postbuild(simpleWindow)
 
 
 #Testing the utils class

@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     
 
     double errorHedge;
-    int windowSize = 5;
+    int windowSize = 20;
 
     mc->pAndLWindow(H - 1, errorHedge, path, prix, windowSize, Pdates);
 
