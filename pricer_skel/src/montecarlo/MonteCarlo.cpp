@@ -606,7 +606,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
     PnlVect *deltaPrevious = pnl_vect_create(marketData->n); /*! vecteur contenant les deltas en t_(i-1) */
-
+    PnlVect * zerocuppon = pnl_vect_create(vectexp->size);
     PnlVect* deltaChange = pnl_vect_create(pathRates->n);
     PnlVect* deltapreviousChange = pnl_vect_create(pathRates->n);
 
@@ -693,7 +693,11 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         pnl_vect_minus_vect(deltaPrevious, delta);
         pnl_vect_minus_vect(deltapreviousChange, deltaChange);
         pnl_vect_clone(valuechange, &vectChangeLine);
-        pnl_vect_mult_vect_term(valuechange, vectexp);
+        pnl_vect_clone(zerocuppon, vectexp);
+        for (int i = 0; i < zerocuppon->size; i++){
+            LET(zerocuppon, i) = std::pow(GET(zerocuppon,i), 1 -t);
+        }
+        pnl_vect_mult_vect_term(valuechange, zerocuppon);
         V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine) + pnl_vect_scalar_prod( deltapreviousChange, valuechange);
         pnl_vect_clone(deltaPrevious, delta);
         pnl_vect_clone(deltapreviousChange, deltaChange);
