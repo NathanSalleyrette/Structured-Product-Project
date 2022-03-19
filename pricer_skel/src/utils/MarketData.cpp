@@ -108,8 +108,10 @@ void MarketData::fillPathMatFromFinalDate(PnlMat* path, string finalDate, int nb
     string date = finalDate;
     
     for (int i = nbOfDays - 1; i >= 0; i--){
+
         getSpotsFromDate(spotsOfDate, date);
         pnl_mat_set_row(path, spotsOfDate, i);
+
         date = Date::previousDate(date);
     }
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
