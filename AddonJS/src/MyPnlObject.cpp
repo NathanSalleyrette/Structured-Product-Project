@@ -268,7 +268,7 @@
         bool simulated = info[7].As<Napi::Boolean>();
 
         
-        map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
+        map<string, double> rPerCountry = { {"EUR", 0./100.}, {"USD", 0.5/100.}, {"JAP", -0.1/100.}, {"GBP", 0.75/100}, {"CHF", -0.75/100}, {"BRZ", 11.75/100} , {"CAD", 0.5/100}, {"MXN", 6/100}};
     
     // Facteur multiplié à la vol annuelle 
         double divVol = sqrt(8. * 252./(nbTimeSteps-1));
@@ -350,7 +350,7 @@
                 LET(divRates, i) = - rPerCountry["GBP"];
             }
         }
-        double arrayexp[5] = {exp(rPerCountry["GBP"]), exp(rPerCountry["CAD"]), exp(rPerCountry["JAP"]), exp(rPerCountry["MXN"]), exp(rPerCountry["USD"])};
+        double arrayexp[5] = {exp(-rPerCountry["GBP"]), exp(-rPerCountry["CAD"]), exp(-rPerCountry["JAP"]), exp(-rPerCountry["MXN"]), exp(-rPerCountry["USD"])};
         PnlVect* vectexp = pnl_vect_create_from_ptr(5, arrayexp);
 
         PnlVect* divForStocks = pnl_vect_create(market->getNumOfActions());
