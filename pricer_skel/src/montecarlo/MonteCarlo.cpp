@@ -695,7 +695,7 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         pnl_vect_clone(valuechange, &vectChangeLine);
         pnl_vect_clone(zerocuppon, vectexp);
         for (int i = 0; i < zerocuppon->size; i++){
-            LET(zerocuppon, i) = std::pow(GET(zerocuppon,i), 1 -t);
+            LET(zerocuppon, i) = std::pow(GET(zerocuppon,i),  this->prodd_->T_ - t );
         }
         pnl_vect_mult_vect_term(valuechange, zerocuppon);
         V = V * expon + pnl_vect_scalar_prod(deltaPrevious, &vecLine) + pnl_vect_scalar_prod( deltapreviousChange, valuechange);
