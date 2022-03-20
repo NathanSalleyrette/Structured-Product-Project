@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     double T = 1;
     int nbSample = 5000;
     
-    map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
+    map<string, double> rPerCountry = { {"EUR", 0./100.}, {"USD", 0.5/100.}, {"JAP", -0.1/100.}, {"GBP", 0.75/100}, {"CHF", -0.75/100}, {"BRZ", 11.75/100} , {"CAD", 0.5/100}, {"MXN", 6/100}};
    
    // Facteur multiplié à la vol annuelle 
     double divVol = sqrt(8. * 252./(nbTimeSteps-1));

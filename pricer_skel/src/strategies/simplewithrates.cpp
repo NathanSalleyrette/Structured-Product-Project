@@ -114,7 +114,7 @@ int main(int argc, char **argv)
             LET(divRates, i) = - rPerCountry["GBP"];
         }
     }
-    double arrayexp[5] = {exp(-rPerCountry["GBP"]), exp(-rPerCountry["CAD"]), exp(-rPerCountry["JAP"]), exp(-rPerCountry["MXN"]), exp(-rPerCountry["USD"])};
+    double arrayexp[5] = {exp(rPerCountry["GBP"]), exp(rPerCountry["CAD"]), exp(rPerCountry["JAP"]), exp(rPerCountry["MXN"]), exp(rPerCountry["USD"])};
     PnlVect* vectexp = pnl_vect_create_from_ptr(5, arrayexp);
 
     PnlVect* divForStocks = pnl_vect_create(market->getNumOfActions());
