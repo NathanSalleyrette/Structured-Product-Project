@@ -45,6 +45,9 @@ obj.ComputeDeltas('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/da
 console.log(obj.Deltas())
 console.log(obj.StocksString())
 
+console.log(obj.PerformanceProduct('../../peps/pricer_skel/data/DATA', "2021-12-15"))
+console.log(obj.DatesString())
+
 
 // obj.CalculPnl(function () {
 //   console.log(Array.from(arguments));

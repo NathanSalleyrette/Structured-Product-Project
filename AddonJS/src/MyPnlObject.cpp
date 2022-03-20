@@ -745,6 +745,83 @@
 
     }
 
+    Napi::Value MyPnlObject::PerformanceProduct(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+
+        string pathData = info[0].ToString(); // directoryToDATA
+        //string pathData = "../data/DATA"; // directoryToDATA
+
+        string endFinishDate = info[1].ToString(); // Date jusqu'à laquelle on récupère les données historiques
+        // Ne pas pas être supérieur à Aujourd'hui - 2 jours 
+        dates.clear();
+
+        ParseYahooCsv *parser = new ParseYahooCsv();
+    
+        MarketData *market = new MarketData();
+        
+        market->fillData(parser, pathData);
+
+    
+        vector<string> dates = 
+        { "2015-01-12", "2015-07-13"
+        , "2016-01-11", "2016-07-11"
+        , "2017-01-11", "2017-07-11"
+        , "2018-01-11", "2018-07-11"
+        , "2019-01-11", "2019-07-11"
+        , "2020-01-11", "2020-07-11"
+        , "2021-01-11", "2021-07-11"
+        , "2022-01-11", "2022-07-11"};
+
+
+        vector<string> observeDates = {};
+
+        Performance *perf = new Performance(observeDates, market, observeDates);
+        PnlMat* path = pnl_mat_new();
+        
+
+        perf->niveauInitial();
+
+
+
+        vector<string> datesFrom2014ToEnd = Date::getListOfDates("2014-07-16", endFinishDate);
+
+        Napi::Array outputArray = Napi::Array::New(env, datesFrom2014ToEnd.size() - 1);
+
+
+        // Initialisation
+        int counter = 0;
+        observeDates.push_back(datesFrom2014ToEnd[0]);
+
+        for (int i = 1; i < datesFrom2014ToEnd.size(); i++) {
+            if (datesFrom2014ToEnd[i] > dates[counter]) {
+                observeDates.push_back(datesFrom2014ToEnd[i]);
+                counter += 1;
+            }else {
+                observeDates.back() = datesFrom2014ToEnd[i];
+            }
+
+            perf->setObservationDates(observeDates);
+
+            market->getPathFromDates(path, observeDates);
+            pnl_mat_set_row(path, perf->getNivInitAct(), 0);
+
+            double result = perf->calculPerfMoyenneFinale(path) + 90;
+            outputArray[i - 1] = Napi::Number::New(env, result);
+            datesString.push_back(datesFrom2014ToEnd[i]);
+
+        }
+        
+        pnl_mat_free(&path);
+
+        delete perf;
+        delete market;
+        delete parser;
+
+
+        return outputArray;
+
+    }
+
 
 
     Napi::Value MyPnlObject::Spots(const Napi::CallbackInfo& info) {
@@ -831,7 +908,8 @@
             InstanceMethod("SimpleRates", &MyPnlObject::SimpleRates),
             InstanceMethod("ComputeDeltas", &MyPnlObject::ComputeDeltas),
             InstanceMethod("StocksString", &MyPnlObject::Stocks),
-            InstanceMethod("Deltas", &MyPnlObject::Deltas)
+            InstanceMethod("Deltas", &MyPnlObject::Deltas),
+            InstanceMethod("PerformanceProduct", &MyPnlObject::PerformanceProduct)
         });
 
         Napi::FunctionReference* constructor = new Napi::FunctionReference();

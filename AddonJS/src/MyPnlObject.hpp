@@ -42,6 +42,7 @@ class MyPnlObject : public Napi::ObjectWrap<MyPnlObject> {
         Napi::Value Simple(const Napi::CallbackInfo& info);
         Napi::Value SimpleRates(const Napi::CallbackInfo& info);
         Napi::Value ComputeDeltas(const Napi::CallbackInfo& info);
+        Napi::Value PerformanceProduct(const Napi::CallbackInfo& info);
 
         Napi::Value Deltas(const Napi::CallbackInfo& info);
         Napi::Value Stocks(const Napi::CallbackInfo& info);
