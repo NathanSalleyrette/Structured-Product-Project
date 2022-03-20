@@ -23,11 +23,8 @@ int main(int argc, char **argv)
     string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
     string endFinishDate = "2021-12-15";
     double fdstep = .01; // 1+h pour les deltas
-    int H = 417;
 
     int nbTimeSteps= 17;
-
-    bool simulated = false;
 
     double T = 1;
     int nbSample = 5000;
@@ -37,21 +34,9 @@ int main(int argc, char **argv)
    // Facteur multiplié à la vol annuelle 
     double divVol = sqrt(8. * 252./(nbTimeSteps-1));
     
-    // int nDayStep = 252*8/( H - 1 );
     vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
     vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
-    // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
-    // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
 
-    int nDatesInPast = datesFrom2014ToToday.size() * H / datesFrom2014To2022.size();
-
-    int nDayStep = datesFrom2014To2022.size() / H;
-
-    if (simulated) nDatesInPast = 1;
-
-    //int nbDatesInPast = H - nDatesToSim + nDatesSimed;
-    //on calcul de combien on doit avancer 
-    
 
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
@@ -59,10 +44,7 @@ int main(int argc, char **argv)
     MarketData *rates = new MarketData();
     
     rates->fillData(parser, pathFiles);
-    // for(int i = 0; i < rates->actions.size(); i++){
-    //     cout<< rates->actions[i] << endl;
-    // }
-    // assert(1==2);
+
     // calcul de la volatilité et la correlation
     PnlMat* path = pnl_mat_create(1,1);
     market->fillPathMat(path, refDate, initialWindow);
@@ -138,14 +120,13 @@ int main(int argc, char **argv)
      , "2021-01-11", "2021-07-11"
      , "2022-01-11", "2022-07-11"};
 
-    // Performance *perf = new Performance(observeDates, market, dates);
+
 
     Performance *perf = new Performance(Pdates, nbTimeSteps, market, country);
 
     perf->niveauInitial();
 
-    // vector<string>  dates = Date::getListOfDates("2021-10-12", "2022-12-12");
-    //PnlVect* volsim = pnl_vect_create_from_scalar(market->getNumOfActions(), 2);
+
     PnlVect* spots = perf->getNivInitAct();
 
     PnlVect* spotsRates = pnl_vect_create(rates->getNumOfActions());
@@ -160,8 +141,7 @@ int main(int argc, char **argv)
     pnl_vect_plus_vect(spotsRates, add);
 
     pnl_vect_div_scalar(spotsRates, 3.);
-    //  pnl_vect_print(spots);
-    //  cout << "-----"<<endl;
+
     for(int i = 0; i < market->getNumOfActions(); i++){
 
         if( country[i] != 7 ){
@@ -172,13 +152,11 @@ int main(int argc, char **argv)
 
 
     
-    // pnl_mat_get_row(spots, path, 0);
     BlackScholesModel *bs = new BlackScholesModel(market->getNumOfActions(), rPerCountry["EUR"]  ,1,volatilities, spots);
     pnl_mat_chol(corrMat);
 
     bs->correlations_ = corrMat;
 
-    //rates->getSpotsFromDate( spotsRates,Pdates[0] );
     BlackScholesModel *bsRates = new BlackScholesModel(rates->getNumOfActions(), rPerCountry["EUR"], 1, volRates, spotsRates );
     pnl_mat_chol(corrRatesMat);
  
@@ -190,26 +168,11 @@ int main(int argc, char **argv)
     
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng, bsRates);
 
-    double prix, std_dev;
 
-    //mc->price(prix, std_dev, divForStocks, divRates); 
-
-    //std::cout << "Prix en 0 " << prix <<std::endl;
     PnlVect* delta = pnl_vect_create(market->getNumOfActions());
     PnlVect* deltaChange = pnl_vect_create(rates->getNumOfActions());
     PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
-    //mc->delta(delta, std_dev_delta, divForStocks, deltaChange, divRates, country);
 
-    double prixt;
-
-    //calcul du prix en t = auj
-
-
-
-    
-    
-    PnlMat *pathFull = pnl_mat_new();
-    market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
    
     //on va maintenant creer sx ce qui va nous donner notre path que l'on pourrat bien simuler sous proba risque neutre!!!
@@ -234,7 +197,6 @@ int main(int argc, char **argv)
     for ( i = 1 ; i <= nconstDate; i++) {
 
         market->getSpotsFromDate(vecteurPast, Pdates[i- 1]);
-        // pnl_mat_set_row(past, vecteurPast, i+1);
         rates->getSpotsFromDate( vecteurRates,Pdates[i-1] );
         pnl_mat_set_row(pastRates, vecteurRates, i);
 
@@ -251,39 +213,17 @@ int main(int argc, char **argv)
     }
 
     double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-   // mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
-
-    //cout << "prix auj " <<endl;
-
-    // On ne veut que les anciennes dates de constations et aujourd'hui
 
 
     mc->delta(past , t,delta, std_dev_delta, divForStocks, deltaChange, divRates, country, pastRates);
 
     pnl_vect_print(delta);
 
-     
-    // PnlVect* vectline = pnl_vect_new();
-    // for(int i = 0; i < past->m; i++){
-    //     pnl_mat_get_row(vectline, past, i);
-    //     pnl_mat_set_row(path, vectline ,i);
-    // }
-
-    //pastRates = pnl_mat_create(1, rates->getNumOfActions());
-    //pnl_mat_set_row(pastRates, spotsRates, 0);
-
-   
-
-    
-
-
-    
 
 
 
     pnl_vect_free(&volatilities);
     pnl_mat_free(&path); 
-    pnl_mat_free(&pathFull);
     // on a pas le mme price en t si on calcule price en 0 avant ou pas 
     // le calcul de price en t ne marche pas si on a fait le calcul de price en 0 avant et qu'on reutilise les mm mc et perf
 }

@@ -43,7 +43,13 @@ void MarketData::fillData(ParseYahooCsv *parser, string pathFiles ) {
     for (const auto & entry : directory_iterator(pathFiles)) {
         action = entry.path(); //pas mieux path().filename().toString() ?
         action.erase(action.end()-4, action.end());
-        action.erase(action.begin(), action.begin()+13);
+        
+        
+        int end = action.find("/");
+        while (end != -1) {
+            action.erase(action.begin(), action.begin() + end + 1);
+            end = action.find("/");
+        }  
         //std::cout << action << std::endl;
         bool in = false;
         for(int i = 0; i < actions.size(); i++){

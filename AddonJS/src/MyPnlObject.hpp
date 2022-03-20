@@ -34,9 +34,18 @@ class MyPnlObject : public Napi::ObjectWrap<MyPnlObject> {
         std::vector<double> dates;
         std::vector<std::string> datesString;
 
+        // vecteur des actions
+        std::vector<std::string> stocksString;
+        std::vector<double> deltasStock;
+
         Napi::Value CalculPnl(const Napi::CallbackInfo& info);
         Napi::Value Simple(const Napi::CallbackInfo& info);
         Napi::Value SimpleRates(const Napi::CallbackInfo& info);
+        Napi::Value ComputeDeltas(const Napi::CallbackInfo& info);
+
+        Napi::Value Deltas(const Napi::CallbackInfo& info);
+        Napi::Value Stocks(const Napi::CallbackInfo& info);
+
         Napi::Value Dates(const Napi::CallbackInfo& info);
         Napi::Value DatesString(const Napi::CallbackInfo& info);
         

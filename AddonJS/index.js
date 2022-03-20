@@ -32,13 +32,19 @@ async function Dates() {
 
 //obj.Simple('../../peps/pricer_skel/data/DATA')
 
-obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", "2021-12-15", 5000, true)
+// obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", "2021-12-15", 5000, false)
 
-console.log(obj.Dates())
-console.log(obj.Spots())
-console.log(obj.Prices())
-console.log(obj.DatesString())
-console.log("uwu")
+// console.log(obj.Dates())
+// console.log(obj.Spots())
+// console.log(obj.Prices())
+// console.log(obj.DatesString())
+// console.log("uwu")
+
+
+obj.ComputeDeltas('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 10, "2021-12-10", "2021-12-15", 5000)
+console.log(obj.Deltas())
+console.log(obj.StocksString())
+
 
 // obj.CalculPnl(function () {
 //   console.log(Array.from(arguments));
