@@ -753,7 +753,7 @@
 
         string endFinishDate = info[1].ToString(); // Date jusqu'à laquelle on récupère les données historiques
         // Ne pas pas être supérieur à Aujourd'hui - 2 jours 
-        dates.clear();
+        datesString.clear();
 
         ParseYahooCsv *parser = new ParseYahooCsv();
     
