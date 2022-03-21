@@ -5,7 +5,7 @@ Utils::Utils(){}
 
 double Utils::covariance(const PnlVect* X, const PnlVect* Y){
     // std::cout<<X->size<<endl;
-    //assert(("Vecteurs de tailles différentes pour le calcul de la covariance",X->size == Y->size));
+    assert(("Vecteurs de tailles différentes pour le calcul de la covariance", X->size == Y->size));
     double E_x = esperance(X);
     double E_y = esperance(Y);
 

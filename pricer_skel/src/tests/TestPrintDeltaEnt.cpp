@@ -63,6 +63,8 @@ int main(){
 
         for (int i = 0; i < compteurGlobal; i ++) {
             mc->delta(past, t, delta, std_dev_delta, div);
+            std::cout << "delta = " << std::endl;
+            pnl_vect_print(delta);
             fprintf(f, "%lf \n", GET(delta, 0) - Nd1t);
             juste = abs(GET(delta,0) - Nd1t) < 1.96*GET(std_dev_delta,0);
             if (juste){
@@ -71,6 +73,8 @@ int main(){
         }
 
         proportion = (double) compteurJuste / compteurGlobal;
+
+        std::cout << "Proportion : " << proportion << std::endl;
 
         pnl_vect_free(&std_dev_delta);
         pnl_vect_free(&delta);

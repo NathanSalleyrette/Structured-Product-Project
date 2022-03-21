@@ -7,7 +7,7 @@ int main(){
     PnlVect *Y = pnl_vect_create_from_scalar(10,200);
     Utils *utils = new Utils();
     if(utils->esperance(X) == 100){
-        std::cout<<"eserance valide"<<endl;
+        std::cout<<"esperance valide"<<endl;
     }else{
         std::cout<<"esperance non valide"<<endl;
     }
