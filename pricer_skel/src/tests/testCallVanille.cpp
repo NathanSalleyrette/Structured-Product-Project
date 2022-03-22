@@ -45,9 +45,6 @@ namespace
     {
         log::init();
 
-        nbHedgeDate = 1;
-        nbTimeSteps = 1;
-
         PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
         pnl_rng_sseed(rng, time(NULL));
 

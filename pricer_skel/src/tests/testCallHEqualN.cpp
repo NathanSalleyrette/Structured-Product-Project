@@ -7,10 +7,7 @@
 #include "gtest/gtest.h"
 
 namespace
-{
-
-
-    
+{   
     // Vanilla Call's information
     double T = 1;
 
@@ -56,6 +53,7 @@ namespace
         Derivative *vanille = new VanillaCall(T, nbTimeSteps, K);
         BlackScholesModel *bs = new BlackScholesModel(size, r, rho, sigma, spot);
         MonteCarlo *mc = new MonteCarlo(bs, vanille, fdStep, nbSamples, rng);
+
 
         double theoricalPrice  = 100. * Nd1 - K*exp(-r*T)*Nd2;
 

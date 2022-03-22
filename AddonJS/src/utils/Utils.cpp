@@ -1,11 +1,10 @@
 #include "utils/Utils.hpp"
-#include "spdlog/spdlog.h"
 
 Utils::Utils(){}
 
 double Utils::covariance(const PnlVect* X, const PnlVect* Y){
     // std::cout<<X->size<<endl;
-    assert(("Vecteurs de tailles différentes pour le calcul de la covariance", X->size == Y->size));
+    //assert(("Vecteurs de tailles différentes pour le calcul de la covariance",X->size == Y->size));
     double E_x = esperance(X);
     double E_y = esperance(Y);
 
@@ -36,13 +35,6 @@ double Utils::correlation( const PnlVect* X,  const PnlVect* Y){
     double sigmaX = std::sqrt(covariance(X,X));
     double sigmaY = std::sqrt(covariance(Y,Y));
 
-    if(sigmaX < 1E-6){
-        sigmaX = 1;
-    }
-    if(sigmaY < 1E-6){
-        sigmaY = 1;
-    }
-
     return covXY/(sigmaX * sigmaY);
 }
 
@@ -70,8 +62,6 @@ void Utils::correlationMatrix(const PnlMat* path, PnlMat* corrMat){
     }
     pnl_vect_free(&X);
     pnl_vect_free(&Y);
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Correlation Matrix computed");
 }
 
 void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
@@ -82,24 +72,18 @@ void Utils::volsOnMat(PnlVect* volatilities, const PnlMat* path){
     double expsqrtcov;
     for (int i = 0; i < volatilities->size; i++){
         pnl_mat_get_col(temp, path, i);
-
         //On calcul les log rendements
 
         for(int j = 1; j < temp->size; j++){
-            
             LET(returns, j - 1) = log( GET(temp, j) / GET(temp, j - 1) );
         }
-
         cov = covariance(returns, returns);
         sqrtcov = sqrt(cov);
-        expsqrtcov = exp(sqrtcov);
+        //expsqrtcov = exp(sqrtcov);
         //LET(volatilities, i) = std::exp(std::sqrt(covariance(returns,returns)));
         LET(volatilities, i) = sqrtcov;
 
     }
-
     pnl_vect_free(&temp);
     pnl_vect_free(&returns);
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Vols computed from path matrix");
 }       

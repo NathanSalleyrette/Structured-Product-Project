@@ -1,11 +1,11 @@
 #include <string>
 #include "utils/MarketData.hpp"
 #include "fs/ParseYahooCsv.hpp"
+#include "utils/Utils.hpp"
 #include "utils/Date.hpp"
 #include "models/BlackScholesModel.hpp"
 #include "montecarlo/MonteCarlo.hpp"
 #include "financialProducts/Performance.hpp"
-#include "spdlog/log.hpp"
 #include <map>
 #include<cstdio>
 
@@ -13,50 +13,14 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    log::init();
-    std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    string pathFiles = "../data/RATE";
-    string pathData = "../data/DATA";
     
-    int initialWindow = 10;
-    string refDate = "2021-12-10"; // Date vers laquelle on veut créer notre fenêtre
-    string endFinishDate = "2021-12-15";
-    double fdstep = .01; // 1+h pour les deltas
-    int H = 17;
-
-    int nbTimeSteps= 17;
-
-    bool simulated = false;
-
-    double T = 1;
-    int nbSample = 5000;
-    
-    map<string, double> rPerCountry = { {"EUR", 0./100.}, {"USD", 0.5/100.}, {"JAP", -0.1/100.}, {"GBP", 0.75/100}, {"CHF", -0.75/100}, {"BRZ", 11.75/100} , {"CAD", 0.5/100}, {"MXN", 6/100}};
-   
-   // Facteur multiplié à la vol annuelle 
-    double divVol = sqrt(8. * 252./(nbTimeSteps-1));
-    
-    // int nDayStep = 252*8/( H - 1 );
-    vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", endFinishDate);
-    vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
-    // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
-    // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
-
-    int nDatesInPast = datesFrom2014ToToday.size() * H / datesFrom2014To2022.size();
-
-    int nDayStep = datesFrom2014To2022.size() / H;
-
-    if (simulated) nDatesInPast = 1;
-
-    //int nbDatesInPast = H - nDatesToSim + nDatesSimed;
-    //on calcul de combien on doit avancer 
-    
+    map<string, double> rPerCountry = { {"EUR", 2./100.}, {"USD", 3./100.}, {"JAP", 1.5/100.}, {"GBP", 4.50/100}, {"CHF", -0.75/100}, {"BRZ", 9.25/100} , {"CAD", 4.25/100}, {"MXN", 5.5/100}};
 
     ParseYahooCsv *parser = new ParseYahooCsv();
     MarketData *market = new MarketData();
-    market->fillData(parser, pathData); // on remplit le dictionnaire avec les données du csv
+    market->fillData(parser); // on remplit le dictionnaire avec les données du csv
     MarketData *rates = new MarketData();
-    
+    string pathFiles = "../data/RATE";
     rates->fillData(parser, pathFiles);
     // for(int i = 0; i < rates->actions.size(); i++){
     //     cout<< rates->actions[i] << endl;
@@ -64,11 +28,11 @@ int main(int argc, char **argv)
     // assert(1==2);
     // calcul de la volatilité et la correlation
     PnlMat* path = pnl_mat_create(1,1);
-    market->fillPathMat(path, refDate, initialWindow);
+    market->fillPathMat(path, "2021-12-10", 5);
 
     PnlVect* volatilities = pnl_vect_create(market->getNumOfActions());
     Utils::volsOnMat(volatilities, path);
-    pnl_vect_mult_scalar(volatilities, divVol);
+    pnl_vect_mult_scalar(volatilities, 1. / 16.);
 
     PnlMat* corrMat = pnl_mat_create(market->getNumOfActions(), market->getNumOfActions());
     Utils::correlationMatrix(path, corrMat);
@@ -77,12 +41,12 @@ int main(int argc, char **argv)
     // creation de performance
 
     PnlMat* ratesPath = pnl_mat_create(1,1);
-    rates->fillPathMat(ratesPath, refDate, initialWindow);
-    PnlVect* volRates = pnl_vect_create(rates->getNumOfActions());
+    rates->fillPathMat(ratesPath, "2021-12-10", 5);
     
+    PnlVect* volRates = pnl_vect_create(rates->getNumOfActions());
+
     Utils::volsOnMat(volRates, ratesPath);
- 
-    pnl_vect_mult_scalar(volRates, divVol);
+    pnl_vect_mult_scalar(volRates, 1./16.);
 
     PnlMat* corrRatesMat = pnl_mat_create(rates->getNumOfActions(), rates->getNumOfActions());
     Utils::correlationMatrix(ratesPath, corrRatesMat);
@@ -138,8 +102,7 @@ int main(int argc, char **argv)
      , "2022-01-11", "2022-07-11"};
 
     // Performance *perf = new Performance(observeDates, market, dates);
-
-    Performance *perf = new Performance(Pdates, nbTimeSteps, market, country);
+    Performance *perf = new Performance(Pdates, market, country);
 
     perf->niveauInitial();
 
@@ -167,7 +130,9 @@ int main(int argc, char **argv)
             LET(spots, i) = GET(spots,i) * GET(spotsRates, country[i]);
         }
     }
-
+    // pnl_vect_print(spots);
+   // assert(1==2);
+    //pnl_vect_inv_term(spotsRates);
 
 
     
@@ -177,7 +142,7 @@ int main(int argc, char **argv)
 
     bs->correlations_ = corrMat;
 
-    //rates->getSpotsFromDate( spotsRates,Pdates[0] );
+    rates->getSpotsFromDate( spotsRates,Pdates[0] );
     BlackScholesModel *bsRates = new BlackScholesModel(rates->getNumOfActions(), rPerCountry["EUR"], 1, volRates, spotsRates );
     pnl_mat_chol(corrRatesMat);
  
@@ -186,11 +151,17 @@ int main(int argc, char **argv)
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
     pnl_rng_sseed(rng, time(NULL));
 
-    
+    double fdstep = .01;
+    int nbSample = 5000;
     MonteCarlo *mc = new MonteCarlo(bs, perf,fdstep,nbSample, rng, bsRates);
 
     double prix, std_dev;
 
+    // mc->price(prix, std_dev);
+    // PnlVect* delta = pnl_vect_create(market->getNumOfActions());
+    // PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
+    // mc->delta(delta, std_dev_delta);
+    // pnl_vect_print(delta);
     mc->price(prix, std_dev, divForStocks, divRates); 
 
     std::cout << "Prix en 0 " << prix <<std::endl;
@@ -198,35 +169,46 @@ int main(int argc, char **argv)
     PnlVect* deltaChange = pnl_vect_create(rates->getNumOfActions());
     PnlVect* std_dev_delta = pnl_vect_create(market->getNumOfActions());
     mc->delta(delta, std_dev_delta, divForStocks, deltaChange, divRates, country);
+cout<< "------------------------"<<endl;
+pnl_vect_print(deltaChange);
 
+cout<< "------------------------"<<endl;
     double prixt;
 
     //calcul du prix en t = auj
 
+    vector<string> datesFrom2014To2022 = Date::getListOfDates("2014-07-11", "2022-07-15");
 
+    vector<string> datesFrom2014ToToday = Date::getListOfDates("2014-07-11", "2021-12-15");
 
-    
-    
     PnlMat *pathFull = pnl_mat_new();
     market->getPathFromDates(pathFull, datesFrom2014ToToday);
 
-    PnlMat *past = pnl_mat_create(nDatesInPast, market->getNumOfActions());
 
- 
+    // Performance *perf = new Performance(observeDates, market, datesFrom2014To2022);
+    //market->fillData(parser); // on a n'importe quoi dans le dictionnaire à cause du calcul du prix en 0 donc on reclean le dico
+    //Performance *perfForPriceToday = new Performance(Pdates, market, Pdates);
+    //MonteCarlo *mcForPriceToday = new MonteCarlo(bs, perfForPriceToday,fdstep,nbSample, rng);
+
+    int nbDatesInPast = 15;
+    PnlMat *past = pnl_mat_create(nbDatesInPast, market->getNumOfActions());
+
+    // market->fiilPathMat(past, "2014-07-11", datesFrom2014ToToday.size());
+
+    // perfForPriceToday->niveauInitial();
 
     pnl_mat_set_row(past, spots, 0);
 
-    PnlMat* pastRates = pnl_mat_create(nDatesInPast, rates->getNumOfActions());
+    PnlMat* pastRates = pnl_mat_create(nbDatesInPast, rates->getNumOfActions());
     pnl_mat_set_row(pastRates, spotsRates ,0 );
     //on va maintenant creer sx ce qui va nous donner notre path que l'on pourrat bien simuler sous proba risque neutre!!!
 
     PnlVect * vecteurPast = pnl_vect_create(market->getNumOfActions());
     PnlVect * vecteurRates = pnl_vect_create(rates->getNumOfActions());
-    for (int i = 0; i < nDatesInPast - 1; i ++) {
-
-        market->getSpotsFromDate(vecteurPast, datesFrom2014ToToday[(i+1) * nDayStep]);
+    for (int i = 0; i < nbDatesInPast - 1; i ++) {
+        market->getSpotsFromDate(vecteurPast, Pdates[i]);
         // pnl_mat_set_row(past, vecteurPast, i+1);
-        rates->getSpotsFromDate( vecteurRates,datesFrom2014ToToday[(i+1) * nDayStep] );
+        rates->getSpotsFromDate( vecteurRates,Pdates[i] );
         pnl_mat_set_row(pastRates, vecteurRates, i+1);
 
 
@@ -239,59 +221,48 @@ int main(int argc, char **argv)
             }
         }
 
+        //pnl_vect_mult_vect_term(vecteurPast, vecteurRates);
+        //pnl_mat_set_row(past, vecteurPast , i+1);
     }
     
-    double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
-   // mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
-
-    // cout << "prix auj " << prixt <<endl;
-
-    // mc->delta(past , t,delta, std_dev_delta, divForStocks, deltaChange, divRates, country, pastRates);
-
-
-
-     pnl_mat_resize(path, H, market->getNumOfActions());
-    // PnlVect* vectline = pnl_vect_new();
-    // for(int i = 0; i < past->m; i++){
-    //     pnl_mat_get_row(vectline, past, i);
-    //     pnl_mat_set_row(path, vectline ,i);
+    // for(int i = 0; i < pastRates->m; i++){
+    //     pnl_mat_get_row(vecteurRates,pastRates, i);
+    //     pnl_vect_inv_term(vecteurRates);
+    //     pnl_mat_set_row(pastRates, vecteurRates  ,i);
     // }
+    // pnl_mat_print(pastRates);
 
-    PnlMat* pathRates = pnl_mat_create(H , rates->getNumOfActions());
+    double t = (double)(datesFrom2014ToToday.size()-1)/datesFrom2014To2022.size();
+    mc->price(past, t, prixt, std_dev, divForStocks, divRates, pastRates);
+
+    cout << "prix auj " << prixt <<endl;
+
+    mc->delta(past , t,delta, std_dev_delta, divForStocks, deltaChange, divRates, country, pastRates);
+cout<< "------------------------"<<endl;
+pnl_vect_print(deltaChange);
+
+cout<< "------------------------"<<endl;
+
+
+    //calcul P&L
+    
+    // int H = datesFrom2014To2022.size() - 1;
+    int H = 17;
+    double T = 1;
+
+    pnl_mat_resize(path, 17, market->getNumOfActions());
+    PnlVect* vectline = pnl_vect_new();
+    for(int i = 0; i < past->m; i++){
+        pnl_mat_get_row(vectline, past, i);
+        pnl_mat_set_row(path, vectline ,i);
+    }
+
+    PnlMat* pathRates = pnl_mat_create(17 , rates->getNumOfActions());
 
     PnlVect *trend = pnl_vect_create_from_scalar(market->getNumOfActions(), rPerCountry["EUR"]);
-    //past = pnl_mat_create(1, market->getNumOfActions());
-    pnl_mat_set_row(past, spots, 0);
-    //pastRates = pnl_mat_create(1, rates->getNumOfActions());
-    //pnl_mat_set_row(pastRates, spotsRates, 0);
-
     bs->simul_market(past, T, rng, trend, H - 1, path);
     bsRates->simul_market(pastRates, T, rng, trend, H-1, pathRates);
-
-    double res = 0.0;
-    if (simulated) {
-        res = perf->payoff(path, pathRates);
-        while (res < 1.1)  {
-            bs->simul_market(past, T, rng, trend, H - 1, path);
-            res = perf->payoff(path, pathRates);
-        }
-
-    }
-
-    FILE * Pmarket;
-    Pmarket = fopen ("marketvalue.txt", "wt");
-    if (Pmarket == NULL){
-    std::cout << "Impossible d'ouvrir le fichier en écriture !" << std::endl;}
-
-    for (int i = 0; i< path->m; i++){
-        
-        for(int j = 0; j < path->n; j++){
-            fprintf(Pmarket, "%lf, ", MGET(path, i, j));
-        }
-        fprintf(Pmarket, "\n");
-    }
-
-    fclose(Pmarket);
+    
 
 
     
@@ -300,7 +271,6 @@ int main(int argc, char **argv)
 
     mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country,vectexp);
 
-    // SPDLOG_LOGGER_INFO(_logger, "ErrorHedge => {}", errorHedge);
 
     FILE * Pdatesfile;
     Pdatesfile = fopen ("dates.txt", "wt");

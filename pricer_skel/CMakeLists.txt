@@ -117,11 +117,11 @@ pnl_add_postbuild(testSize0)
 
 set(SOURCES src/utils/Utils.cpp src/tests/TestSizeDifferents.cpp)
 set(HEADERS headers/utils/Utils.hpp)
-add_executable(testSizeDifferents ${SOURCES} ${HEADERS} ${LOGGER})
-target_link_libraries(testSizeDifferents ${LIBS})
-pnl_add_postbuild(testSizeDifferents)
+add_executable(testAssertFailSizeDifferents ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(testAssertFailSizeDifferents ${LIBS})
+pnl_add_postbuild(testAssertFailSizeDifferents)
 
-#Testing printresults
+# #Testing printresults
 
 set(SOURCES src/fs/ParseCsv.cpp src/tests/testResultsPrintVanilla.cpp src/montecarlo/MonteCarlo.cpp src/fs/ParseYahooCsv.cpp src/utils/Date.cpp src/utils/Utils.cpp src/utils/MarketData.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
 set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/financialProducts/VanillaCall.hpp headers/financialProducts/Derivative.hpp)
@@ -153,11 +153,11 @@ add_executable(TestPrintPnl ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(TestPrintPnl ${LIBS})
 pnl_add_postbuild(TestPrintPnl)
 
-# set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp)
-# set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
-# add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
-# target_link_libraries(datas ${LIBS})
-# pnl_add_postbuild(datas)
+set(SOURCES src/utils/MarketData.cpp src/fs/ParseYahooCsv.cpp)
+set(HEADERS headers/utils/MarketData.hpp headers/fs/ParseYahooCsv.hpp)
+add_library(datas SHARED ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(datas ${LIBS})
+pnl_add_postbuild(datas)
 
 #Testing the simulMarket function
 set(SOURCES src/fs/ParseCsv.cpp src/tests/TestSimulMarket.cpp src/montecarlo/MonteCarlo.cpp src/fs/ParseYahooCsv.cpp src/utils/Date.cpp src/utils/Utils.cpp src/utils/MarketData.cpp src/models/BlackScholesModel.cpp src/financialProducts/VanillaCall.cpp)
@@ -165,6 +165,12 @@ set(HEADERS headers/fs/ParseCsv.hpp headers/montecarlo/MonteCarlo.hpp headers/ut
 add_executable(testSimulMarket ${SOURCES} ${HEADERS} ${LOGGER})
 target_link_libraries(testSimulMarket ${LIBS})
 pnl_add_postbuild(testSimulMarket)
+
+set(SOURCES src/fs/ParseYahooCsv.cpp src/strategies/deltasForAday.cpp src/utils/MarketData.cpp src/utils/Date.cpp src/utils/Utils.cpp src/models/BlackScholesModel.cpp src/utils/Date.cpp src/montecarlo/MonteCarlo.cpp src/financialProducts/Performance.cpp)
+set(HEADERS headers/fs/ParseYahooCsv.hpp headers/utils/MarketData.hpp headers/utils/Date.hpp headers/utils/Utils.hpp headers/models/BlackScholesModel.hpp headers/utils/Date.hpp headers/montecarlo/MonteCarlo.hpp headers/financialProducts/Performance.hpp)
+add_executable(deltasForAday ${SOURCES} ${HEADERS} ${LOGGER})
+target_link_libraries(deltasForAday ${LIBS})
+pnl_add_postbuild(deltasForAday)
 
 #GOOGLETEST
 add_executable(googletest src/tests/googletest.cpp)
