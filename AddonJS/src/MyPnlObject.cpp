@@ -279,9 +279,9 @@
         // int nDatesToSim = (datesFrom2014To2022.size() )/  nDayStep;
         // int nDatesSimed = datesFrom2014ToToday.size()/ nDayStep;
 
-        int nDatesInPast = datesFrom2014ToToday.size() * H / datesFrom2014To2022.size();
+        int nDatesInPast = datesFrom2014ToToday.size() * (H-1) / datesFrom2014To2022.size() + 1;
 
-        int nDayStep = datesFrom2014To2022.size() / H;
+        int nDayStep = datesFrom2014To2022.size() / (H-1);
 
         if (simulated) nDatesInPast = 1;
 
