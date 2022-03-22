@@ -36,7 +36,7 @@ namespace
 
     // variables used to test the 95% proportion
     int compteurJuste = 0;
-    int compteurGlobal = 1000;
+    int compteurGlobal = 5000;
     bool juste;
     double proportion;
     double precision = 0.01;
@@ -67,8 +67,6 @@ namespace
                 compteurJuste ++;
             }
         }
-
-        std::cout << "ok 3 -------- " << std::endl;
 
         proportion = (double) compteurJuste / compteurGlobal;
 
@@ -269,7 +267,7 @@ namespace
         mc->price(prix, stddev);
         mc->pAndL(nbHedgeDate, errorHedge, parser->marketData_, prix + margin);
 
-        //EXPECT_NE(0, errorHedge);
+        EXPECT_NE(0, errorHedge);
 
         delete parser;
         delete vanille;
