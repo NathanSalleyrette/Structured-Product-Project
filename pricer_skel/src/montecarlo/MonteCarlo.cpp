@@ -65,7 +65,7 @@ MonteCarlo::~MonteCarlo() {
 void MonteCarlo::price(double &prix, double &std_dev)
 {
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t = 0");
+    //SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t = 0");
     double resPayoff;
     double sum = 0;
     double sumSquared = 0;
@@ -84,7 +84,7 @@ void MonteCarlo::price(double &prix, double &std_dev)
         sumSquared += resPayoff * resPayoff;
         // std::cout<<resPayoff<<std::endl;
     }
-
+    
     double oneOverMTimesSum = oneOverM * sum;
 
     double varianceEstim = exp(-2 * mod_->r_ * prodd_->T_) * (oneOverM * sumSquared - oneOverMTimesSum * oneOverMTimesSum);
@@ -92,13 +92,13 @@ void MonteCarlo::price(double &prix, double &std_dev)
     //actualisation du payoff simulé par MonteCarlo
     prix = exp(-mod_->r_ * prodd_->T_) * oneOverMTimesSum;
     std_dev = sqrt(varianceEstim*oneOverM);
-    SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 computed");
+    //SPDLOG_LOGGER_INFO(_logger, "Price at t = 0 computed");
 }
 
 void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_dev)
 {
     std::shared_ptr<spdlog::logger> _logger = spdlog::get("MainLogs");
-    SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t");
+    //SPDLOG_LOGGER_INFO(_logger, "Starting computing price at t");
     double resPayoff;
     double sum = 0;
     double sumSquared = 0;
@@ -125,7 +125,7 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &std_d
     //actualisation du payoff simulé par MonteCarlo
     prix = exp(-mod_->r_ * (prodd_->T_ - t)) * oneOverMTimesSum;
     std_dev = sqrt(varianceEstim*oneOverM);
-    SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
+    //SPDLOG_LOGGER_INFO(_logger, "Price at t computed");
 }
 
 void MonteCarlo::delta(PnlVect *delta, PnlVect *std_dev, PnlVect *dividende)
