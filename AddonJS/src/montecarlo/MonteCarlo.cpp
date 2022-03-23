@@ -510,7 +510,7 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
     double payoffPlus;
     double payoffMinus;
     double resPayoff;
-
+    double V = 100;
     double expon = exp(- mod_->r_ * (prodd_->T_ - t))/ (2*fdStep_);
     double TOverN = prodd_->T_/prodd_->nbTimeSteps_;
 
@@ -589,9 +589,10 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *st
 }
 
 
-void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, std::vector<double>& spots, std::vector<double>& prices, std::vector<double>& dates)
+void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, std::vector<double>& spots, std::vector<double>& prices, std::vector<double>& dates, PnlMat* repartition)
 {
-
+    pnl_mat_resize( repartition, marketData->m ,marketData->n + 1);
+    //repartition = pnl_mat_create( marketData->m ,marketData->n + 1);
     PnlVect *delta = pnl_vect_create(marketData->n);/*! vecteur contenant les deltas en t_i */
     PnlVect *deltaPrevious = pnl_vect_create(marketData->n); /*! vecteur contenant les deltas en t_(i-1) */
 
@@ -645,9 +646,14 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
 
     pnl_vect_mult_vect_term(valuechange, vectexp);
     V = prix - pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod(deltapreviousChange, valuechange);
-
+  
     pnl_mat_set_row(pathRates, &vectChangeLine,0);
     pnl_mat_set_row(past, &vecLine, 0);
+
+    for(int i = 0; i < repartition->n - 1; i++){
+        MLET( repartition, 0,i ) = GET(deltaPrevious,i);
+    }
+    MLET( repartition, 0, repartition->n -1) = V;
 
     int pastIndex = 1;
 
@@ -703,6 +709,13 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
         MonteCarlo::price(subPast, tbrut*TOverH, prix, std_dev, divStocks, divRates, subChangePath);
         double valeurPort = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange);
 
+
+        for(int i = 0; i < repartition->n - 1; i++){
+        MLET( repartition, tbrut,i ) = GET(delta,i);
+        }
+        //double freeRate = ;
+        MLET( repartition, tbrut, repartition->n -1) = (valeurPort- pnl_vect_scalar_prod(deltaPrevious, &vecLine) - pnl_vect_scalar_prod( deltapreviousChange, valuechange)) / valeurPort;
+
         std::cout << "En t = " << tbrut*TOverH << " V = " << valeurPort << " prix  = " << prix << std::endl;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // fprintf(f, "%lf \n", valeurPort);
@@ -727,6 +740,10 @@ void MonteCarlo::pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, 
     // fclose(Pdates);
 
     errorHedge = V + pnl_vect_scalar_prod(delta, &vecLine) + pnl_vect_scalar_prod(deltaChange, valuechange) - prodd_->payoff(past); // calcule du PnL
+
+    //on linéarise la matrice repartition
+    
+
     pnl_vect_free(&delta);
     pnl_vect_free(&deltaPrevious);
     pnl_vect_free(&stdDevDelta);

@@ -32,8 +32,8 @@ async function Dates() {
 
 //obj.Simple('../../peps/pricer_skel/data/DATA')
 
-// obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 97, 10, "2021-12-10", "2021-12-15", 5000, false)
-
+obj.SimpleRates('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 17, 10, "2021-12-10", "2021-12-15", 1000, false)
+console.log(obj.ReapartPerTime())
 // console.log(obj.Dates())
 // console.log(obj.Spots())
 // console.log(obj.Prices())
@@ -41,13 +41,13 @@ async function Dates() {
 // console.log("uwu")
 
 
-obj.ComputeDeltas('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 10, "2021-12-10", "2021-12-15", 5000)
-console.log(obj.Deltas())
-console.log(obj.StocksString())
-
-console.log(obj.PerformanceProduct('../../peps/pricer_skel/data/DATA', "2021-12-15"))
-console.log(obj.DatesString())
-
+// obj.ComputeDeltas('../../peps/pricer_skel/data/RATE', '../../peps/pricer_skel/data/DATA', 10, "2021-12-10", "2021-12-15", 5000)
+// console.log(obj.Deltas())
+// console.log(obj.StocksString())
+// // obj.SimpleRat
+// console.log(obj.PerformanceProduct('../../peps/pricer_skel/data/DATA', "2021-12-15"))
+// console.log(obj.DatesString())
+// console.log(obj.ReapartPerTime())
 
 // obj.CalculPnl(function () {
 //   console.log(Array.from(arguments));

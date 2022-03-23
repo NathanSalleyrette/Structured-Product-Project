@@ -38,7 +38,7 @@ public:
 
     /**
      * Construit un moteur Monte Carlo
-     * 
+     *
      * @param[in] mod pointeur vers le modèle
 
      * @param[in] prodd pointeur sur le Derivative
@@ -97,7 +97,7 @@ public:
 
     /**
      * Calcule l'erreur de couverture P&L en T
-     * 
+     *
      * @param[in] nbHedgeDate nombre de pas des observations du marché
      * @param[out] errorHedge résultat de l'erreur de couverture P&L
      * @param[in] marketData matrice qui contient les données du marché
@@ -108,7 +108,7 @@ public:
 
     /**
      * @brief Calcule l'erreur de couverture P&L en T
-     * 
+     *
      * @param[in] nbHedgeDate nombre de pas des observations du marché
      * @param[out] errorHedge résultat de l'erreur de couverture P&L
      * @param[in] marketData matrice qui contient les données du marché
@@ -117,7 +117,7 @@ public:
      * @param divStocks vecteur contenant les dividandes pour les actions
      * @param divRates vecteur contenant les dividendes pour les changes
      */
-    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, std::vector<double>& spots, std::vector<double>& prices, std::vector<double>& dates);
+    void pAndL(int nbHedgeDate, double &errorHedge, PnlMat *marketData, double valLiqRef, PnlMat* pathRates, PnlVect* divStocks, PnlVect* divRates, int country[], PnlVect* vectexp, std::vector<double>& spots, std::vector<double>& prices, std::vector<double>& dates, PnlMat* repartition);
 
     /**
      * Calcule le prix du Derivative à la date 0
@@ -138,5 +138,3 @@ public:
     void delta(const PnlMat *past, double t, PnlVect *delta, PnlVect *std_dev, PnlVect *dividende, PnlVect* deltachange, PnlVect* divRates, int country[], PnlMat* pastRates);
 
 };
-
-

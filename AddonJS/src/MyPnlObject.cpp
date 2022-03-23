@@ -239,6 +239,7 @@
         spots.clear();
         dates.clear();
         prices.clear();
+        reapartPerTime.clear();
 
         string pathFiles = info[0].ToString();
         //string pathFiles = "../data/RATE"; // directoryToRATE
@@ -506,10 +507,19 @@
 
         double errorHedge;
 
+        PnlMat* repartition = pnl_mat_create(2,2);
+        mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country, vectexp, spots, prices, dates, repartition);
 
-        mc->pAndL(H - 1, errorHedge, path, 1, pathRates, divForStocks, divRates, country, vectexp, spots, prices, dates);
+        std::vector<double> line;
+        //on doit maintenant linéariser repartition
+        for(int i = 0; i < repartition->m; i++){
+            for(int j = 0; j < repartition->n; j++){
+                double value = MGET(repartition,i,j);
+                reapartPerTime.push_back((double) value );
+            }
+        }
 
-
+        pnl_mat_print(repartition);
 
         datesString.clear();
         for(int i = 0; i < H; i++) {
@@ -888,7 +898,7 @@
         
         Napi::Env env = info.Env();       
         Napi::Array outputArray = Napi::Array::New(env, deltasStock.size());
-
+        
         for (int i = 0; i < deltasStock.size(); i++) {
             outputArray[i] = Napi::Number::New(env, deltasStock[i]);
 
@@ -896,6 +906,18 @@
         return outputArray;
     }
 
+     Napi::Value MyPnlObject::ReapartPerTime( const Napi::CallbackInfo& info ){
+
+        Napi::Env env = info.Env();       
+        Napi::Array outputArray = Napi::Array::New(env, reapartPerTime.size());
+        
+        for (int i = 0; i < reapartPerTime.size(); i++) {
+            outputArray[i] = Napi::Number::New(env, reapartPerTime[i]);
+
+        }
+        return outputArray;
+
+     }
 
     Napi::Object MyPnlObject::Init(Napi::Env env, Napi::Object exports) {
         Napi::Function func = DefineClass(env, "MyPnlObject", {
@@ -909,7 +931,8 @@
             InstanceMethod("ComputeDeltas", &MyPnlObject::ComputeDeltas),
             InstanceMethod("StocksString", &MyPnlObject::Stocks),
             InstanceMethod("Deltas", &MyPnlObject::Deltas),
-            InstanceMethod("PerformanceProduct", &MyPnlObject::PerformanceProduct)
+            InstanceMethod("PerformanceProduct", &MyPnlObject::PerformanceProduct),
+            InstanceMethod("ReapartPerTime", &MyPnlObject::ReapartPerTime)
         });
 
         Napi::FunctionReference* constructor = new Napi::FunctionReference();

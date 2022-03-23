@@ -8,7 +8,7 @@
   },
 
   "scripts": {
-    "install": "cmake-js compile --CDCMAKE_PREFIX_PATH=/home/peyrichou/PNL/pnl/build/"
+    "install": "cmake-js compile --CDCMAKE_PREFIX_PATH=/matieres/5MMPCPD/pnl"
   },
   "author": "",
   "license": "ISC",
