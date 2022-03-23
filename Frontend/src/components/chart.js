@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -7,7 +7,7 @@ import { Button, FormControl } from "react-bootstrap";
 import ChartForm from "./chartForm";
 
 const BACKEND = "http://localhost:5000/api";
-
+//const BACKEND = "https://peps-group1.herokuapp.com/api";
 
 const CustomToggle = React.forwardRef(({ children, onClick,  buttonDisabled}, ref) => (
   <Button className="btn btn-primary custom"
@@ -56,8 +56,8 @@ const CustomMenu = React.forwardRef(
 
 const ChartStock = (props) => {
   const [stock, setStock] = useState({
-    stockNoun: "CSX Corporation",
-    yahooCode: "CSX",
+    assetName: "",
+    yahooCode: "",
   });
 
   const [disabled, setDisabled] = useState(false);
@@ -66,6 +66,106 @@ const ChartStock = (props) => {
     setStock(uwu);
   };
 
+  async function vanillaCall() {
+    setDisabled(true);
+
+    await fetch(`${BACKEND}/vanillaCall`)
+    .then((res) => res.json())
+    .then((body) => {
+      setState( {
+        options: {
+          ...state.options,
+          xaxis: {
+            type : "numeric",
+             categories: body.date
+          },
+        },
+        series: [
+          {
+            name : "Prices",
+            data: body.price,
+          },
+          {
+            name : "Portfolio",
+            data : body.port
+          }
+        ],
+      });
+      setDisabled(false);
+
+
+    })
+    .catch(function (error) {
+      console.log("error", error);
+      setDisabled(false);
+    });
+  }
+
+  async function simpleStrategy() {
+    setDisabled(true);
+
+    await fetch(`${BACKEND}/simple`)
+    .then((res) => res.json())
+    .then((body) => {
+      setState( {
+        options: {
+          ...state.options,
+          xaxis: {
+            type : "numeric",
+             categories: body.date
+          },
+        },
+        series: [
+          {
+            name : "Prices",
+            data: body.price,
+          },
+          {
+            name : "Portfolio",
+            data : body.port
+          }
+        ],
+      });
+      setDisabled(false);
+
+
+    })
+    .catch(function (error) {
+      console.log("error", error);
+      setDisabled(false);
+    });
+  }
+
+  async function performance() {
+    setDisabled(true);
+
+    await fetch(`${BACKEND}/performance`)
+    .then((res) => res.json())
+    .then((body) => {
+      setState( {
+        options: {
+          ...state.options,
+          xaxis: {
+            type : "datetime",
+             categories: body.date
+          },
+        },
+        series: [
+          {
+            name : "Performance",
+            data: body.perf,
+          }
+        ],
+      });
+      setDisabled(false);
+
+
+    })
+    .catch(function (error) {
+      console.log("error", error);
+      setDisabled(false);
+    });
+  }
 
   async function getHistoricalPrices(
     frequency,
@@ -115,7 +215,7 @@ const ChartStock = (props) => {
     await fetch(url, requestOptions)
       .then((response) => response.json())
       .then((body) => {
-        console.log(body);
+        // console.log(body);
         dates.length = 0;
         stocks.length = 0;
         body.date.map((el) => dates.push(el));
@@ -125,15 +225,15 @@ const ChartStock = (props) => {
           options: {
             ...state.options,
             xaxis: {
-              ...state.options.xaxis,
-               categories: body.date.map((date) => {let time = new Date(date + 'T03:24:00').getTime()
+              type: "datetime",
+              categories: body.date.map((date) => {let time = new Date(date + 'T03:24:00').getTime()
              return time}),
                 //categories: body.date,
             },
           },
           series: [
             {
-              ...state.series,
+              name: "Close",
               data: body.close,
             },
           ],
@@ -143,10 +243,10 @@ const ChartStock = (props) => {
         setDisabled(false);
 
       })
-      .then(() => {
-        console.log(dates)
-        console.log(stocks)
-      })
+      // .then(() => {
+      //   console.log(dates)
+      //   console.log(stocks)
+      // })
       .catch(function (error) {
         console.log("error", error);
         setDisabled(false);
@@ -155,13 +255,24 @@ const ChartStock = (props) => {
 
 
   const [listStock, setListStock] = useState({
-    data: [
-      { yahooCode: "CSX", stockNoun: "CSX Corporation" },
-      { yahooCode: "VIE.PA", stockNoun: "Veolia Environnement S.A." },
-      { yahooCode: "LIN.DE", stockNoun: "Linde plc" },
-    ],
+    data: [],
   });
 
+
+  useEffect(()=> {
+      fetch(`${BACKEND}/assets`)
+      .then(response => response.json())
+      .then(res => {
+        setListStock({
+          data: res.data
+        })
+        if (res.data.length > 0) {
+          setStock(res.data[0])
+        }
+      })
+      .catch(reason => console.log(reason))
+    // console.log('renderChart')
+  },[])
 
   const dates = [];
   const stocks = [];
@@ -225,20 +336,20 @@ const ChartStock = (props) => {
         <Col>
           <Dropdown onSelect={handleSelect}>
             <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components" buttonDisabled={disabled}>
-              {stock.stockNoun}
+              {stock.assetName}
             </Dropdown.Toggle>
 
             <Dropdown.Menu as={CustomMenu}>
               {listStock.data.map((d) => (
                 <Dropdown.Item key={d.yahooCode} eventKey={JSON.stringify(d)}>
-                  {d.stockNoun}
+                  {d.assetName}
                 </Dropdown.Item>
               ))}
             </Dropdown.Menu>
           </Dropdown>
         </Col>
           {/*No <Col> here because it's already in ChartForm */}
-          <ChartForm  onConnect={getHistoricalPrices} buttonDisabled={disabled}/>
+          <ChartForm  onConnect={getHistoricalPrices} onVanillaCall={vanillaCall} onSimple={performance} buttonDisabled={disabled}/>
 
       </Row>
       <Row>

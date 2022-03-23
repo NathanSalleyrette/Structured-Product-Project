@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import {
@@ -15,6 +15,7 @@ import SignUp from "./components/signup.component";
 import NavBar from "./components/navbar";
 import ChartStock from "./components/chart";
 import AdminController from "./components/adminController";
+import ProductManager from "./components/productManager";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -23,87 +24,32 @@ import Col from "react-bootstrap/Col";
 //import style from "./index.css"
 
 const BACKEND = "http://localhost:5000/api";
-//const BACKEND = "https://backend-peps.herokuapp.com";
+//const BACKEND = "https://peps-group1.herokuapp.com/api";
 
 function App() {
-  async function connect(username, password) {
-    console.log("login", username, password);
 
-    await fetch(`${BACKEND}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `data=${JSON.stringify({ username, password })}`,
-      //credentials: 'include',
+  const [token, setToken] = useState("");
+  const [isAuthUser, setIsAuthUser] = useState(false);
+  const [isAdmin, setIsAdminUser] = useState(false);
+
+  useEffect(() => {
+    fetch(`${BACKEND}/verify`, {
+    method: "GET",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      // console.log("Verify Here")
+      // console.log(data)
+      setIsAdminUser(data.admin)
+      setIsAuthUser(data.auth)
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === 'login success') {
-          setToken(data.token);
-          setIsAuthUser(true);
-          // let myStorage = window.localStorage;
-          // myStorage.setItem('')
-          setIsAdminUser(data.admin);
-          console.log(data.admin);
-        } else {
-          alert("Wrong username or password")
-        };
-      })
 
-      .catch((error) => console.log(error));
-  }
+    .catch((error) => console.log(error));
+}, [])
 
 
-  async function getUsers() {
-    await fetch(`${BACKEND}/users`, {
-      method: "GET",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-      })
 
-      .catch((error) => console.log(error));
-  }
-
-  async function createUser(username, password) {
-    console.log("Nouvel Utilisateur", username, password);
-
-    await fetch(`${BACKEND}/users`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `data=${JSON.stringify({ username, password })}`,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        data.status ? setUserCreated(true) : console.log("ONO");
-      })
-      .catch((error) => console.log("MIAMIAM"));
-  }
-
-  function UserHasBeenCreated() {
-    if (userCreated) {
-      // Problème lors de l'ajout de cette ligne
-      //setUserCreated(false);
-      return <Navigate to="/" />;
-    }
-    return <Outlet />;
-  }
-
-  function NotRequireAuth() {
-    if (isAuthUser) {
-      return <Navigate to="/home" />;
-    }
-
-    return <Outlet />;
-  }
-
-  function RequireAuth() {
-    if (!isAuthUser) {
-      return <Navigate to="/" />;
-    }
-
-    return <Outlet />;
-  }
 
   function RequireAdmin() {
     if (!isAdmin) {
@@ -113,34 +59,68 @@ function App() {
     return <Outlet />;
   }
 
-  function logout() {
+  async function logout() {
+    await fetch(`${BACKEND}/logout`, {
+      method: "GET",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    })
+      .then((response) => response.json())
+      .catch((error) => console.log(error));
+
+
+      await fetch(`${BACKEND}/verify`, {
+        method: "GET",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+        .then((response) => response.json())
+        .then((data) => { 
+          // console.log(data)
+          setIsAdminUser(data.admin)
+          setIsAuthUser(data.auth)
+        })
+    
+        .catch((error) => console.log(error));
+
     setToken("");
     setIsAuthUser(false);
     setIsAdminUser(false);
   }
 
-  const [token, setToken] = useState("");
-  const [isAuthUser, setIsAuthUser] = useState(false);
-  const [isAdmin, setIsAdminUser] = useState(false);
-  const [userCreated, setUserCreated] = useState(false);
+
+  function setInfo(info) {
+    console.log(isAuthUser)
+    if (!isAuthUser) {
+    console.log(info)
+    setToken(info.token);
+    setIsAuthUser(info.isAuthUser);
+    setIsAdminUser(info.admin);
+    }
+  }
+
+
+
+ 
 
   return (
     <div className="App">
       <NavBar isAuthUser={isAuthUser} isAdmin={isAdmin} onLogout={logout} />
-      <Container fluid className="m-4">
+      <div className="m-4">
         <Routes>
-          <Route element={<NotRequireAuth />}>
-            <Route exact path="/" element={<Login onConnect={connect} />} />
-            <Route path="/sign-in" element={<Login onConnect={connect} />} />
-            <Route element={<UserHasBeenCreated />}>
+            {!isAuthUser &&
+            (<Route>
+            <Route exact path="/" element={<Login onConnect={(info) => setInfo(info)}/>} />
+
+            <Route path="/sign-in" element={<Login onConnect={(info) => setInfo(info)}/>} />
+            
               <Route
                 path="/sign-up"
-                element={<SignUp onCreateUser={createUser} />}
+                element={<SignUp />}
               />
             </Route>
-          </Route>
+            )}
 
-          <Route element={<RequireAuth />}>
+          {isAuthUser && (
+          <Route>
             <Route
               path="/home"
               element={<h3>Congrats, you made it !!! {token}</h3>}
@@ -150,13 +130,16 @@ function App() {
             <Route element={<RequireAdmin />}>
               <Route path="/admin" element={<AdminController />} />
 
+              <Route path="/productManager" element={<ProductManager />} />
+              
             </Route>
+            </Route>)}
 
-          </Route>
+          <Route path="*" element={<Navigate to={isAuthUser ? "/graph" : "/"} />} />
 
-
+            
         </Routes>
-      </Container>
+      </div>
     </div>
   );
 }

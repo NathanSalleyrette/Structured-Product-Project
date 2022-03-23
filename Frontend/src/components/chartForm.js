@@ -16,7 +16,7 @@ const ChartForm = (props) => {
   }
 
   useEffect(() => {
-    console.log(startDate)
+    // console.log(startDate)
     if (startDate.trim() === "" || startDate > todayDate) setIncorrectDate(true);
     else setIncorrectDate(false);
   }, [startDate, todayDate])
@@ -106,6 +106,32 @@ const ChartForm = (props) => {
           disabled={props.buttonDisabled || incorrectDate}
         >
           Validate
+        </Button>
+      </Col>
+      {/* <Col>
+        <Button
+          type="submit"
+          onClick={() => {
+            props.onVanillaCall();
+            //console.log(startDate);
+          }}
+          className="btn btn-primary btn-block"
+          disabled={props.buttonDisabled || incorrectDate}
+        >
+          vanillaCall
+        </Button>
+      </Col> */}
+      <Col>
+        <Button
+          type="submit"
+          onClick={() => {
+            props.onSimple();
+            //console.log(startDate);
+          }}
+          className="btn btn-primary btn-block"
+          disabled={props.buttonDisabled || incorrectDate}
+        >
+          Get Basket Performance
         </Button>
       </Col>
     </>

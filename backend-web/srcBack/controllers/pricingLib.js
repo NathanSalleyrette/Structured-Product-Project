@@ -6,7 +6,7 @@ const jws = require('jws');
 const axios = require("axios");
 const csv = require('fast-csv');
 const fs = require('fs');
-const testAddon = require('../../AddonJS/build/Release/testaddon.node')
+const testAddon = require('../../../AddonJS/build/Release/testaddon.node')
 require('mandatoryenv').load(['SECRETJWS'])
 var obj = testAddon.createObject('../../PEPS/peps/pricer_skel/data/callVanilleProf.csv')
 const { readdirSync, readFileSync } = require('fs')

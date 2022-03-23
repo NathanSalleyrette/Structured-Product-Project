@@ -1,12 +1,13 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {Table, Button, Tab, Tabs} from "react-bootstrap";
 
-//const BACKEND = "https://backend-peps.herokuapp.com";
+//const BACKEND = "https://peps-group1.herokuapp.com/";
 const BACKEND = "http://localhost:5000";
 
 
 const AdminController = props => {
+
     const [users, setUsers] = useState([]);
     const [assets, setAssets] = useState([]);
     const [userToModifyIndex, setUserToModifyIndex] = useState(-1);
@@ -30,12 +31,20 @@ const AdminController = props => {
       .catch(reason => console.log(reason))
     },[]);
 
+    useEffect(()=>{
+        //console.log(assetToAdd)
+        const newAssets = [...assets] //copy the array
+        newAssets.push(assetToAdd) //execute the manipulations
+        setAssets(newAssets); //set the new state
+    },[assetToAdd.id])
+
     function handleClick(e){
         if (e.target.name === "modifier"){
             setUserToModifyIndex(e.target.value);
             setUserToModify(users[e.target.value]);
         }
         else {
+            if (userToModify.admin === "true" || userToModify.admin === "false") {
             fetch(`${BACKEND}/api/users/modify/${userToModify.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -43,42 +52,74 @@ const AdminController = props => {
                 //credentials: 'include',
               })
                 .then((response) => response.json())
-                .then((data) => {
-                  console.log(data.message);
-                })
+                // .then((data) => {
+                //   console.log(data.message);
+                // })
                 .catch((error) => console.log(error));
                 const newUsers = [...users] //copy the array
                 newUsers[userToModifyIndex] = userToModify //execute the manipulations
                 setUsers(newUsers); //set the new state
                 setUserToModifyIndex(-1);
+            }
+            else {
+                alert("isAdmin should be a boolean : true or false")
+            }
         }
     }
 
-    function handleClickAsset(e){
-        if (e.target.name == "modifier"){
+    async function handleClickAsset(e){
+        if (e.target.name === "modifier"){
             setAssetToModifyIndex(e.target.value);
             setAssetToModify(assets[e.target.value]);
         }
         else {
-            fetch(`${BACKEND}/api/assets/modify/${assetToModify.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `data=${JSON.stringify({ assetName: assetToModify.assetName, yahooCode: assetToModify.yahooCode })}`,
-                //credentials: 'include',
-              })
-                .then((response) => response.json())
-                .then((data) => {
-                  console.log(data.message);
-                })
-                .catch((error) => console.log(error));
-                const newAssets = [...assets] //copy the array
-                newAssets[assetToModifyIndex] = assetToModify //execute the manipulations
-                setAssets(newAssets); //set the new state
-                setAssetToModifyIndex(-1);
+            var requestOptions = {
+            method: "GET",
+            headers: {
+              accept: "application/json",
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          };
+          const url = new URL(`${BACKEND}/api/yahoo`);
+          url.searchParams.set("yahooCode", assetToModify.yahooCode)
+          url.searchParams.set("begin_date", Math.floor(new Date().getTime() / 1000)-86400);
+          url.searchParams.set("end_date", Math.floor(new Date().getTime() / 1000))
+          url.searchParams.set("frequency", "1d")
+          await fetch(url, requestOptions)
+            .then((response) => response.json())
+            .then((body)=> 
+            {if (body.status){
+                modifyAsset()
+            }else {
+                alert('yahooCode non valide')
+            }
+            })
+            .catch((e) => console.log(e));
         }
     }
 
-    function handleAddAsset(e){
+    function modifyAsset() {
+        fetch(`${BACKEND}/api/assets/modify/${assetToModify.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `data=${JSON.stringify({ assetName: assetToModify.assetName, yahooCode: assetToModify.yahooCode })}`,
+            //credentials: 'include',
+          })
+            .then((response) => response.json())
+            .then((data) => {
+                if(data.status){
+                    const newAssets = [...assets] //copy the array
+                    newAssets[assetToModifyIndex] = assetToModify //execute the manipulations
+                    setAssets(newAssets); //set the new state
+                    setAssetToModifyIndex(-1);
+                }else {
+                    alert("yahooCode déjà présent")
+                }
+            })
+            .catch((error) => console.log(error));
+            
+    }
+    function ajoutAsset() {
         fetch(`${BACKEND}/api/assets`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -87,18 +128,38 @@ const AdminController = props => {
           })
             .then((response) => response.json())
             .then((data) => {
-                console.log(data.message);
-                console.log(assetToAdd)
-                setAssetToAdd({...assetToAdd, id:data.id});
-                console.log(assetToAdd)
-                const newAssets = [...assets] //copy the array
-                newAssets.push(assetToAdd) //execute the manipulations
-                setAssets(newAssets); //set the new state
-                setAssetToModifyIndex(-1);
+                if (data.status) setAssetToAdd({assetName: assetToAdd.assetName, yahooCode:assetToAdd.yahooCode, id:data.id});
+                else alert("yahooCode déjà présent")
             })
-            .catch((error) => console.log(error));
-            
+            .catch((error) => console.log(error))
     }
+
+    async function handleAddAsset() {
+        var requestOptions = {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        };
+        const url = new URL(`${BACKEND}/api/yahoo`);
+        url.searchParams.set("yahooCode", assetToAdd.yahooCode)
+        url.searchParams.set("begin_date", Math.floor(new Date().getTime() / 1000)-86400);
+        url.searchParams.set("end_date", Math.floor(new Date().getTime() / 1000))
+        url.searchParams.set("frequency", "1d")
+        await fetch(url, requestOptions)
+          .then((response) => response.json())
+          .then((body)=> 
+          {if (body.status){
+              ajoutAsset()
+          }else {
+              alert('yahooCode non valide')
+          }
+          })
+          .catch((e) => console.log(e));
+      }
+
+
 
     function handleDelete(e){
         fetch(`${BACKEND}/api/users/${users[e.target.value].id}`, {
@@ -107,7 +168,7 @@ const AdminController = props => {
           })
             .then((response) => response.json())
             .then((data) => {
-                console.log(data.message);
+                // console.log(data.message);
                 const newUsers = [...users]
                 newUsers.splice(e.target.value, 1);
                 setUsers(newUsers);
@@ -125,7 +186,7 @@ const AdminController = props => {
           })
             .then((response) => response.json())
             .then((data) => {
-                console.log(data.message);
+                // console.log(data.message);
                 const newAssets = [...assets]
                 newAssets.splice(e.target.value, 1);
                 setAssets(newAssets);
@@ -160,7 +221,7 @@ const AdminController = props => {
 
 
     function renderUser(user, index) {
-        if (userToModifyIndex == index) {
+        if (userToModifyIndex === index) {
             return  (
                 <tr key = {index} className = {user.username}>
                     <td>{userToModify.id}</td>
@@ -184,7 +245,7 @@ const AdminController = props => {
     }
 
     function renderAsset(asset, index){
-        if (assetToModifyIndex == index) {
+        if (assetToModifyIndex === index) {
             return  (
                 <tr key = {index} className = {asset.assetName}>
                     <td>{assetToModify.id}</td>
@@ -208,9 +269,11 @@ const AdminController = props => {
         
     }
 
+    const [key, setKey] = useState('users');
+
     return (
         <div className="auth-wrapper">
-            <Tabs defaultActiveKey="home" transition={false} className="mb-3">
+            <Tabs defaultActiveKey="home" transition={false} className="mb-3" activeKey={key} onSelect={(k) => setKey(k)}>
             <Tab  key = "users" eventKey="users" title="Users">
             <Table>
                 <thead>

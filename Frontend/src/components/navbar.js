@@ -12,13 +12,22 @@ import {
 
 const NavBar = (props) => {
       let AdminButton = null;
+      let ProductManagerButton = null;
       if (props.isAdmin) {
-        AdminButton = <li className="nav-item">
+        AdminButton = <li className="nav-item adminbtn">
         <Link className="nav-link" to={"/admin"}>
-          Admin
+          DB Controler
         </Link>
-      </li>;}
-      console.log(AdminButton);
+      </li>;
+      ProductManagerButton = <li className="nav-item adminbtn">
+      <Link className="nav-link" to={"/productManager"}>
+        Product Manager
+      </Link>
+    </li>;
+      
+
+      }
+      // console.log(AdminButton);
 
 
 
@@ -51,32 +60,33 @@ const NavBar = (props) => {
     <Container fluid>
     {/* <Navbar.Brand href="/sign-in">React-Bootstrap</Navbar.Brand> */}
       <Link className="navbar-brand" to={"/sign-in"}>
-        BANQUE
+         BANQUE ENSIMAG
       </Link>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <ul className="navbar-nav ml-auto">
           <li className="nav-item">
-          <button type="button" className="btn btn-light" onClick={() => props.onLogout()}>
+          <button type="button" className="btn btn-light logoutbtn" onClick={() => props.onLogout()}>
               Logout
           </button>
           </li>
           <li className="nav-item">
               <Link className="nav-link" to={"/graph"}>
-                Graph
+                Dashboard
               </Link>
             </li>
             {AdminButton}
-            <li className="nav-item">
+            {ProductManagerButton}
+            {/* <li className="nav-item">
           <a className="nav-link" href="#">Link</a>
-        </li>
+        </li> */}
         
         
         </ul>
-        <form className="d-flex">
+        {/* <form className="d-flex">
         <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"></input>
         <button className="btn btn-outline-success" type="submit">Search</button>
-      </form>
+      </form> */}
       </Navbar.Collapse>
     </Container>
   </Navbar>
