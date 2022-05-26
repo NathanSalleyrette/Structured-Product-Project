@@ -1,3 +1,4 @@
+# Valuation of structured products project
 #Installer les modules du front
 
 cd Frontend
